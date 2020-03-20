@@ -56,6 +56,18 @@ Menus.prototype.init = function()
 			var tr = this.styleChange(menu, fontname, [mxConstants.STYLE_FONTFAMILY], [fontname], null, parent, function()
 			{
 				document.execCommand('fontname', false, fontname);
+			}, function()
+			{
+				graph.updateLabelElements(graph.getSelectionCells(), function(elt)
+				{
+					elt.removeAttribute('face');
+					elt.style.fontFamily = null;
+					
+					if (elt.nodeName == 'PRE')
+					{
+						graph.replaceElement(elt, 'div');
+					}
+				});
 			});
 			tr.firstChild.nextSibling.style.fontFamily = fontname;
 		});
@@ -79,6 +91,7 @@ Menus.prototype.init = function()
 			menu.addItem(mxResources.get('reset'), null, mxUtils.bind(this, function()
 			{
 				this.customFonts = [];
+				this.editorUi.fireEvent(new mxEventObject('customFontsChanged'));
 			}), parent);
 			
 			menu.addSeparator(parent);
@@ -86,7 +99,11 @@ Menus.prototype.init = function()
 		
 		this.promptChange(menu, mxResources.get('custom') + '...', '', mxConstants.DEFAULT_FONTFAMILY, mxConstants.STYLE_FONTFAMILY, parent, true, mxUtils.bind(this, function(newValue)
 		{
-			this.customFonts.push(newValue);
+			if (mxUtils.indexOf(this.customFonts, newValue) < 0)
+			{
+				this.customFonts.push(newValue);
+				this.editorUi.fireEvent(new mxEventObject('customFontsChanged'));
+			}
 		}));
 	})));
 	this.put('formatBlock', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -96,8 +113,11 @@ Menus.prototype.init = function()
 			return menu.addItem(label, null, mxUtils.bind(this, function()
 			{
 				// TODO: Check if visible
-				graph.cellEditor.textarea.focus();
-	      		document.execCommand('formatBlock', false, '<' + tag + '>');
+				if (graph.cellEditor.textarea != null)
+				{
+					graph.cellEditor.textarea.focus();
+		      		document.execCommand('formatBlock', false, '<' + tag + '>');
+				}
 			}), parent);
 		};
 		
@@ -121,22 +141,25 @@ Menus.prototype.init = function()
 		{
 			this.styleChange(menu, fontsize, [mxConstants.STYLE_FONTSIZE], [fontsize], null, parent, function()
 			{
-				// Creates an element with arbitrary size 3
-				document.execCommand('fontSize', false, '3');
-				
-				// Changes the css font size of the first font element inside the in-place editor with size 3
-				// hopefully the above element that we've just created. LATER: Check for new element using
-				// previous result of getElementsByTagName (see other actions)
-				var elts = graph.cellEditor.textarea.getElementsByTagName('font');
-				
-				for (var i = 0; i < elts.length; i++)
+				if (graph.cellEditor.textarea != null)
 				{
-					if (elts[i].getAttribute('size') == '3')
+					// Creates an element with arbitrary size 3
+					document.execCommand('fontSize', false, '3');
+					
+					// Changes the css font size of the first font element inside the in-place editor with size 3
+					// hopefully the above element that we've just created. LATER: Check for new element using
+					// previous result of getElementsByTagName (see other actions)
+					var elts = graph.cellEditor.textarea.getElementsByTagName('font');
+					
+					for (var i = 0; i < elts.length; i++)
 					{
-						elts[i].removeAttribute('size');
-						elts[i].style.fontSize = fontsize + 'px';
-						
-						break;
+						if (elts[i].getAttribute('size') == '3')
+						{
+							elts[i].removeAttribute('size');
+							elts[i].style.fontSize = fontsize + 'px';
+							
+							break;
+						}
 					}
 				}
 			});
@@ -498,14 +521,19 @@ Menus.prototype.get = function(name)
 /**
  * Adds the given submenu.
  */
-Menus.prototype.addSubmenu = function(name, menu, parent)
+Menus.prototype.addSubmenu = function(name, menu, parent, label)
 {
-	var enabled = this.get(name).isEnabled();
+	var entry = this.get(name);
 	
-	if (menu.showDisabled || enabled)
+	if (entry != null)
 	{
-		var submenu = menu.addItem(mxResources.get(name), null, null, parent, null, enabled);
-		this.addMenu(name, menu, submenu);
+		var enabled = entry.isEnabled();
+	
+		if (menu.showDisabled || enabled)
+		{
+			var submenu = menu.addItem(label || mxResources.get(name), null, null, parent, null, enabled);
+			this.addMenu(name, menu, submenu);
+		}
 	}
 };
 
@@ -556,7 +584,7 @@ Menus.prototype.addInsertTableItem = function(menu)
 	{
 		var td = graph.getParentByName(mxEvent.getSource(evt), 'TD');
 		
-		if (td != null)
+		if (td != null && graph.cellEditor.textarea != null)
 		{
 			var row2 = graph.getParentByName(td, 'TR');
 			
@@ -758,7 +786,7 @@ Menus.prototype.edgeStyleChange = function(menu, label, keys, values, sprite, pa
 /**
  * Adds a style change item to the given menu.
  */
-Menus.prototype.styleChange = function(menu, label, keys, values, sprite, parent, fn)
+Menus.prototype.styleChange = function(menu, label, keys, values, sprite, parent, fn, post)
 {
 	var apply = this.createStyleChangeFunction(keys, values);
 	
@@ -772,7 +800,7 @@ Menus.prototype.styleChange = function(menu, label, keys, values, sprite, parent
 		}
 		else
 		{
-			apply();
+			apply(post);
 		}
 	}), parent, sprite);
 };
@@ -782,7 +810,7 @@ Menus.prototype.styleChange = function(menu, label, keys, values, sprite, parent
  */
 Menus.prototype.createStyleChangeFunction = function(keys, values)
 {
-	return mxUtils.bind(this, function()
+	return mxUtils.bind(this, function(post)
 	{
 		var graph = this.editorUi.editor.graph;
 		graph.stopEditing(false);
@@ -790,13 +818,42 @@ Menus.prototype.createStyleChangeFunction = function(keys, values)
 		graph.getModel().beginUpdate();
 		try
 		{
+			var cells = graph.getSelectionCells();
+			
 			for (var i = 0; i < keys.length; i++)
 			{
-				graph.setCellStyles(keys[i], values[i]);
+				graph.setCellStyles(keys[i], values[i], cells);
+
+				// Removes CSS alignment to produce consistent output
+				if (keys[i] == mxConstants.STYLE_ALIGN)
+				{
+					graph.updateLabelElements(cells, function(elt)
+					{
+						elt.removeAttribute('align');
+						elt.style.textAlign = null;
+					});
+				}
+				
+				// Updates autosize after font changes
+				if (keys[i] == mxConstants.STYLE_FONTFAMILY)
+				{
+					for (var i = 0; i < cells.length; i++)
+					{
+						if (graph.model.getChildCount(cells[i]) == 0)
+						{
+							graph.autoSizeCell(cells[i], false);
+						}
+					}
+				}
 			}
 			
-			this.editorUi.fireEvent(new mxEventObject('styleChanged', 'keys', keys, 'values', values,
-				'cells', graph.getSelectionCells()));
+			if (post != null)
+			{
+				post();
+			}
+			
+			this.editorUi.fireEvent(new mxEventObject('styleChanged',
+				'keys', keys, 'values', values, 'cells', cells));
 		}
 		finally
 		{
@@ -853,6 +910,8 @@ Menus.prototype.promptChange = function(menu, label, hint, defaultValue, key, pa
 Menus.prototype.pickColor = function(key, cmd, defaultValue)
 {
 	var graph = this.editorUi.editor.graph;
+	var h = 226 + ((Math.ceil(ColorDialog.prototype.presetColors.length / 12) +
+			Math.ceil(ColorDialog.prototype.defaultColors.length / 12)) * 17);
 	
 	if (cmd != null && graph.cellEditor.isContentEditing())
 	{
@@ -867,7 +926,7 @@ Menus.prototype.pickColor = function(key, cmd, defaultValue)
 		{
 			graph.cellEditor.restoreSelection(selState);
 		});
-		this.editorUi.showDialog(dlg.container, 220, 430, true, true);
+		this.editorUi.showDialog(dlg.container, 230, h, true, true);
 		dlg.init();
 	}
 	else
@@ -897,7 +956,7 @@ Menus.prototype.pickColor = function(key, cmd, defaultValue)
 			this.colorDialog.picker.fromString(color);
 		}
 	
-		this.editorUi.showDialog(this.colorDialog.container, 220, 430, true, true);
+		this.editorUi.showDialog(this.colorDialog.container, 230, h, true, true);
 		this.colorDialog.init();
 	}
 };
@@ -916,13 +975,13 @@ Menus.prototype.toggleStyle = function(key, defaultValue)
 /**
  * Creates the keyboard event handler for the current graph and history.
  */
-Menus.prototype.addMenuItem = function(menu, key, parent, trigger, sprite)
+Menus.prototype.addMenuItem = function(menu, key, parent, trigger, sprite, label)
 {
 	var action = this.editorUi.actions.get(key);
 
 	if (action != null && (menu.showDisabled || action.isEnabled()) && action.visible)
 	{
-		var item = menu.addItem(action.label, null, function()
+		var item = menu.addItem(label || action.label, null, function()
 		{
 			action.funct(trigger);
 		}, parent, sprite, action.isEnabled());
@@ -984,7 +1043,7 @@ Menus.prototype.createPopupMenu = function(menu, cell, evt)
 	
 	if (graph.isSelectionEmpty())
 	{
-		this.addMenuItems(menu, ['undo', 'redo', '-', 'pasteHere'], null, evt);
+		this.addMenuItems(menu, ['undo', 'redo', 'pasteHere'], null, evt);
 	}
 	else
 	{
@@ -1027,8 +1086,10 @@ Menus.prototype.createPopupMenu = function(menu, cell, evt)
 					isWaypoint = index > 0 && index < handler.bends.length - 1;
 				}
 				
-				this.addMenuItems(menu, ['-', (isWaypoint) ? 'removeWaypoint' : 'addWaypoint'], null, evt);
-	
+				menu.addSeparator();
+				this.addMenuItem(menu, 'turn', null, evt, null, mxResources.get('reverse'));
+				this.addMenuItems(menu, [(isWaypoint) ? 'removeWaypoint' : 'addWaypoint'], null, evt);
+				
 				// Adds reset waypoints option if waypoints exist
 				var geo = graph.getModel().getGeometry(cell);
 				hasWaypoints = geo != null && geo.points != null && geo.points.length > 0;
@@ -1055,7 +1116,7 @@ Menus.prototype.createPopupMenu = function(menu, cell, evt)
 			if (graph.getSelectionCount() == 1)
 			{
 				menu.addSeparator();
-				this.addMenuItems(menu, ['edit', '-', 'editData', 'editLink'], null, evt);
+				this.addMenuItems(menu, ['editData', 'editLink'], null, evt);
 
 				// Shows edit image action if there is an image in the style
 				if (graph.getModel().isVertex(cell) && mxUtils.getValue(state.style, mxConstants.STYLE_IMAGE, null) != null)
@@ -1068,7 +1129,8 @@ Menus.prototype.createPopupMenu = function(menu, cell, evt)
 	}
 	else
 	{
-		this.addMenuItems(menu, ['-', 'selectVertices', 'selectEdges', '-', 'selectAll'], null, evt);
+		this.addMenuItems(menu, ['-', 'selectVertices', 'selectEdges',
+			'selectAll', '-', 'clearDefaultStyle'], null, evt);
 	}
 };
 
@@ -1100,17 +1162,19 @@ Menus.prototype.createMenubar = function(container)
 /**
  * Creates the keyboard event handler for the current graph and history.
  */
-Menus.prototype.menuCreated = function(menu, elt)
+Menus.prototype.menuCreated = function(menu, elt, className)
 {
 	if (elt != null)
 	{
+		className = (className != null) ? className : 'geItem';
+		
 		menu.addListener('stateChanged', function()
 		{
 			elt.enabled = menu.enabled;
 			
 			if (!menu.enabled)
 			{
-				elt.className = 'geItem mxDisabled';
+				elt.className = className + ' mxDisabled';
 				
 				if (document.documentMode == 8)
 				{
@@ -1119,7 +1183,7 @@ Menus.prototype.menuCreated = function(menu, elt)
 			}
 			else
 			{
-				elt.className = 'geItem';
+				elt.className = className;
 				
 				if (document.documentMode == 8)
 				{
@@ -1150,15 +1214,21 @@ Menubar.prototype.hideMenu = function()
 /**
  * Adds a submenu to this menubar.
  */
-Menubar.prototype.addMenu = function(label, funct)
+Menubar.prototype.addMenu = function(label, funct, before)
 {
 	var elt = document.createElement('a');
-	elt.setAttribute('href', 'javascript:void(0);');
 	elt.className = 'geItem';
 	mxUtils.write(elt, label);
-
 	this.addMenuHandler(elt, funct);
-	this.container.appendChild(elt);
+	
+    if (before != null)
+    {
+    	this.container.insertBefore(elt, before);
+    }
+    else
+    {
+    	this.container.appendChild(elt);
+    }
 	
 	return elt;
 };
@@ -1208,13 +1278,15 @@ Menubar.prototype.addMenuHandler = function(elt, funct)
 				clickHandler(evt);
 			}
 		}));
-
-		// Hides menu if already showing
-		mxEvent.addListener(elt, 'mousedown', mxUtils.bind(this, function()
+		
+		// Hides menu if already showing and prevents focus
+        mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+        	mxUtils.bind(this, function(evt)
 		{
 			show = this.currentElt != elt;
+			evt.preventDefault();
 		}));
-		
+
 		mxEvent.addListener(elt, 'click', mxUtils.bind(this, function(evt)
 		{
 			clickHandler(evt);

@@ -910,7 +910,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
         // Convert MxCellVo map to MxCellVoList
         List<MxCellVo> addMxCellVoList = this.filterNewMxCell(mxGraphModelVo.getRootVo(), mxCellDbRoot);
         ;
-        if (null != addMxCellVoList && addMxCellVoList.size() <= 0) {
+        if (null == addMxCellVoList || addMxCellVoList.size() <= 0) {
             return ReturnMapUtils.setFailedMsg("No data can be added, the addition failed");
         }
 

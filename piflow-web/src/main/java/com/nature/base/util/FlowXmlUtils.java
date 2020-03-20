@@ -42,6 +42,7 @@ public class FlowXmlUtils {
         // Judge empty "mxGraphModel"
         if (null != mxGraphModel) {
             mxGraphModelVo = new MxGraphModelVo();
+            String dx = mxGraphModel.getDx();
             //Copy the contents of "mxGraphModel" into "mxGraphModelVo"
             BeanUtils.copyProperties(mxGraphModel, mxGraphModelVo);
             // Take out "mxCellList"
@@ -141,6 +142,7 @@ public class FlowXmlUtils {
             }
             xmlStrSb.append("><root>");
             List<MxCellVo> rootVoList = mxGraphModelVo.getRootVo();
+            Map<String, String> mxCellPageIds = new HashMap<>();
             if (null != rootVoList && rootVoList.size() > 0) {
                 for (MxCellVo mxCellVo : rootVoList) {
                     String id = mxCellVo.getPageId();
@@ -152,10 +154,16 @@ public class FlowXmlUtils {
                     String source = mxCellVo.getSource();
                     String target = mxCellVo.getTarget();
                     MxGeometryVo mxGeometryVo = mxCellVo.getMxGeometryVo();
-                    xmlStrSb.append("<mxCell ");
-                    if (StringUtils.isNotBlank(id)) {
-                        xmlStrSb.append(spliceStr("id", id));
+                    if (StringUtils.isBlank(id)) {
+                        continue;
                     }
+                    String isSplicedId = mxCellPageIds.get(id);
+                    if (StringUtils.isNotBlank(isSplicedId)) {
+                        continue;
+                    }
+                    mxCellPageIds.put(id, id);
+                    xmlStrSb.append("<mxCell ");
+                    xmlStrSb.append(spliceStr("id", id));
                     if (StringUtils.isNotBlank(value)) {
                         xmlStrSb.append(spliceStr("value", value));
                     }
