@@ -1,7 +1,6 @@
 package com.nature.component.mxGraph.service.impl;
 
 import com.nature.base.util.*;
-import com.nature.base.vo.StatefulRtnBase;
 import com.nature.base.vo.UserVo;
 import com.nature.common.Eunm.PortType;
 import com.nature.component.flow.model.*;
@@ -874,7 +873,8 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
      * @param flowGroupId
      * @return
      */
-    private Map<String, Object> addGroupFlows(MxGraphModelVo mxGraphModelVo, String flowGroupId, UserVo currentUser) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	private Map<String, Object> addGroupFlows(MxGraphModelVo mxGraphModelVo, String flowGroupId, UserVo currentUser) {
         if (null == currentUser) {
             return ReturnMapUtils.setFailedMsg("Illegal operation");
         }

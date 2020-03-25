@@ -1,6 +1,5 @@
 package com.nature.repository.flow;
 
-import com.nature.component.flow.model.Flow;
 import com.nature.component.flow.model.FlowGroup;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +22,7 @@ public interface FlowGroupJpaRepository extends JpaRepository<FlowGroup, String>
      *
      * @return
      */
-    @Query("select c from FlowGroup c where c.enableFlag=1 and c.isExample<>1 and c.flowGroup is null and (c.name like CONCAT('%',:param,'%') or c.description like CONCAT('%',:param,'%'))")
+    @Query("select c from FlowGroup c where c.enableFlag=true and c.isExample<>true and c.flowGroup is null and (c.name like CONCAT('%',:param,'%') or c.description like CONCAT('%',:param,'%'))")
     Page<FlowGroup> getFlowGroupListPage(@Param("param") String param, Pageable pageable);
 
     /**
@@ -31,7 +30,7 @@ public interface FlowGroupJpaRepository extends JpaRepository<FlowGroup, String>
      *
      * @return
      */
-    @Query("select c from FlowGroup c where c.enableFlag=1 and c.isExample<>1 and  c.flowGroup is null and c.crtUser=:userName and (c.name like CONCAT('%',:param,'%') or c.description like CONCAT('%',:param,'%'))")
+    @Query("select c from FlowGroup c where c.enableFlag=true and c.isExample<>true and  c.flowGroup is null and c.crtUser=:userName and (c.name like CONCAT('%',:param,'%') or c.description like CONCAT('%',:param,'%'))")
     Page<FlowGroup> getFlowGroupListPage(@Param("userName") String userName, @Param("param") String param, Pageable pageable);
 
     @Transactional

@@ -125,6 +125,7 @@ public class ProcessGroupMapperProvider {
         strBuf.append("where ");
         strBuf.append("enable_flag = 1 ");
         strBuf.append("and app_id is not null ");
+        strBuf.append("and fk_flow_process_group_id is null ");
         if (StringUtils.isNotBlank(param)) {
             strBuf.append("and ( ");
             strBuf.append("app_id like '%" + param + "%' ");
