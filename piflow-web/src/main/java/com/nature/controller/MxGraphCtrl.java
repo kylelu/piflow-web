@@ -225,7 +225,7 @@ public class MxGraphCtrl {
         return mxNodeImageServiceImpl.getMxNodeImageList();
     }
 
-    @RequestMapping("/nodeImageList")
+    @RequestMapping("/groupRightRun")
     @ResponseBody
     public String groupRightRun(String pId, String nodeId, String nodeType) {
         return flowGroupServiceImpl.rightRun(pId, nodeId, nodeType);
