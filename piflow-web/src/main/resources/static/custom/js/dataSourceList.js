@@ -272,6 +272,9 @@ function saveOrUpdateDataSource(data) {
                     window.location.reload();
                     console.log(data);
                 });
+            } else {
+                layer.msg(dataMap.errorMsg, {icon: 2, shade: 0, time: 1000}, function () {
+                });
             }
         }
     });

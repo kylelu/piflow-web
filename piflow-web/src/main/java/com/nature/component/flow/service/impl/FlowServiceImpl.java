@@ -15,7 +15,7 @@ import com.nature.component.flow.vo.PathsVo;
 import com.nature.component.flow.vo.StopsVo;
 import com.nature.component.mxGraph.model.MxCell;
 import com.nature.component.mxGraph.model.MxGraphModel;
-import com.nature.component.mxGraph.utils.MxGraphModelUtil;
+import com.nature.component.mxGraph.utils.MxGraphModelUtils;
 import com.nature.component.mxGraph.vo.MxGraphModelVo;
 import com.nature.component.process.model.Process;
 import com.nature.component.process.utils.ProcessUtils;
@@ -151,7 +151,7 @@ public class FlowServiceImpl implements IFlowService {
             flowVo = new FlowVo();
             BeanUtils.copyProperties(flowById, flowVo);
             //Take out 'mxGraphModel' and convert to Vo
-            MxGraphModelVo mxGraphModelVo = MxGraphModelUtil.mxGraphModelPoToVo(flowById.getMxGraphModel());
+            MxGraphModelVo mxGraphModelVo = MxGraphModelUtils.mxGraphModelPoToVo(flowById.getMxGraphModel());
             //Take out 'stopsList' and turn it to Vo
             List<StopsVo> stopsVoList = StopsUtil.stopsListPoToVo(flowById.getStopsList());
             //Take out 'pathsList' and turn it to Vo

@@ -44,6 +44,10 @@ public class FlowDomain {
         return flowJpaRepository.getFlowByPageId(fid, pageId);
     }
 
+    public String getFlowIdByPageId(String fid, String pageId) {
+        return flowJpaRepository.getFlowIdByPageId(fid, pageId);
+    }
+
     public String getFlowIdByNameAndFlowGroupId(String fid, String flowName) {
         return flowJpaRepository.getFlowIdByNameAndFlowGroupId(fid, flowName);
     }

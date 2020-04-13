@@ -10,7 +10,7 @@ import com.nature.component.mxGraph.model.MxCell;
 import com.nature.component.mxGraph.model.MxGeometry;
 import com.nature.component.mxGraph.model.MxGraphModel;
 import com.nature.component.mxGraph.service.IMxGraphModelService;
-import com.nature.component.mxGraph.utils.MxGraphModelUtil;
+import com.nature.component.mxGraph.utils.MxGraphModelUtils;
 import com.nature.component.mxGraph.vo.MxCellVo;
 import com.nature.component.mxGraph.vo.MxGeometryVo;
 import com.nature.component.mxGraph.vo.MxGraphModelVo;
@@ -243,7 +243,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
         }
 
         //Separate 'stops' from 'path' in addMxCellVoList
-        Map<String, List<MxCellVo>> stopsPathsMap = MxGraphModelUtil.distinguishElementsPaths(addMxCellVoList);
+        Map<String, List<MxCellVo>> stopsPathsMap = MxGraphModelUtils.distinguishElementsPaths(addMxCellVoList);
 
         // Take mxCellVoList(stopsList) from the Map
         List<MxCellVo> objectStops = stopsPathsMap.get("elements");
@@ -264,7 +264,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
         List<Paths> addPathsList = new ArrayList<Paths>();
 
         // Generate a pathsList based on the contents of the MxCellList
-        addPathsList = MxGraphModelUtil.mxCellVoListToPathsList(objectPaths, flow);
+        addPathsList = MxGraphModelUtils.mxCellVoListToPathsList(objectPaths, flow);
         if (flag) {
             // Judge empty
             if (null != addPathsList && addPathsList.size() > 0) {
@@ -364,7 +364,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
         List<MxCellVo> mxCellVoList = mxGraphModelVo.getRootVo();
 
         // Separate the stops and path in mxCellVoList
-        Map<String, List<MxCellVo>> stopsPathsMap = MxGraphModelUtil.distinguishElementsPaths(mxCellVoList);
+        Map<String, List<MxCellVo>> stopsPathsMap = MxGraphModelUtils.distinguishElementsPaths(mxCellVoList);
 
         if (null == stopsPathsMap) {
             return ReturnMapUtils.setSucceededMsg("");
@@ -961,13 +961,13 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
         flowGroup.setMxGraphModel(mxGraphModel);
 
         // Separate the flows and lines that need to be added in addMxCellVoList
-        Map<String, List<MxCellVo>> flowsPathsMap = MxGraphModelUtil.distinguishElementsPaths(addMxCellVoList);
+        Map<String, List<MxCellVo>> flowsPathsMap = MxGraphModelUtils.distinguishElementsPaths(addMxCellVoList);
 
         // Take mxCellVoList (list of elements) from Map
         List<MxCellVo> objectElements = flowsPathsMap.get("elements");
 
         // Generate a list of elements based on the contents of the MxCellList
-        Map<String, List> addFlowAndFlowGroupsMap = MxGraphModelUtil.mxCellVoListToFlowAndFlowGroups(objectElements, flowGroup, currentUser.getUsername());
+        Map<String, List> addFlowAndFlowGroupsMap = MxGraphModelUtils.mxCellVoListToFlowAndFlowGroups(objectElements, flowGroup, currentUser.getUsername());
         List<Flow> addFlowsList = addFlowAndFlowGroupsMap.get("flows");
 
         List<Flow> flowList = flowGroup.getFlowList();
@@ -1001,7 +1001,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
         List<MxCellVo> objectPaths = flowsPathsMap.get("paths");
 
         // Generate a list of paths based on the contents of the MxCellList
-        List<FlowGroupPaths> addFlowGroupPathsList = MxGraphModelUtil.mxCellVoListToFlowGroupPathsList(objectPaths, flowGroup);
+        List<FlowGroupPaths> addFlowGroupPathsList = MxGraphModelUtils.mxCellVoListToFlowGroupPathsList(objectPaths, flowGroup);
         // Judge empty pathsList
         if (null != addFlowGroupPathsList && addFlowGroupPathsList.size() > 0) {
             List<FlowGroupPaths> flowGroupPathsList = flowGroup.getFlowGroupPathsList();
@@ -1094,7 +1094,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
         List<MxCellVo> mxCellVoList = mxGraphModelVo.getRootVo();
 
         // Separate the flow and lines in the mxCellVoList
-        Map<String, List<MxCellVo>> stopsPathsMap = MxGraphModelUtil.distinguishElementsPaths(mxCellVoList);
+        Map<String, List<MxCellVo>> stopsPathsMap = MxGraphModelUtils.distinguishElementsPaths(mxCellVoList);
 
         if (null != stopsPathsMap) {
             // Get out the PathsList stored in the database

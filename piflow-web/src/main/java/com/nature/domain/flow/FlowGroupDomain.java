@@ -90,8 +90,12 @@ public class FlowGroupDomain {
         return flowGroupJpaRepository.updateEnableFlagById(id, enableFlag);
     }
 
-    public FlowGroup getFlowByPageId(String fid, String pageId) {
+    public FlowGroup getFlowGroupByPageId(String fid, String pageId) {
         return flowGroupJpaRepository.getFlowGroupByPageId(fid, pageId);
+    }
+
+    public String getFlowGroupIdByPageId(String fid, String pageId) {
+        return flowGroupJpaRepository.getFlowGroupIdByPageId(fid, pageId);
     }
 
     public String getFlowIdByNameAndFlowGroupId(String fid, String flowGroupName) {

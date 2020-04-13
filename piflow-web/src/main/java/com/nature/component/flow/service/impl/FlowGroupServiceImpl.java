@@ -5,8 +5,10 @@ import com.nature.base.vo.UserVo;
 import com.nature.common.Eunm.ProcessParentType;
 import com.nature.common.Eunm.ProcessState;
 import com.nature.common.Eunm.RunModeType;
-import com.nature.component.flow.model.*;
+import com.nature.component.flow.model.Flow;
+import com.nature.component.flow.model.FlowGroup;
 import com.nature.component.flow.service.IFlowGroupService;
+import com.nature.component.flow.service.IFlowService;
 import com.nature.component.flow.utils.FlowGroupPathsUtil;
 import com.nature.component.flow.utils.FlowUtil;
 import com.nature.component.flow.vo.FlowGroupPathsVo;
@@ -16,15 +18,17 @@ import com.nature.component.mxGraph.model.MxCell;
 import com.nature.component.mxGraph.model.MxGeometry;
 import com.nature.component.mxGraph.model.MxGraphModel;
 import com.nature.component.mxGraph.utils.MxCellUtils;
-import com.nature.component.mxGraph.utils.MxGraphModelUtil;
+import com.nature.component.mxGraph.utils.MxGraphModelUtils;
 import com.nature.component.mxGraph.vo.MxGraphModelVo;
-import com.nature.component.process.model.*;
+import com.nature.component.process.model.ProcessGroup;
 import com.nature.component.process.utils.ProcessGroupUtils;
+import com.nature.domain.flow.FlowDomain;
 import com.nature.domain.flow.FlowGroupDomain;
 import com.nature.domain.mxGraph.MxCellDomain;
-import com.nature.domain.process.*;
+import com.nature.domain.process.ProcessGroupDomain;
 import com.nature.mapper.flow.FlowGroupMapper;
 import com.nature.mapper.flow.FlowMapper;
+import com.nature.third.service.IFlow;
 import com.nature.third.service.IGroup;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -51,24 +55,6 @@ public class FlowGroupServiceImpl implements IFlowGroupService {
     private ProcessGroupDomain processGroupDomain;
 
     @Resource
-    private ProcessDomain processDomain;
-
-    @Resource
-    private ProcessPathDomain processPathDomain;
-
-    @Resource
-    private ProcessGroupPathDomain processGroupPathDomain;
-
-    @Resource
-    private ProcessStopDomain processStopDomain;
-
-    @Resource
-    private ProcessStopPropertyDomain processStopPropertyDomain;
-
-    @Resource
-    private ProcessStopCustomizedPropertyDomain processStopCustomizedPropertyDomain;
-
-    @Resource
     private IGroup groupImpl;
 
     @Resource
@@ -76,6 +62,12 @@ public class FlowGroupServiceImpl implements IFlowGroupService {
 
     @Resource
     private MxCellDomain mxCellDomain;
+
+    @Resource
+    private FlowDomain flowDomain;
+
+    @Resource
+    private IFlowService flowServiceImpl;
 
 
     /**
@@ -126,7 +118,7 @@ public class FlowGroupServiceImpl implements IFlowGroupService {
     @Override
     public FlowGroupVo getFlowGroupByPageId(String fid, String pageId) {
         FlowGroupVo flowGroupVo = null;
-        FlowGroup flowGroup = flowGroupDomain.getFlowByPageId(fid, pageId);
+        FlowGroup flowGroup = flowGroupDomain.getFlowGroupByPageId(fid, pageId);
         if (null != flowGroup) {
             flowGroupVo = new FlowGroupVo();
             BeanUtils.copyProperties(flowGroup, flowGroupVo);
@@ -158,7 +150,7 @@ public class FlowGroupServiceImpl implements IFlowGroupService {
             flowGroupVo = new FlowGroupVo();
             BeanUtils.copyProperties(flowGroupById, flowGroupVo);
             //取出mxGraphModel，并转为Vo
-            MxGraphModelVo mxGraphModelVo = MxGraphModelUtil.mxGraphModelPoToVo(flowGroupById.getMxGraphModel());
+            MxGraphModelVo mxGraphModelVo = MxGraphModelUtils.mxGraphModelPoToVo(flowGroupById.getMxGraphModel());
             //取出flowVoList，并转为Vo
             List<FlowVo> flowVoList = FlowUtil.flowListPoToVo(flowGroupById.getFlowList());
             //取出pathsList，并转为Vo
@@ -737,6 +729,32 @@ public class FlowGroupServiceImpl implements IFlowGroupService {
         flowGroupById.setLastUpdateUser(currentUser.getUsername());
         flowGroupDomain.saveOrUpdate(flowGroupById);
         return ReturnMapUtils.setSucceededCustomParamRtnJsonStr("flowGroupVo", flowGroupVo);
+    }
+
+    public String rightRun(String pId, String nodeId, String nodeType) {
+        if (StringUtils.isBlank(pId)) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("pId is null");
+        }
+        if (StringUtils.isBlank(nodeId)) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("nodeId is null");
+        }
+        String flowGroupId = null;
+        String flowId = null;
+        if (StringUtils.isBlank(nodeType)) {
+            flowId = flowDomain.getFlowIdByPageId(pId, nodeId);
+            flowGroupId = flowGroupDomain.getFlowGroupIdByPageId(pId, nodeId);
+        } else if ("TASK".equals(nodeType)) {
+            flowId = flowDomain.getFlowIdByPageId(pId, nodeId);
+        } else if ("GROUP".equals(nodeType)) {
+            flowGroupId = flowGroupDomain.getFlowGroupIdByPageId(pId, nodeId);
+        }
+        if (StringUtils.isNotBlank(flowId)) {
+            return flowServiceImpl.runFlow(flowId, null);
+        } else if (StringUtils.isNotBlank(flowGroupId)) {
+            return runFlowGroup(flowGroupId, null);
+        } else {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("No data found for this node (" + nodeId + ")");
+        }
     }
 
 }

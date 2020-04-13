@@ -151,17 +151,16 @@ public class TemplateCtrl {
         if (file.isEmpty()) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("Upload failed, please try again later");
         }
-        String upload = FileUtils.upload(file, SysParamsCache.XML_PATH);
-        Map<String, Object> map = JSON.parseObject(upload);
-        if (null == map || map.isEmpty()) {
+        Map<String, Object> uploadMap = FileUtils.uploadRtnMap(file, SysParamsCache.XML_PATH);
+        if (null == uploadMap || uploadMap.isEmpty()) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("Upload failed, please try again later");
         }
-        Integer code = (Integer) map.get("code");
+        Integer code = (Integer) uploadMap.get("code");
         if (500 == code) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("failed to upload file");
         }
-        String name = (String) map.get("fileName");
-        String path = (String) map.get("url");
+        String name = (String) uploadMap.get("fileName");
+        String path = (String) uploadMap.get("path");
         Template template = new Template();
         template.setId(SqlUtils.getUUID32());
         template.setCrtDttm(new Date());

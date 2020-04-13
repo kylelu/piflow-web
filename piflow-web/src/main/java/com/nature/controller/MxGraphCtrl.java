@@ -14,13 +14,16 @@ import com.nature.component.flow.vo.StopGroupVo;
 import com.nature.component.group.service.IStopGroupService;
 import com.nature.component.mxGraph.model.MxGraphModel;
 import com.nature.component.mxGraph.service.IMxGraphModelService;
+import com.nature.component.mxGraph.service.IMxNodeImageService;
 import com.nature.component.mxGraph.vo.MxGraphModelVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -48,6 +51,9 @@ public class MxGraphCtrl {
 
     @Resource
     private IMxGraphModelService mxGraphModelServiceImpl;
+
+    @Resource
+    private IMxNodeImageService mxNodeImageServiceImpl;
 
     /**
      * Enter the front page of the drawing board
@@ -205,6 +211,24 @@ public class MxGraphCtrl {
         String loadId = request.getParameter("load");
         String operType = request.getParameter("operType");
         return mxGraphModelServiceImpl.saveDataForGroup(imageXML, loadId, operType, true);
+    }
+
+    @RequestMapping("/uploadNodeImage")
+    @ResponseBody
+    public String uploadNodeImage(@RequestParam("file") MultipartFile file) {
+        return mxNodeImageServiceImpl.uploadNodeImage(file);
+    }
+
+    @RequestMapping("/nodeImageList")
+    @ResponseBody
+    public String nodeImageList() {
+        return mxNodeImageServiceImpl.getMxNodeImageList();
+    }
+
+    @RequestMapping("/nodeImageList")
+    @ResponseBody
+    public String groupRightRun(String pId, String nodeId, String nodeType) {
+        return flowGroupServiceImpl.rightRun(pId, nodeId, nodeType);
     }
 
 }

@@ -180,58 +180,47 @@ public class FlowGroupTemplateServiceImpl implements IFlowGroupTemplateService {
      */
     @Override
     public String uploadXmlFile(MultipartFile file) {
-        UserVo user = SessionUserUtil.getCurrentUser();
-        String username = (null != user) ? user.getUsername() : "-1";
-        Map<String, Object> rtnMap = new HashMap<String, Object>();
-        rtnMap.put("code", 500);
-        if (!file.isEmpty()) {
-            String upload = FileUtils.upload(file, SysParamsCache.XML_PATH);
-            Map<String, Object> map = JSON.parseObject(upload);
-            if (!map.isEmpty() && null != map) {
-                Integer code = (Integer) map.get("code");
-                if (500 == code) {
-                    rtnMap.put("errorMsg", "failed to upload file");
-                    JsonUtils.toJsonNoException(rtnMap);
-                }
-                String name = (String) map.get("fileName");
-                String path = (String) map.get("url");
-                FlowGroupTemplate flowGroupTemplate = new FlowGroupTemplate();
-                flowGroupTemplate.setId(SqlUtils.getUUID32());
-                flowGroupTemplate.setCrtDttm(new Date());
-                flowGroupTemplate.setCrtUser(username);
-                flowGroupTemplate.setEnableFlag(true);
-                flowGroupTemplate.setLastUpdateUser(username);
-                flowGroupTemplate.setLastUpdateDttm(new Date());
-
-                //File name prefix
-                String prefix = name.substring(0, name.length() - 4);
-                //Suffix .xml
-                String Suffix = name.substring(name.length() - 4);
-                //SimpleDateFormat sdf = new SimpleDateFormat("MMddHHmmSSSS");
-                //Date nowDate = new Date();
-                //String fileName = sdf.format(nowDate);
-                //Add timestamp
-                //String uploadFileName = prefix + "-" + fileName;
-                String uploadFileName = prefix;
-                flowGroupTemplate.setName(uploadFileName + Suffix);
-                flowGroupTemplate.setPath(path);
-                //Read the XML file according to the saved file path and return the XML string
-                String xmlFileToStr = FileUtils.XmlFileToStrByAbsolutePath(flowGroupTemplate.getPath());
-                if (StringUtils.isBlank(xmlFileToStr)) {
-                    logger.info("XML file read failed, upload template failed");
-                    rtnMap.put("errorMsg", "XML file read failed, upload template failed");
-                    return JsonUtils.toJsonNoException(rtnMap);
-                }
-
-                flowGroupTemplate = flowGroupTemplateDomain.saveOrUpdate(flowGroupTemplate);
-                rtnMap.put("code", 200);
-                rtnMap.put("errorMsg", "successful template upload");
-                logger.info("Template uploaded successfully");
-                return JsonUtils.toJsonNoException(rtnMap);
-            }
+        String username = SessionUserUtil.getCurrentUsername();
+        if (file.isEmpty()) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("Upload failed, please try again later");
         }
-        rtnMap.put("errorMsg", "Upload failed, please try again later");
-        return JsonUtils.toJsonNoException(rtnMap);
+        Map<String, Object> uploadMap = FileUtils.uploadRtnMap(file, SysParamsCache.IMAGES_PATH);
+        if (null == uploadMap ||uploadMap.isEmpty()) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("Upload failed, please try again later");
+        }
+        Integer code = (Integer) uploadMap.get("code");
+        if (500 == code) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("failed to upload file");
+        }
+        String name = (String) uploadMap.get("fileName");
+        String path = (String) uploadMap.get("path");
+        FlowGroupTemplate flowGroupTemplate = new FlowGroupTemplate();
+        flowGroupTemplate.setId(SqlUtils.getUUID32());
+        flowGroupTemplate.setCrtDttm(new Date());
+        flowGroupTemplate.setCrtUser(username);
+        flowGroupTemplate.setEnableFlag(true);
+        flowGroupTemplate.setLastUpdateUser(username);
+        flowGroupTemplate.setLastUpdateDttm(new Date());
+
+        //File name prefix
+        String prefix = name.substring(0, name.length() - 4);
+        //Suffix .xml
+        String Suffix = name.substring(name.length() - 4);
+        //SimpleDateFormat sdf = new SimpleDateFormat("MMddHHmmSSSS");
+        //Date nowDate = new Date();
+        //String fileName = sdf.format(nowDate);
+        //Add timestamp
+        //String uploadFileName = prefix + "-" + fileName;
+        String uploadFileName = prefix;
+        flowGroupTemplate.setName(uploadFileName + Suffix);
+        flowGroupTemplate.setPath(path);
+        //Read the XML file according to the saved file path and return the XML string
+        String xmlFileToStr = FileUtils.XmlFileToStrByAbsolutePath(flowGroupTemplate.getPath());
+        if (StringUtils.isBlank(xmlFileToStr)) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("XML file read failed, upload template failed");
+        }
+        flowGroupTemplateDomain.saveOrUpdate(flowGroupTemplate);
+        return ReturnMapUtils.setSucceededMsgRtnJsonStr("successful template upload");
     }
 
     @Override

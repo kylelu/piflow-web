@@ -9,7 +9,7 @@ import com.nature.component.flow.model.Stops;
 import com.nature.component.mxGraph.model.MxCell;
 import com.nature.component.mxGraph.model.MxGraphModel;
 import com.nature.component.mxGraph.utils.MxCellUtils;
-import com.nature.component.mxGraph.utils.MxGraphModelUtil;
+import com.nature.component.mxGraph.utils.MxGraphModelUtils;
 import com.nature.component.template.model.Template;
 import com.nature.component.template.service.ITemplateService;
 import com.nature.domain.flow.FlowDomain;
@@ -115,10 +115,10 @@ public class TemplateServiceImpl implements ITemplateService {
         if (null != mxGraphModelXml) {
             MxGraphModel mxGraphModel = flowById.getMxGraphModel();
             if (null == mxGraphModel) {
-                mxGraphModel = MxGraphModelUtil.setMxGraphModelBasicInformation(null, false, currentUsername);
+                mxGraphModel = MxGraphModelUtils.setMxGraphModelBasicInformation(null, false, currentUsername);
             } else {
                 // Update basic information
-                mxGraphModel = MxGraphModelUtil.updateMxGraphModelBasicInformation(mxGraphModel, currentUsername);
+                mxGraphModel = MxGraphModelUtils.updateMxGraphModelBasicInformation(mxGraphModel, currentUsername);
             }
             mxGraphModel.setFlow(flowById);
             // link flow

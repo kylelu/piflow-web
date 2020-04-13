@@ -18,7 +18,7 @@ import org.springframework.beans.BeanUtils;
 
 import java.util.*;
 
-public class MxGraphModelUtil {
+public class MxGraphModelUtils {
 
     public static MxGraphModel setMxGraphModelBasicInformation(MxGraphModel mxGraphModel, boolean isSetId, String username) {
         if (null == mxGraphModel) {

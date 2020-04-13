@@ -81,45 +81,46 @@ public class FileUtils {
      * @return
      */
     public static String upload(MultipartFile file, String path) {
-        Map<String, Object> rtnMap = new HashMap<>();
-        rtnMap.put("code", 500);
-        if (!file.isEmpty()) {
-            CheckPathUtils.isChartPathExist(path);
-            //file name
-            String saveFileName = file.getOriginalFilename();
-            File saveFile = new File(path + saveFileName);
-            if (!saveFile.getParentFile().exists()) {
-                boolean mkdirs = saveFile.getParentFile().mkdirs();
-                if (mkdirs) {
-                    logger.info("File created successfully");
-                }
-            }
-            try {
-                BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(saveFile));
-                out.write(file.getBytes());
-                out.flush();
-                out.close();
-                logger.debug(saveFile.getName() + " Upload success");
-                rtnMap.put("url", path + saveFileName);
-                rtnMap.put("fileName", saveFileName);
-                rtnMap.put("msgInfo", "Upload success");
-                rtnMap.put("code", 200);
-            } catch (FileNotFoundException e) {
-                //e.printStackTrace();
-                rtnMap.put("msgInfo", "Upload failure");
-                logger.error("Upload failure,", e);
-            } catch (IOException e) {
-                //e.printStackTrace();
-                rtnMap.put("msgInfo", "Upload failure");
-                logger.error("Upload failure", e);
-            }
-        } else {
-            rtnMap.put("msgInfo", "The upload failed because the file was empty.");
-            logger.warn("The upload failed and the file was empty.");
-        }
-        return JsonUtils.toJsonNoException(rtnMap);
+        return JsonUtils.toJsonNoException(uploadRtnMap(file, path));
     }
 
+    public static Map<String, Object> uploadRtnMap(MultipartFile file, String path) {
+        if (file.isEmpty()) {
+            return ReturnMapUtils.setFailedMsg("The upload failed and the file was empty.");
+        }
+        CheckPathUtils.isChartPathExist(path);
+        //file name
+        String saveFileName = file.getOriginalFilename();
+        File saveFile = new File(path + saveFileName);
+        if (!saveFile.getParentFile().exists()) {
+            boolean mkdirs = saveFile.getParentFile().mkdirs();
+            if (mkdirs) {
+                logger.info("File created successfully");
+            }
+        }
+        Map<String, Object> rtnMap = new HashMap<>();
+        rtnMap.put("code", 500);
+        try {
+            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(saveFile));
+            out.write(file.getBytes());
+            out.flush();
+            out.close();
+            logger.debug(saveFile.getName() + " Upload success");
+            rtnMap.put("path", path + saveFileName);
+            rtnMap.put("fileName", saveFileName);
+            rtnMap.put("msgInfo", "Upload success");
+            rtnMap.put("code", 200);
+        } catch (FileNotFoundException e) {
+            //e.printStackTrace();
+            rtnMap.put("msgInfo", "Upload failure");
+            logger.error("Upload failure,", e);
+        } catch (IOException e) {
+            //e.printStackTrace();
+            rtnMap.put("msgInfo", "Upload failure");
+            logger.error("Upload failure", e);
+        }
+        return rtnMap;
+    }
 
     /**
      * String to "Document"
