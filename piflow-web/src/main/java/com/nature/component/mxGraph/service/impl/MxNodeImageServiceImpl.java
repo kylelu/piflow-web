@@ -10,6 +10,7 @@ import com.nature.component.mxGraph.vo.MxNodeImageVo;
 import com.nature.domain.mxGraph.MxNodeImageDomain;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -70,6 +71,7 @@ public class MxNodeImageServiceImpl implements IMxNodeImageService {
         if (null == mxNodeImageList && mxNodeImageList.size() <= 0) {
             return ReturnMapUtils.setSucceededCustomParamRtnJsonStr("nodeImageList", mxNodeImageList);
         }
+        ApplicationContext applicationContext = SpringContextUtil.getApplicationContext();
         MxNodeImageVo mxNodeImageVo;
         for (MxNodeImage mxNodeImage : mxNodeImageList) {
             if (null == mxNodeImage) {
@@ -77,8 +79,9 @@ public class MxNodeImageServiceImpl implements IMxNodeImageService {
             }
             mxNodeImageVo = new MxNodeImageVo();
             BeanUtils.copyProperties(mxNodeImage, mxNodeImageVo);
+            mxNodeImageVo.setImageUrl(SysParamsCache.SYS_CONTEXT_PATH + mxNodeImage.getImageUrl());
             mxNodeImageVoList.add(mxNodeImageVo);
         }
-        return ReturnMapUtils.setSucceededCustomParamRtnJsonStr("nodeImageList", mxNodeImageList);
+        return ReturnMapUtils.setSucceededCustomParamRtnJsonStr("nodeImageList", mxNodeImageVoList);
     }
 }
