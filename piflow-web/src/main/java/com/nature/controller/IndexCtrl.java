@@ -52,6 +52,11 @@ public class IndexCtrl {
         return setBaseModeAndView(new ModelAndView(), "flowGroupTemplateList");
     }
 
+    @RequestMapping("/flowTemplateList")
+    public ModelAndView flowTemplateList() {
+        return setBaseModeAndView(new ModelAndView(), "flowTemplateList");
+    }
+
     @RequestMapping("/dataSources")
     public ModelAndView dataSources() {
         return setBaseModeAndView(new ModelAndView(), "dataSources");

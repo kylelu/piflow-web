@@ -1,11 +1,16 @@
-package com.nature.domain.flow;
+package com.nature.domain.template;
 
+import com.nature.base.util.SessionUserUtil;
+import com.nature.base.vo.UserVo;
 import com.nature.component.template.model.FlowGroupTemplate;
-import com.nature.repository.flow.FlowGroupTemplateJpaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.nature.repository.template.FlowGroupTemplateJpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -15,14 +20,14 @@ import java.util.List;
 @Component
 public class FlowGroupTemplateDomain {
 
-    @Autowired
+    @Resource
     private FlowGroupTemplateJpaRepository flowGroupTemplateJpaRepository;
 
     private Specification<FlowGroupTemplate> addEnableFlagParam() {
         Specification<FlowGroupTemplate> specification = new Specification<FlowGroupTemplate>() {
-        	
-        	private static final long serialVersionUID = 1L;
-        	
+
+            private static final long serialVersionUID = 1L;
+
             @Override
             public Predicate toPredicate(Root<FlowGroupTemplate> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
                 //root.get("enableFlag") means to get the field name of enableFlag
@@ -41,7 +46,13 @@ public class FlowGroupTemplateDomain {
     }
 
     public List<FlowGroupTemplate> getFlowGroupTemplateList() {
-        return flowGroupTemplateJpaRepository.findAll(addEnableFlagParam());
+        boolean isAdmin = SessionUserUtil.isAdmin();
+        if (isAdmin) {
+            return flowGroupTemplateJpaRepository.findAll(addEnableFlagParam());
+        } else {
+            UserVo currentUser = SessionUserUtil.getCurrentUser();
+            return flowGroupTemplateJpaRepository.getFlowGroupTemplateByCrtUser(currentUser.getUsername());
+        }
     }
 
     public FlowGroupTemplate saveOrUpdate(FlowGroupTemplate flowGroupTemplate) {
@@ -54,6 +65,17 @@ public class FlowGroupTemplateDomain {
 
     public int updateEnableFlagById(String id, boolean enableFlag) {
         return flowGroupTemplateJpaRepository.updateEnableFlagById(id, enableFlag);
+    }
+
+    public Page<FlowGroupTemplate> getFlowGroupTemplateListPage(int page, int size, String param) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "crtDttm"));
+        boolean isAdmin = SessionUserUtil.isAdmin();
+        if (isAdmin) {
+            return flowGroupTemplateJpaRepository.getFlowGroupTemplateListPageByParam(null == param ? "" : param, pageRequest);
+        } else {
+            UserVo currentUser = SessionUserUtil.getCurrentUser();
+            return flowGroupTemplateJpaRepository.getFlowGroupTemplateListPageByParamAndCrtUser(currentUser.getUsername(), null == param ? "" : param, pageRequest);
+        }
     }
 
 }

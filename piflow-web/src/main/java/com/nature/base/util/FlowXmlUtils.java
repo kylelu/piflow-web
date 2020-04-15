@@ -12,7 +12,7 @@ import com.nature.component.mxGraph.vo.MxGeometryVo;
 import com.nature.component.mxGraph.vo.MxGraphModelVo;
 import com.nature.component.template.model.PropertyTemplateModel;
 import com.nature.component.template.model.StopTemplateModel;
-import com.nature.component.template.model.Template;
+import com.nature.component.template.model.FlowTemplate;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -826,104 +826,6 @@ public class FlowXmlUtils {
     }
 
     /**
-     * String type xml to "stop" and other information
-     *
-     * @param xmlData xml string data
-     * @return Template
-     */
-    public static Template xmlToFlowStopInfo(String xmlData) {
-        try {
-            Element flow = xmlStrToElementGetByKey(xmlData, false, "flow");
-            if (null == flow) {
-                return null;
-            }
-            Template template = new Template();
-            List<StopTemplateModel> stopVoList = new ArrayList<>();
-            Iterator rootiter = flow.elementIterator("stop"); // Get the child node "stop" under the root node
-            while (rootiter.hasNext()) {
-                List<PropertyTemplateModel> propertyList = new ArrayList<>();
-                StopTemplateModel stopVo = new StopTemplateModel();
-                Element recordEle = (Element) rootiter.next();
-                String bundel = StringCustomUtils.recoverSpecialSymbolsXml(recordEle.attributeValue("bundel"));
-                String description = StringCustomUtils.recoverSpecialSymbolsXml(recordEle.attributeValue("description"));
-                String id = StringCustomUtils.recoverSpecialSymbolsXml(recordEle.attributeValue("id"));
-                String name = StringCustomUtils.recoverSpecialSymbolsXml(recordEle.attributeValue("name"));
-                String pageId = StringCustomUtils.recoverSpecialSymbolsXml(recordEle.attributeValue("pageId"));
-                String inPortType = StringCustomUtils.recoverSpecialSymbolsXml(recordEle.attributeValue("inPortType"));
-                String inports = StringCustomUtils.recoverSpecialSymbolsXml(recordEle.attributeValue("inports"));
-                String outPortType = StringCustomUtils.recoverSpecialSymbolsXml(recordEle.attributeValue("outPortType"));
-                String outports = StringCustomUtils.recoverSpecialSymbolsXml(recordEle.attributeValue("outports"));
-                String isCheckpoint = StringCustomUtils.recoverSpecialSymbolsXml(recordEle.attributeValue("isCheckpoint"));
-                String owner = StringCustomUtils.recoverSpecialSymbolsXml(recordEle.attributeValue("owner"));
-                String groups = StringCustomUtils.recoverSpecialSymbolsXml(recordEle.attributeValue("groups"));
-                stopVo.setPageId(pageId);
-                stopVo.setName(name);
-                stopVo.setDescription(description);
-                stopVo.setBundel(bundel);
-                stopVo.setId(id);
-                stopVo.setInports(inports);
-                stopVo.setOutports(outports);
-                stopVo.setOutPortType(PortType.selectGender(outPortType));
-                stopVo.setInPortType(PortType.selectGenderByValue(inPortType));
-                stopVo.setGroups(groups);
-                Boolean Checkpoint = "1".equals(isCheckpoint);
-                stopVo.setIsCheckpoint(Checkpoint);
-                stopVo.setOwner(owner);
-                Iterator property = recordEle.elementIterator("property");
-                if (null != property) {
-                    while (property.hasNext()) {
-                        Element propertyValue = (Element) property.next();
-                        PropertyTemplateModel propertyVo = new PropertyTemplateModel();
-                        String allowableValues = StringCustomUtils.recoverSpecialSymbolsXml(propertyValue.attributeValue("allowableValues"));
-                        String customValue = StringCustomUtils.recoverSpecialSymbolsXml(propertyValue.attributeValue("customValue"));
-                        String propertyDescription = StringCustomUtils.recoverSpecialSymbolsXml(propertyValue.attributeValue("description"));
-                        String displayName = StringCustomUtils.recoverSpecialSymbolsXml(propertyValue.attributeValue("displayName"));
-                        String propertyId = StringCustomUtils.recoverSpecialSymbolsXml(propertyValue.attributeValue("id"));
-                        String propertyName = StringCustomUtils.recoverSpecialSymbolsXml(propertyValue.attributeValue("name"));
-                        boolean required = "true".equals(propertyValue.attributeValue("required"));
-                        boolean sensitive = "true".equals(propertyValue.attributeValue("sensitive"));
-                        boolean isSelect = "true".equals(propertyValue.attributeValue("isSelect"));
-                        if (isSelect && null != allowableValues && allowableValues.length() > 1) {
-                            String temp = allowableValues.substring(1, allowableValues.length() - 1);
-                            String[] tempArray = temp.split(",");
-                            StringBuilder tempStringBuffer = new StringBuilder();
-                            tempStringBuffer.append("[");
-                            for (int i = 0; i < tempArray.length; i++) {
-                                tempStringBuffer.append("\"");
-                                tempStringBuffer.append(tempArray[i]);
-                                tempStringBuffer.append("\"");
-                                if (i + 1 != tempArray.length) {
-                                    tempStringBuffer.append(",");
-                                }
-                            }
-                            tempStringBuffer.append("]");
-                            allowableValues = tempStringBuffer.toString();
-                        }
-                        propertyVo.setAllowableValues(allowableValues);
-                        propertyVo.setCustomValue(customValue);
-                        propertyVo.setDescription(propertyDescription);
-                        propertyVo.setDisplayName(displayName);
-                        propertyVo.setId(propertyId);
-                        propertyVo.setName(propertyName);
-                        propertyVo.setRequired(required);
-                        propertyVo.setSensitive(sensitive);
-                        propertyVo.setStopsVo(stopVo);
-                        propertyVo.setIsSelect(isSelect);
-                        propertyList.add(propertyVo);
-                    }
-                }
-                stopVo.setProperties(propertyList);
-                stopVoList.add(stopVo);
-            }
-            template.setStopsList(stopVoList);
-            return template;
-        } catch (Exception e) {
-            logger.error("Conversion failed", e);
-            return null;
-        }
-    }
-
-    /**
      * String type xml to MxGraphModel
      *
      * @param xmlData xml string data
@@ -1580,7 +1482,7 @@ public class FlowXmlUtils {
      * @param username    Operator username
      * @return Flow
      */
-    public static Map<String, Object> templateXmlToFlow(String templateXml, String username, String stopMaxPageId, String flowMaxPageId, String[] stopNames) {
+    public static Map<String, Object> flowTemplateXmlToFlow(String templateXml, String username, String stopMaxPageId, String flowMaxPageId, String[] stopNames) {
         if (StringUtils.isBlank(templateXml)) {
             return ReturnMapUtils.setFailedMsg("templateXml is null");
         }

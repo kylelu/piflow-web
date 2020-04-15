@@ -10,16 +10,17 @@ import com.nature.component.mxGraph.model.MxCell;
 import com.nature.component.mxGraph.model.MxGeometry;
 import com.nature.component.mxGraph.model.MxGraphModel;
 import com.nature.component.mxGraph.utils.MxCellUtils;
-import com.nature.component.template.model.FlowGroupTemplate;
-import com.nature.component.template.service.IFlowGroupTemplateService;
-import com.nature.component.template.vo.FlowGroupTemplateVo;
+import com.nature.component.template.model.FlowTemplate;
+import com.nature.component.template.service.ITestService;
+import com.nature.component.template.utils.FlowTemplateUtils;
+import com.nature.component.template.vo.FlowTemplateVo;
 import com.nature.domain.flow.FlowDomain;
 import com.nature.domain.flow.FlowGroupDomain;
 import com.nature.domain.flow.FlowGroupPathsDomain;
 import com.nature.domain.mxGraph.MxCellDomain;
 import com.nature.domain.mxGraph.MxGeometryDomain;
 import com.nature.domain.mxGraph.MxGraphModelDomain;
-import com.nature.domain.template.FlowGroupTemplateDomain;
+import com.nature.domain.template.FlowTemplateDomain;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
@@ -34,12 +35,12 @@ import java.util.*;
 
 @Service
 @Transactional
-public class FlowGroupTemplateServiceImpl implements IFlowGroupTemplateService {
+public class TestServiceImpl implements ITestService {
 
     Logger logger = LoggerUtil.getLogger();
 
     @Resource
-    private FlowGroupTemplateDomain flowGroupTemplateDomain;
+    private FlowTemplateDomain flowTemplateDomain;
 
     @Resource
     private FlowGroupDomain flowGroupDomain;
@@ -61,7 +62,7 @@ public class FlowGroupTemplateServiceImpl implements IFlowGroupTemplateService {
 
 
     /**
-     * add FlowGroupTemplate
+     * add FlowTemplate
      *
      * @param name
      * @param loadId
@@ -70,7 +71,7 @@ public class FlowGroupTemplateServiceImpl implements IFlowGroupTemplateService {
      */
     @Override
     @Transactional
-    public String addFlowGroupTemplate(String name, String loadId, String value) {
+    public String addFlowTemplate(String name, String loadId, String value) {
         UserVo user = SessionUserUtil.getCurrentUser();
         String username = (null != user) ? user.getUsername() : "-1";
         Map<String, Object> rtnMap = new HashMap<>();
@@ -86,18 +87,13 @@ public class FlowGroupTemplateServiceImpl implements IFlowGroupTemplateService {
             String flowGroupXmlStr = FlowXmlUtils.flowGroupToXmlStr(flowGroupById);
             logger.info(flowGroupXmlStr);
 
-            FlowGroupTemplate flowGroupTemplate = new FlowGroupTemplate();
-            flowGroupTemplate.setId(SqlUtils.getUUID32());
-            flowGroupTemplate.setCrtDttm(new Date());
-            flowGroupTemplate.setCrtUser(username);
-            flowGroupTemplate.setEnableFlag(true);
-            flowGroupTemplate.setLastUpdateUser(username);
-            flowGroupTemplate.setLastUpdateDttm(new Date());
-            flowGroupTemplate.setName(name);
+            FlowTemplate flowTemplate = FlowTemplateUtils.newFlowTemplateNoId(username);
+            flowTemplate.setId(SqlUtils.getUUID32());
+            flowTemplate.setName(name);
             //XML to file and save to specified directory
             String path = FileUtils.createXml(flowGroupXmlStr, name, ".xml", SysParamsCache.XML_PATH);
-            flowGroupTemplate.setPath(path);
-            flowGroupTemplateDomain.saveOrUpdate(flowGroupTemplate);
+            flowTemplate.setPath(path);
+            flowTemplateDomain.saveOrUpdate(flowTemplate);
             rtnMap.put("code", 200);
             rtnMap.put("errorMsg", "save template success");
             return JsonUtils.toJsonNoException(rtnMap);
@@ -109,13 +105,14 @@ public class FlowGroupTemplateServiceImpl implements IFlowGroupTemplateService {
     }
 
     @Override
-    public String getFlowGroupTemplateListPage(Integer offset, Integer limit, String param) {
+    public String getFlowTemplateListPage(Integer offset, Integer limit, String param) {
         Map<String, Object> rtnMap = new HashMap<String, Object>();
         if (null != offset && null != limit) {
-            Page<FlowGroupTemplate> flowGroupTemplateListPage = flowGroupTemplateDomain.getFlowGroupTemplateListPage(offset - 1, limit, param);
-            rtnMap.put("iTotalDisplayRecords", flowGroupTemplateListPage.getTotalElements());
-            rtnMap.put("iTotalRecords", flowGroupTemplateListPage.getTotalElements());
-            rtnMap.put("pageData", flowGroupTemplateListPage.getContent());//Data collection
+            Page<FlowTemplate> flowTemplateListPage = flowTemplateDomain.getFlowTemplateListPage(offset - 1, limit, param);
+            rtnMap.put(ReturnMapUtils.KEY_CODE, ReturnMapUtils.SUCCEEDED_CODE);
+            rtnMap.put("msg", "");
+            rtnMap.put("count", flowTemplateListPage.getTotalElements());
+            rtnMap.put("data", flowTemplateListPage.getContent());//Data collection
         }
         return JsonUtils.toJsonNoException(rtnMap);
     }
@@ -127,10 +124,10 @@ public class FlowGroupTemplateServiceImpl implements IFlowGroupTemplateService {
      * @return
      */
     @Override
-    public int deleteFlowGroupTemplate(String id) {
+    public int deleteFlowTemplate(String id) {
         int deleteTemplate = 0;
         if (StringUtils.isNoneBlank(id)) {
-            deleteTemplate = flowGroupTemplateDomain.updateEnableFlagById(id, false);
+            deleteTemplate = flowTemplateDomain.updateEnableFlagById(id, false);
         }
         return deleteTemplate;
     }
@@ -138,23 +135,23 @@ public class FlowGroupTemplateServiceImpl implements IFlowGroupTemplateService {
     /**
      * Download template
      *
-     * @param flowGroupTemplateId
+     * @param flowTemplateId
      */
     @Override
-    public void templateDownload(HttpServletResponse response, String flowGroupTemplateId) {
-        FlowGroupTemplate flowGroupTemplate = flowGroupTemplateDomain.getFlowGroupTemplateById(flowGroupTemplateId);
-        if (null == flowGroupTemplate) {
+    public void templateDownload(HttpServletResponse response, String flowTemplateId) {
+        FlowTemplate flowTemplate = flowTemplateDomain.getFlowTemplateById(flowTemplateId);
+        if (null == flowTemplate) {
             logger.info("Template is empty,Download template failed");
         } else {
-            String fileName = flowGroupTemplate.getName() + ".xml".toString(); // The default save name of the file
-            String filePath = flowGroupTemplate.getPath();// File storage path
+            String fileName = flowTemplate.getName() + ".xml".toString(); // The default save name of the file
+            String filePath = flowTemplate.getPath();// File storage path
             FileUtils.downloadFileResponse(response, fileName, filePath);
         }
 
     }
 
     /**
-     * Upload xml file and save flowGroupTemplate
+     * Upload xml file and save flowTemplate
      *
      * @param file
      * @return
@@ -175,13 +172,8 @@ public class FlowGroupTemplateServiceImpl implements IFlowGroupTemplateService {
         }
         String name = (String) uploadMap.get("fileName");
         String path = (String) uploadMap.get("path");
-        FlowGroupTemplate flowGroupTemplate = new FlowGroupTemplate();
-        flowGroupTemplate.setId(SqlUtils.getUUID32());
-        flowGroupTemplate.setCrtDttm(new Date());
-        flowGroupTemplate.setCrtUser(username);
-        flowGroupTemplate.setEnableFlag(true);
-        flowGroupTemplate.setLastUpdateUser(username);
-        flowGroupTemplate.setLastUpdateDttm(new Date());
+        FlowTemplate flowTemplate = FlowTemplateUtils.newFlowTemplateNoId(username);
+        flowTemplate.setId(SqlUtils.getUUID32());
 
         //File name prefix
         String prefix = name.substring(0, name.length() - 4);
@@ -193,36 +185,36 @@ public class FlowGroupTemplateServiceImpl implements IFlowGroupTemplateService {
         //Add timestamp
         //String uploadFileName = prefix + "-" + fileName;
         String uploadFileName = prefix;
-        flowGroupTemplate.setName(uploadFileName + Suffix);
-        flowGroupTemplate.setPath(path);
+        flowTemplate.setName(uploadFileName + Suffix);
+        flowTemplate.setPath(path);
         //Read the XML file according to the saved file path and return the XML string
-        String xmlFileToStr = FileUtils.XmlFileToStrByAbsolutePath(flowGroupTemplate.getPath());
+        String xmlFileToStr = FileUtils.XmlFileToStrByAbsolutePath(flowTemplate.getPath());
         if (StringUtils.isBlank(xmlFileToStr)) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("XML file read failed, upload template failed");
         }
-        flowGroupTemplateDomain.saveOrUpdate(flowGroupTemplate);
+        flowTemplateDomain.saveOrUpdate(flowTemplate);
         return ReturnMapUtils.setSucceededMsgRtnJsonStr("successful template upload");
     }
 
     @Override
-    public String flowGroupTemplateAllSelect() {
-        List<FlowGroupTemplate> findTemPlateList = flowGroupTemplateDomain.getFlowGroupTemplateList();
+    public String flowTemplateAllSelect() {
+        List<FlowTemplate> findTemPlateList = flowTemplateDomain.getFlowTemplateList();
         if (null == findTemPlateList || findTemPlateList.size() <= 0) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("Query result is empty");
         }
-        List<FlowGroupTemplateVo> flowGroupTemplateVoList = new ArrayList<>();
-        for (FlowGroupTemplate flowGroupTemplate : findTemPlateList) {
-            if (null != flowGroupTemplate) {
-                FlowGroupTemplateVo flowGroupTemplateVo = new FlowGroupTemplateVo();
-                BeanUtils.copyProperties(flowGroupTemplate, flowGroupTemplateVo);
-                flowGroupTemplateVoList.add(flowGroupTemplateVo);
+        List<FlowTemplateVo> flowTemplateVoList = new ArrayList<>();
+        for (FlowTemplate flowTemplate : findTemPlateList) {
+            if (null != flowTemplate) {
+                FlowTemplateVo flowTemplateVo = new FlowTemplateVo();
+                BeanUtils.copyProperties(flowTemplate, flowTemplateVo);
+                flowTemplateVoList.add(flowTemplateVo);
             }
         }
-        return ReturnMapUtils.setSucceededCustomParamRtnJsonStr("temPlateList", flowGroupTemplateVoList);
+        return ReturnMapUtils.setSucceededCustomParamRtnJsonStr("temPlateList", flowTemplateVoList);
     }
 
     @Override
-    public String loadFlowGroupTemplate(String templateId, String loadId) {
+    public String loadFlowTemplate(String templateId, String loadId) {
         Map<String, Object> rtnMap = new HashMap<>();
         rtnMap.put("code", 500);
         UserVo currentUser = SessionUserUtil.getCurrentUser();
@@ -237,14 +229,14 @@ public class FlowGroupTemplateServiceImpl implements IFlowGroupTemplateService {
             rtnMap.put("errorMsg", "Load failed, please try again");
             return JsonUtils.toJsonNoException(rtnMap);
         }
-        FlowGroupTemplate flowGroupTemplate = flowGroupTemplateDomain.getFlowGroupTemplateById(templateId);
-        if (null == flowGroupTemplate) {
+        FlowTemplate flowTemplate = flowTemplateDomain.getFlowTemplateById(templateId);
+        if (null == flowTemplate) {
             logger.info("Template is empty and failed to load the template");
             rtnMap.put("errorMsg", "Load failed, please try again");
             return JsonUtils.toJsonNoException(rtnMap);
         }
         //The XML file is read and returned according to the saved file path
-        String xmlFileToStr = FileUtils.XmlFileToStrByAbsolutePath(flowGroupTemplate.getPath());
+        String xmlFileToStr = FileUtils.XmlFileToStrByAbsolutePath(flowTemplate.getPath());
         if (StringUtils.isBlank(xmlFileToStr)) {
             logger.info("XML file read failed, loading template failed");
             rtnMap.put("errorMsg", "XML file read failed, loading template failed");
