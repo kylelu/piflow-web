@@ -44,22 +44,14 @@ public class MxNodeImageServiceImpl implements IMxNodeImageService {
         if (500 == code) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("failed to upload file");
         }
-        String name = (String) uploadMap.get("fileName");
+        String saveFileName = (String) uploadMap.get("saveFileName");
+        String fileName = (String) uploadMap.get("fileName");
         String path = (String) uploadMap.get("path");
         MxNodeImage mxNodeImage = MxNodeImageUtils.newMxNodeImageNoId(username);
         mxNodeImage.setId(SqlUtils.getUUID32());
-        SimpleDateFormat sdf = new SimpleDateFormat("MMddHHmmSSSS");
-        Date nowDate = new Date();
-        String fileName = sdf.format(nowDate);
-        //File name prefix
-        String prefix = name.substring(0, name.length() - 4);
-        //Suffix .xml
-        String Suffix = name.substring(name.length() - 4);
-        //Add timestamp
-        String uploadfileName = prefix + "-" + fileName;
-        mxNodeImage.setImageName(uploadfileName + Suffix);
+        mxNodeImage.setImageName(fileName);
         mxNodeImage.setImagePath(path);
-        mxNodeImage.setImageUrl("/images/" + name);
+        mxNodeImage.setImageUrl("/images/" + saveFileName);
         mxNodeImageDomain.saveOrUpdate(mxNodeImage);
         return ReturnMapUtils.setSucceededCustomParamRtnJsonStr("imgUrl", mxNodeImage.getImageUrl());
     }

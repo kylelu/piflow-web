@@ -69,7 +69,7 @@ public class FlowTemplateCtrl {
      */
     @RequestMapping(value = "/uploadXmlFile", method = RequestMethod.POST)
     @ResponseBody
-    public String uploadXmlFile(@RequestParam("flowTemplateFile") MultipartFile file) {
+    public String uploadXmlFile(@RequestParam("file") MultipartFile file) {
         return testServiceImpl.uploadXmlFile(file);
     }
 

@@ -2,6 +2,7 @@ package com.nature.component.template.service.impl;
 
 import com.nature.base.util.*;
 import com.nature.base.vo.UserVo;
+import com.nature.common.Eunm.TemplateType;
 import com.nature.common.constant.SysParamsCache;
 import com.nature.component.flow.model.Flow;
 import com.nature.component.flow.model.FlowGroup;
@@ -31,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.util.*;
 
 @Service
@@ -162,7 +164,7 @@ public class TestServiceImpl implements ITestService {
         if (file.isEmpty()) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("Upload failed, please try again later");
         }
-        Map<String, Object> uploadMap = FileUtils.uploadRtnMap(file, SysParamsCache.IMAGES_PATH);
+        Map<String, Object> uploadMap = FileUtils.uploadRtnMap(file, SysParamsCache.XML_PATH);
         if (null == uploadMap || uploadMap.isEmpty()) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("Upload failed, please try again later");
         }
@@ -170,28 +172,26 @@ public class TestServiceImpl implements ITestService {
         if (500 == code) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("failed to upload file");
         }
-        String name = (String) uploadMap.get("fileName");
+        String saveFileName = (String) uploadMap.get("saveFileName");
+        String fileName = (String) uploadMap.get("fileName");
         String path = (String) uploadMap.get("path");
-        FlowTemplate flowTemplate = FlowTemplateUtils.newFlowTemplateNoId(username);
-        flowTemplate.setId(SqlUtils.getUUID32());
-
-        //File name prefix
-        String prefix = name.substring(0, name.length() - 4);
-        //Suffix .xml
-        String Suffix = name.substring(name.length() - 4);
-        //SimpleDateFormat sdf = new SimpleDateFormat("MMddHHmmSSSS");
-        //Date nowDate = new Date();
-        //String fileName = sdf.format(nowDate);
-        //Add timestamp
-        //String uploadFileName = prefix + "-" + fileName;
-        String uploadFileName = prefix;
-        flowTemplate.setName(uploadFileName + Suffix);
-        flowTemplate.setPath(path);
         //Read the XML file according to the saved file path and return the XML string
-        String xmlFileToStr = FileUtils.XmlFileToStrByAbsolutePath(flowTemplate.getPath());
+        String xmlFileToStr = FileUtils.XmlFileToStrByAbsolutePath(path);
         if (StringUtils.isBlank(xmlFileToStr)) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("XML file read failed, upload template failed");
         }
+        TemplateType templateType = MxGraphUtils.determineTemplateType(xmlFileToStr);
+        if (null == templateType) {
+            FileUtils.deleteFile(path);
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("There is a problem with the template, please check and try again");
+        }
+        FlowTemplate flowTemplate = FlowTemplateUtils.newFlowTemplateNoId(username);
+        flowTemplate.setId(SqlUtils.getUUID32());
+        flowTemplate.setName(fileName);
+        flowTemplate.setPath(path);
+        flowTemplate.setUrl("/xml/" + saveFileName);
+        flowTemplate.setTemplateType(templateType);
+        flowTemplate.setDescription(fileName);
         flowTemplateDomain.saveOrUpdate(flowTemplate);
         return ReturnMapUtils.setSucceededMsgRtnJsonStr("successful template upload");
     }

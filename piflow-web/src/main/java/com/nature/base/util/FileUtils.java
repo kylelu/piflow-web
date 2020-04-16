@@ -90,7 +90,15 @@ public class FileUtils {
         }
         CheckPathUtils.isChartPathExist(path);
         //file name
-        String saveFileName = file.getOriginalFilename();
+        String fileName = file.getOriginalFilename();
+        String[] fileNameSplit = fileName.split("\\.");
+        String saveFileName = null;
+        if (fileNameSplit.length > 0) {
+            saveFileName = UUIDUtils.getUUID32() + "." + fileNameSplit[fileNameSplit.length - 1];
+        }
+        if (StringUtils.isBlank(saveFileName)) {
+            saveFileName = UUIDUtils.getUUID32();
+        }
         File saveFile = new File(path + saveFileName);
         if (!saveFile.getParentFile().exists()) {
             boolean mkdirs = saveFile.getParentFile().mkdirs();
@@ -106,8 +114,9 @@ public class FileUtils {
             out.flush();
             out.close();
             logger.debug(saveFile.getName() + " Upload success");
+            rtnMap.put("fileName", fileName);
+            rtnMap.put("saveFileName", saveFileName);
             rtnMap.put("path", path + saveFileName);
-            rtnMap.put("fileName", saveFileName);
             rtnMap.put("msgInfo", "Upload success");
             rtnMap.put("code", 200);
         } catch (FileNotFoundException e) {
@@ -255,5 +264,49 @@ public class FileUtils {
         }
     }
 
+    /**
+     * Delete folder (force delete)
+     *
+     * @param path
+     */
+    public static void deleteAllFilesOfDir(File path) {
+        if (null != path) {
+            if (!path.exists())
+                return;
+            if (path.isFile()) {
+                boolean result = path.delete();
+                int tryCount = 0;
+                while (!result && tryCount++ < 10) {
+                    System.gc(); // Recycling resources
+                    result = path.delete();
+                }
+            }
+            File[] files = path.listFiles();
+            if (null != files) {
+                for (int i = 0; i < files.length; i++) {
+                    deleteAllFilesOfDir(files[i]);
+                }
+            }
+            path.delete();
+        }
+    }
+
+    /**
+     * deleteFile
+     *
+     * @param pathname
+     * @return
+     * @throws IOException
+     */
+    public static boolean deleteFile(String pathname) {
+        boolean result = false;
+        File file = new File(pathname);
+        if (file.exists()) {
+            file.delete();
+            result = true;
+            System.out.println("The file has been deleted successfully");
+        }
+        return result;
+    }
 
 }

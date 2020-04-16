@@ -173,7 +173,7 @@ public class FlowGroupTemplateServiceImpl implements IFlowGroupTemplateService {
         if (500 == code) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("failed to upload file");
         }
-        String name = (String) uploadMap.get("fileName");
+        String fileName = (String) uploadMap.get("fileName");
         String path = (String) uploadMap.get("path");
         FlowGroupTemplate flowGroupTemplate = new FlowGroupTemplate();
         flowGroupTemplate.setId(SqlUtils.getUUID32());
@@ -182,18 +182,7 @@ public class FlowGroupTemplateServiceImpl implements IFlowGroupTemplateService {
         flowGroupTemplate.setEnableFlag(true);
         flowGroupTemplate.setLastUpdateUser(username);
         flowGroupTemplate.setLastUpdateDttm(new Date());
-
-        //File name prefix
-        String prefix = name.substring(0, name.length() - 4);
-        //Suffix .xml
-        String Suffix = name.substring(name.length() - 4);
-        //SimpleDateFormat sdf = new SimpleDateFormat("MMddHHmmSSSS");
-        //Date nowDate = new Date();
-        //String fileName = sdf.format(nowDate);
-        //Add timestamp
-        //String uploadFileName = prefix + "-" + fileName;
-        String uploadFileName = prefix;
-        flowGroupTemplate.setName(uploadFileName + Suffix);
+        flowGroupTemplate.setName(fileName);
         flowGroupTemplate.setPath(path);
         //Read the XML file according to the saved file path and return the XML string
         String xmlFileToStr = FileUtils.XmlFileToStrByAbsolutePath(flowGroupTemplate.getPath());

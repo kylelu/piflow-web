@@ -35,4 +35,6 @@ public class FlowTemplate extends BaseHibernateModelUUIDNoCorpAgentId {
 
     private String path;
 
+    private String url;
+
 }

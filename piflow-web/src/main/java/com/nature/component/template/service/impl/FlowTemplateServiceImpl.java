@@ -232,20 +232,11 @@ public class FlowTemplateServiceImpl implements IFlowTemplateService {
         if (500 == code) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("failed to upload file");
         }
-        String name = (String) uploadMap.get("fileName");
+        String fileName = (String) uploadMap.get("fileName");
         String path = (String) uploadMap.get("path");
         FlowTemplate flowTemplate = FlowTemplateUtils.newFlowTemplateNoId(username);
         flowTemplate.setId(SqlUtils.getUUID32());
-        SimpleDateFormat sdf = new SimpleDateFormat("MMddHHmmSSSS");
-        Date nowDate = new Date();
-        String fileName = sdf.format(nowDate);
-        //File name prefix
-        String prefix = name.substring(0, name.length() - 4);
-        //Suffix .xml
-        String Suffix = name.substring(name.length() - 4);
-        //Add timestamp
-        String uploadfileName = prefix + "-" + fileName;
-        flowTemplate.setName(uploadfileName + Suffix);
+        flowTemplate.setName(fileName);
         flowTemplate.setPath(path);
         flowTemplateDomain.saveOrUpdate(flowTemplate);
         return ReturnMapUtils.setSucceededMsgRtnJsonStr("FlowTemplate upload succeeded");

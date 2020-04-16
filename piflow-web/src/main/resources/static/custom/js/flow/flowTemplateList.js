@@ -1,6 +1,7 @@
-function initDatatableFlowTemplatePage(testTableId, url) {
+function initDatatableFlowTemplatePage(testTableId, url, searchInputId) {
+    var table = "";
     layui.use('table', function () {
-        var table = layui.table;
+        table = layui.table;
 
         //Method-level rendering
         table.render({
@@ -18,26 +19,28 @@ function initDatatableFlowTemplatePage(testTableId, url) {
             , id: testTableId
             , page: true
         });
-
-        var $ = layui.$, active = {
-            reload: function () {
-                //var demoReload = $('#demoReload');
-
-                //Perform overload
-                table.reload(testTableId, {
-                    page: {
-                        curr: 1 //Start again on page 1
-                    }
-                    , where: {param: $('#demoReload').val()}
-                }, 'data');
-            }
-        };
-
-        $('.demoTable .layui-btn').on('click', function () {
-            var type = $(this).data('type');
-            active[type] ? active[type].call(this) : '';
-        });
     });
+
+    // $("#" + searchInputId).keyup(function (event) {
+    //     if(13==event.keyCode){
+    //         event.preventDefault();
+    //         searchMonitor(table, testTableId, searchInputId);
+    //     }
+    //
+    // });
+    $("#" + searchInputId).bind('input propertychange', function () {
+        searchMonitor(table, testTableId, searchInputId);
+    });
+}
+
+function searchMonitor(layui_table, layui_table_id, searchInputId) {
+    //Perform overload
+    layui_table.reload(layui_table_id, {
+        page: {
+            curr: 1 //Start again on page 1
+        }
+        , where: {param: $('#' + searchInputId).val()}
+    }, 'data');
 }
 
 //Results returned in the background
@@ -95,18 +98,18 @@ function initAll(url) {
     window.location.href = url;
 }
 
-function listUploadFlowGroupTemplateBtn() {
+function listUploadFlowTemplateBtn() {
     document.getElementById("flowGroupTemplateFile").click();
 }
 
-function listUploadFlowGroupTemplate() {
+function listUploadFlowTemplate() {
     if (!listFileTypeCheck()) {
         return false;
     }
     var formData = new FormData($('#uploadForm')[0]);
     $.ajax({
         type: 'post',
-        url: "/piflow-web/flowGroupTemplate/uploadXmlFile",
+        url: "/piflow-web/flowTemplate/uploadXmlFile",
         data: formData,
         cache: false,
         processData: false,
