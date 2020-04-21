@@ -4,6 +4,8 @@
 /**
  * Construcs a new sidebar for the given editor.
  */
+var groupdragclass;
+groupdragclass=document.getElementById("group-drag-click");
 function Sidebar(editorUi, container)
 {
 	this.editorUi = editorUi;
@@ -77,9 +79,16 @@ function Sidebar(editorUi, container)
 /**
  * Adds all palettes to the sidebar.
  */
+//修改
+var groupdrag,taskdrag,textdrag
+var groupindex = false
+//end
 Sidebar.prototype.init = function()
 {
 	var dir = STENCIL_PATH;
+	groupdrag=document.getElementById("group-drag-click")
+	taskdrag=document.getElementById("task-drag-click")
+    textdrag=document.getElementById("text-drag-click")
 
 	/*
 	this.addSearchPalette(true);
@@ -474,8 +483,13 @@ Sidebar.prototype.showTooltip = function(elt, cells, w, h, title, showLabel)
 				// Workaround for ignored position CSS style in IE9
 				// (changes to relative without the following line)
 				this.tooltip.style.position = 'absolute';
-				this.tooltip.style.left = left + 'px';
-				this.tooltip.style.top = top + 'px';
+				if(groupdragclass==null){
+					this.tooltip.style.left = left + 'px';
+					this.tooltip.style.top = top + 'px';
+				}else{
+					this.tooltip.style.left = '80' + 'px';
+					this.tooltip.style.top = top + 'px';
+				}
 			});
 
 			if (this.tooltip != null && this.tooltip.style.display != 'none')
@@ -3573,6 +3587,19 @@ Sidebar.prototype.addPalette = function(id, title, expanded, onInit)
     outer.appendChild(div);
     this.container.appendChild(outer);
 
+    //修改
+	if(groupdrag==null){
+		this.container.appendChild(outer);
+	}else if(title=="Group"){
+		groupdrag.appendChild(outer)
+		// console.log(outer,"outerouter22222")
+	}else if(title=="Task"){
+		taskdrag.appendChild(outer)
+		// console.log(outer,"outerouter11111")
+	}else{
+         textdrag.appendChild(outer)
+    }
+	//end
     // Keeps references to the DOM nodes
     if (id != null)
     {
@@ -3698,11 +3725,19 @@ Sidebar.prototype.addImagePalette = function(id, title, prefix, imgArray, items,
 				var dot = item.lastIndexOf('.');
 				tmpTags = item.substring((slash >= 0) ? slash + 1 : 0, (dot >= 0) ? dot : item.length).replace(/[-_]/g, ' ');
 			}
+			if(item[i]=="t"){
+				fns.push(this.createVertexTemplateEntry('text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;',
+					40, 20, 'Label', 'Text', null, null, 'text textbox textarea label'));
+			}else{
+				fns.push(this.createVertexTemplateEntry('image;html=1;labelBackgroundColor=#ffffff00;image=' + prefix + imgArray[i],
+					this.defaultImageWidth, this.defaultImageHeight, value, title, title != null, null, this.filterTags(tmpTags)));
+			}
 
-			fns.push(this.createVertexTemplateEntry('image;html=1;labelBackgroundColor=#ffffff00;image=' + prefix + imgArray[i],
-				this.defaultImageWidth, this.defaultImageHeight, value, title, title != null, null, this.filterTags(tmpTags)));
+
+
 		}))(items[i], (titles != null) ? values[i] + "#" + titles[i] : null, (values != null) ? (values[i].length > 10) ? values[i].substring(0, 10) + "..." : values[i] : '', (tags != null) ? tags[items[i]] : null);
 	}
+
 
 	if ('TASK' === Format.customizeType) {
 		this.addPaletteFunctions(id, title, false, fns);

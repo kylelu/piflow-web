@@ -34,27 +34,28 @@
                         name: "group",
                         img_name: "_01_128x128.png",
                         description: 'group component'
-                    }, {
-                        name: "group",
-                        img_name: "_02_128x128.png",
-                        description: 'group component'
-                    }, {
-                        name: "group",
-                        img_name: "_03_128x128.png",
-                        description: 'group component'
-                    }, {
-                        name: "group",
-                        img_name: "_04_128x128.png",
-                        description: 'group component'
-                    }, {
-                        name: "group",
-                        img_name: "_05_128x128.png",
-                        description: 'group component'
-                    }, {
-                        name: "group",
-                        img_name: "_06_128x128.png",
-                        description: 'group component'
                     }
+                    // , {
+                    //     name: "group",
+                    //     img_name: "_02_128x128.png",
+                    //     description: 'group component'
+                    // }, {
+                    //     name: "group",
+                    //     img_name: "_03_128x128.png",
+                    //     description: 'group component'
+                    // }, {
+                    //     name: "group",
+                    //     img_name: "_04_128x128.png",
+                    //     description: 'group component'
+                    // }, {
+                    //     name: "group",
+                    //     img_name: "_05_128x128.png",
+                    //     description: 'group component'
+                    // }, {
+                    //     name: "group",
+                    //     img_name: "_06_128x128.png",
+                    //     description: 'group component'geSidebarTooltip
+                    // }
                 ]
             }, {
                 groupName: "Task",
@@ -63,50 +64,61 @@
                         name: "flow",
                         img_name: "_01_128x128.png",
                         description: 'flow component'
-                    }, {
-                        name: "flow",
-                        img_name: "_02_128x128.png",
-                        description: 'flow component'
-                    }, {
-                        name: "flow",
-                        img_name: "_03_128x128.png",
-                        description: 'flow component'
-                    }, {
-                        name: "flow",
-                        img_name: "_04_128x128.png",
-                        description: 'flow component'
-                    }, {
-                        name: "flow",
-                        img_name: "_05_128x128.png",
-                        description: 'flow component'
-                    }, {
-                        name: "flow",
-                        img_name: "_06_128x128.png",
-                        description: 'flow component'
-                    }, {
-                        name: "flow",
-                        img_name: "_07_128x128.png",
-                        description: 'flow component'
-                    }, {
-                        name: "flow",
-                        img_name: "_08_128x128.png",
-                        description: 'flow component'
-                    }, {
-                        name: "flow",
-                        img_name: "_09_128x128.png",
-                        description: 'flow component'
-                    }, {
-                        name: "flow",
-                        img_name: "_10_128x128.png",
-                        description: 'flow component'
-                    }, {
-                        name: "flow",
-                        img_name: "_11_128x128.png",
-                        description: 'flow component'
-                    }, {
-                        name: "flow",
-                        img_name: "_12_128x128.png",
-                        description: 'flow component'
+                    }
+                    // , {
+                    //     name: "flow",
+                    //     img_name: "_02_128x128.png",
+                    //     description: 'flow component'
+                    // }, {
+                    //     name: "flow",
+                    //     img_name: "_03_128x128.png",
+                    //     description: 'flow component'
+                    // }, {
+                    //     name: "flow",
+                    //     img_name: "_04_128x128.png",
+                    //     description: 'flow component'
+                    // }, {
+                    //     name: "flow",
+                    //     img_name: "_05_128x128.png",
+                    //     description: 'flow component'
+                    // }, {
+                    //     name: "flow",
+                    //     img_name: "_06_128x128.png",
+                    //     description: 'flow component'
+                    // }, {
+                    //     name: "flow",
+                    //     img_name: "_07_128x128.png",
+                    //     description: 'flow component'
+                    // }, {
+                    //     name: "flow",
+                    //     img_name: "_08_128x128.png",
+                    //     description: 'flow component'
+                    // }, {
+                    //     name: "flow",
+                    //     img_name: "_09_128x128.png",
+                    //     description: 'flow component'
+                    // }, {
+                    //     name: "flow",
+                    //     img_name: "_10_128x128.png",
+                    //     description: 'flow component'
+                    // }, {
+                    //     name: "flow",
+                    //     img_name: "_11_128x128.png",
+                    //     description: 'flow component'
+                    // }, {
+                    //     name: "flow",
+                    //     img_name: "_12_128x128.png",
+                    //     description: 'flow component'
+                    // }
+                ]
+            },
+            {
+                groupName: "Text",
+                dataList: [
+                    {
+                        name: "text",
+                        img_name: "text",
+                        description: 'Text'
                     }
                 ]
             }
@@ -156,13 +168,23 @@
 <div th:include="Macro/publicMacro :: userHeadMacro"></div>
 
 <!-- menus -->
-<div style="width: 45.2%; float: right;">
+<!--<div style="width: 45.2%; float: right;">-->
+<!--    <div th:switch="${drawingBoardType?.value}"-->
+<!--         style="position: fixed; margin-top: 48px; z-index: 999;text-align: right; width:45%;">-->
+<!--        <div th:case="'TASK'" th:include="mxGraph/inc/graphEditor_menus_task :: graphEditor_menus_task"></div>-->
+<!--        <div th:case="'GROUP'" th:include="mxGraph/inc/graphEditor_menus_group :: graphEditor_menus_group"></div>-->
+<!--    </div>-->
+<!--</div>-->
+
+<div style="width: 75.2%;float: right">
     <div th:switch="${drawingBoardType?.value}"
-         style="position: fixed; margin-top: 48px; z-index: 999;text-align: right; width:45%;">
+         style="position: fixed;margin-top: 50px;z-index: 999;text-align: right;width: 76%">
         <div th:case="'TASK'" th:include="mxGraph/inc/graphEditor_menus_task :: graphEditor_menus_task"></div>
         <div th:case="'GROUP'" th:include="mxGraph/inc/graphEditor_menus_group :: graphEditor_menus_group"></div>
     </div>
 </div>
+
+
 <!-- crumbs -->
 <div style="width: 100%;position: fixed;z-index: 99999;float: left;left: 0px;bottom: 0px;text-align: center;height: 28px;line-height: 28px; background: #37714b;">
     <div th:switch="${drawingBoardType?.value}">
@@ -366,6 +388,7 @@
             $(this).addClass("open");
             var oDiv = document.getElementById("divloadingXml");
             oDiv.style.display = "none";
+
         });
         $(".btn-group").mouseleave(function () {
             $(this).removeClass("open");
@@ -397,4 +420,107 @@
     //@ sourceURL=mxGraphIndex.js
 </script>
 </body>
+<div style="display: none;" id="SubmitPage">
+    <br>
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <label class="layui-form-label">flowGroupName</label>
+            <div class="layui-input-block">
+                <input type="hidden" id="flowGroupId"/>
+                <input id="flowGroupName" placeholder="please input flowGroupName..." autocomplete="off" class="layui-input"
+                       style="width: 400px;margin-left: 20px;">
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">description</label>
+            <div class="layui-input-block">
+                <textarea id="description1" placeholder="please input description..." class="layui-textarea"
+                          style="width: 400px;margin-left: 20px;"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item" style="text-align: center;margin-right: 90px;">
+            <button type="button" class="layui-btn layui-btn-primary" onclick="cancelGroup()"
+                    style="color: #333333;border-color: #2f7600;" id="buttonFlowcancel">
+                cancel
+            </button>
+            <button type="button" class="layui-btn layui-btn-primary" onclick='saveOrUpdateFlowGroup()'
+                    style="color: #ffffff;background-color: #2f7600;border-color: #2f7600;" id="buttonFlowGroup">
+                Submit
+            </button>
+        </div>
+    </form>
+</div>
+
+<div style="display: none;;padding:20px" id="changeimage">
+    <br>
+    <p>已有现存可选择更改的图片</p>
+    <br>
+    <!--    <form class="layui-form" action="">-->
+    <div id="nowimage" style="width:100%;height:200px"></div>
+    <div style="width:100%;height:1px;border-bottom:1px solid #000;margin:10px 0"></div>
+    <button type="button" class="layui-btn" id="uploadimage">
+        <i class="layui-icon">&#xe67c;</i>上传图片
+    </button>
+    <!--    </form>-->
+</div>
+
+<div style="display: none;" id="SubmitPageflow">
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <label class="layui-form-label">flowName</label>
+            <div class="layui-input-block">
+                <input type="hidden" id="flowId"/>
+                <input id="flowName" placeholder="please input flowName..." autocomplete="off" class="layui-input"
+                       style="width: 400px;margin-left: 20px;">
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">description</label>
+            <div class="layui-input-block">
+                <textarea id="description" placeholder="please input description..." class="layui-textarea"
+                          style="width: 400px;margin-left: 20px;"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">driverMemory</label>
+            <div class="layui-input-block">
+                <input id="driverMemory" autocomplete="off" class="layui-input" style="width: 400px;margin-left: 20px;"
+                       value="1g">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">executorNumber</label>
+            <div class="layui-input-block">
+                <input id="executorNumber" autocomplete="off" class="layui-input"
+                       style="width: 400px;margin-left: 20px;" value="1">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">executorMemory</label>
+            <div class="layui-input-block">
+                <input id="executorMemory" autocomplete="off" class="layui-input"
+                       style="width: 400px;margin-left: 20px;" value="1g">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">executorCores</label>
+            <div class="layui-input-block">
+                <input id="executorCores" autocomplete="off" class="layui-input" style="width: 400px;margin-left: 20px;"
+                       value="1">
+            </div>
+        </div>
+        <div class="layui-form-item" style="text-align: center;margin-right: 90px;">
+            <button type="button" class="layui-btn layui-btn-primary" onclick="cancelFlow()"
+                    style="color: #333333;border-color: #2f7600;" id="buttonFlowcancel">
+                cancel
+            </button>
+            <button type="button" class="layui-btn layui-btn-primary" onclick='saveFlow()'
+                    style="color: #ffffff;background-color: #2f7600;border-color: #2f7600;" id="buttonFlow">
+                Submit
+            </button>
+        </div>
+    </form>
+</div>
+
+
 </html>

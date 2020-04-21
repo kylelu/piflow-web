@@ -9,7 +9,10 @@ function Actions(editorUi)
 	this.editorUi = editorUi;
 	this.actions = new Object();
 	this.init();
-};
+}
+function getNodeId(flowGroupdata) {
+	return  flowGroupdata
+}
 
 /**
  * Adds the default actions.
@@ -229,11 +232,44 @@ Actions.prototype.init = function()
 			}
 		}
 	};
+	function getQueryString(name){
+		var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+		var r = window.location.search.substr(1).match(reg);
+		if(r!=null)return  unescape(r[2]); return null;
+	}
+
+	function RunCells(includeEdges) {
+		var data = {pId: getQueryString("load"),nodeId:flowGroupdata.id};
+		$.ajax({
+			type: "post",//Request type post
+			url: "/piflow-web/mxGraph/groupRightRun",
+			data: data,
+			async: true,//Synchronous Asynchronous
+			error: function (request) {//Operation after request failure
+				return;
+			},
+			success: function (data) {//After the request is successful
+				// console.log(data)
+
+				}
+			})
+		console.log('RUN……')
+	}
 	
 	this.addAction('delete', function(evt)
 	{
 		deleteCells(evt != null && mxEvent.isShiftDown(evt));
 	}, null, null, 'Delete');
+
+	this.addAction('run', function(evt)
+	{
+		RunCells(evt != null && mxEvent.isShiftDown(evt));
+	}, null, null, 'Run');
+
+	this.addAction('runAll', function() {
+		runFlowGroup();
+		console.log("Run All")
+	},null, null, '');
 	this.addAction('deleteAll', function()
 	{
 		deleteCells(true);

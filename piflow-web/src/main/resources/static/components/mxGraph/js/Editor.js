@@ -4,8 +4,10 @@
 /**
  * Editor constructor executed on page load.
  */
+var groupdragclass
 Editor = function(chromeless, themes, model, graph, editable)
 {
+	var groupdragclass=document.getElementById("group-drag-click")
 	mxEventSource.call(this);
 	this.chromeless = (chromeless != null) ? chromeless : this.chromeless;
 	this.initStencilRegistry();
@@ -901,7 +903,7 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 		var pos = this.getPosition(left, top, w, h);
 		left = pos.x;
 		top = pos.y;
-		
+
 		div.style.left = left + 'px';
 		div.style.top = top + 'px';
 		div.style.width = w + 'px';
@@ -2073,9 +2075,17 @@ PageSetupDialog.getFormats = function()
 			graph.view.backgroundPageShape.node.style.backgroundPosition = position;
 			graph.view.backgroundPageShape.node.style.backgroundImage = image;
 			graph.view.backgroundPageShape.node.style.backgroundColor = color;
+			// graph.view.backgroundPageShape.node.style.width = '1200px';
 			graph.container.className = 'geDiagramContainer geDiagramBackdrop';
 			canvas.style.backgroundImage = 'none';
 			canvas.style.backgroundColor = '';
+			//group中设置画板左边距=============
+			if(groupdragclass==null){
+
+			}else{
+				graph.container.style.left="0"
+			}
+//===================
 		}
 		else
 		{

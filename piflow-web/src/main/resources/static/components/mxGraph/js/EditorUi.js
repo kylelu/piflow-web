@@ -4,10 +4,12 @@
 /**
  * Constructs a new graph editor
  */
+var groupdragclass,imagsrc=null;
 EditorUi = function(editor, container, lightbox)
 {
+	groupdragclass=document.getElementById("group-drag-click")
 	mxEventSource.call(this);
-	
+
 	this.destroyFunctions = [];
 	this.editor = editor || new Editor();
 	this.container = container || document.body;
@@ -51,7 +53,7 @@ EditorUi = function(editor, container, lightbox)
     // Creates the user interface
 	this.actions = new Actions(this);
 	this.menus = this.createMenus();
-	
+
 	if (!graph.standalone)
 	{
 		this.createDivs();
@@ -496,7 +498,7 @@ EditorUi = function(editor, container, lightbox)
 		{
 			graph.currentEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
 			graph.currentVertexStyle = mxUtils.clone(graph.defaultVertexStyle);
-			
+
 			// Updates UI
 			this.fireEvent(new mxEventObject('styleChanged', 'keys', [], 'values', [], 'cells', []));
 		};
@@ -1358,6 +1360,11 @@ EditorUi.prototype.initClipboard = function()
 		
 		return result;
 	};
+
+	// var mxClipboardRun = mxClipboard.run;
+	// mxClipboard.run = function(graph)
+	// {console.log('run暂时ok')};
+
 
 	var mxClipboardPaste = mxClipboard.paste;
 	mxClipboard.paste = function(graph)
@@ -3101,12 +3108,12 @@ EditorUi.prototype.updateActionStates = function()
 	}
 	
 	// Updates action states
-	var actions = ['cut', 'copy', 'bold', 'italic', 'underline', 'delete', 'duplicate',
+	var actions = ['cut', 'copy', 'bold', 'italic', 'underline', 'delete','run','duplicate',
 	               'editStyle', 'editTooltip', 'editLink', 'backgroundColor', 'borderColor',
 	               'edit', 'toFront', 'toBack', 'lockUnlock', 'solid', 'dashed', 'pasteSize',
 	               'dotted', 'fillColor', 'gradientColor', 'shadow', 'fontColor',
 	               'formattedText', 'rounded', 'toggleRounded', 'sharp', 'strokeColor'];
-	
+
 	for (var i = 0; i < actions.length; i++)
 	{
 		this.actions.get(actions[i]).setEnabled(selected);
@@ -3371,6 +3378,13 @@ EditorUi.prototype.createDivs = function()
 	{
 		this.diagramContainer.style.border = 'none';
 	}
+	//group中隐藏侧边栏和侧边栏拖拽==================================
+	if(groupdragclass==null){
+	}else{
+		this.sidebarContainer.style.display="none"
+		this.hsplit.style.display="none"
+	}
+//============================================================
 };
 
 /**
@@ -4081,33 +4095,143 @@ EditorUi.prototype.executeLayout = function(exec, animate, post)
 /**
  * Hides the current menu.
  */
+
+function imageajax(){
+	$.ajax({
+		type: "get",//Request type post
+		url: "/piflow-web/mxGraph/nodeImageList",
+		async: true,//Synchronous Asynchronous
+		error: function (request) {//Operation after request failure
+			return;
+		},
+		success: function (data) {//After the request is successful
+			var nowimage = $("#nowimage")[0];
+			nowimage.innerHTML="";
+			var nodeImageList=JSON.parse(data).nodeImageList;
+			nodeImageList.forEach(item=>{
+				var div=document.createElement("div");
+				div.className="imgwrap";
+				var image= document.createElement("img");
+				image.className="imageimg"
+				image.style="width:100%;height:100%";
+				image.src=item.imageUrl;
+
+				div.appendChild(image);
+				nowimage.appendChild(div);
+				div.onclick=function(e){
+					e.stopPropagation();
+					for(var i=0;i<imgwrap1.length;i++){
+						imgwrap1[i].style.backgroundColor="#fff"
+					}
+					e.toElement.style="background-color:#009688;width:100%;height:100%"
+					imagsrc=e.toElement.src
+				}
+
+
+				// var imgwrap=$('.imgwrap')
+				//
+				// imgwrap.forEach(item=>{
+				//
+				// })
+				//
+				// div.on("click",function(e){
+				// 	console.log($(this).attr("src"),"ddfffffddfdf")
+				// })
+
+			})
+			var imgwrap1=$(".imageimg")
+		}
+	});
+}
+
+
+
+
 EditorUi.prototype.showImageDialog = function(title, value, fn, ignoreExisting)
 {
 	var cellEditor = this.editor.graph.cellEditor;
 	var selState = cellEditor.saveSelection();
-	var newValue = mxUtils.prompt(title, value);
-	cellEditor.restoreSelection(selState);
-	
-	if (newValue != null && newValue.length > 0)
-	{
-		var img = new Image();
-		
-		img.onload = function()
-		{
-			fn(newValue, img.width, img.height);
-		};
-		img.onerror = function()
-		{
-			fn(null);
-			mxUtils.alert(mxResources.get('fileNotFound'));
-		};
-		
-		img.src = newValue;
-	}
-	else
-	{
-		fn(null);
-	}
+	//   Change picture
+	layui.use('upload', function(){
+		var upload = layui.upload;
+		//执行实例
+		var uploadInst = upload.render({
+			elem: '#uploadimage' //绑定元素
+			,url: '/piflow-web/mxGraph/uploadNodeImage' //上传接口
+			,done: function(res){
+				//上传完毕回调
+				console.log("upload success")
+				imageajax()
+			}
+			,error: function(){
+				//请求异常回调
+				console.log("upload error")
+			}
+		});
+	});
+	layer.open({
+		type: 1,
+		title: '',
+		shadeClose: true,
+		shade:0.3,
+		closeBtn: 1,
+		shift: 7,
+		btn: ['YES', 'NO'],
+		area: ['580px', '520px'], //Width height
+		skin: 'layui-layer-rim', //Add borders
+		content: $("#changeimage"),
+		success:function(){
+			imageajax()
+		},
+		//YES BUTTON
+		btn1: function(index, layero){
+			console.log("YES button")
+			console.log(imagsrc,"imagsrcimagsrcimagsrcimagsrcimagsrcimagsrc")
+			var newValue = imagsrc;
+
+			imagsrc=null
+			// console.log(newValue,"newValuenewValuenewValuenewValuenewValue") ///piflow-web/img/group_01_128x128.png
+			// var newValue = mxUtils.prompt(title, value);
+			cellEditor.restoreSelection(selState);
+
+			if (newValue != null && newValue.length > 0)
+			{
+				var img = new Image();
+
+				img.onload = function()
+				{
+					// console.log(img.width, img.height,"kkkkkkkkk")
+					// fn(newValue, img.width, img.height);
+					fn(newValue, 66, 66);
+				};
+				img.onerror = function()
+				{
+					fn(null);
+					mxUtils.alert(mxResources.get('fileNotFound'));
+				};
+
+				img.src = newValue;
+			}
+			else
+			{
+				fn(null);
+			}
+			layer.close(index)
+		},
+		//NO BUTTON
+		btn2: function(index, layero){
+			console.log("NO button")
+			imagsrc=null
+			layer.close(index)
+		},
+		//close function
+		cancel: function(index, layero){
+			console.log("gggggg")
+			layer.close(index)
+			return false;
+		}
+	});
+
 };
 
 /**

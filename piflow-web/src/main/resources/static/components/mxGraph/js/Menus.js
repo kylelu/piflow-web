@@ -486,9 +486,9 @@ Menus.prototype.init = function()
 	})));
 	this.put('edit', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
-		this.addMenuItems(menu, ['undo', 'redo', '-', 'cut', 'copy', 'paste', 'delete', '-', 'duplicate', '-',
+		this.addMenuItems(menu, ['undo', 'redo', '-', 'cut', 'copy', 'paste', 'delete','run', '-', 'duplicate', '-',
 		                         'editData', 'editTooltip', 'editStyle', '-', 'edit', '-', 'editLink', 'openLink', '-',
-		                         'selectVertices', 'selectEdges', 'selectAll', 'selectNone', '-', 'lockUnlock']);
+		                         'selectVertices', 'selectEdges', 'selectAll', 'runAll', 'selectNone', '-', 'lockUnlock']);
 	})));
 	this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
@@ -978,7 +978,6 @@ Menus.prototype.toggleStyle = function(key, defaultValue)
 Menus.prototype.addMenuItem = function(menu, key, parent, trigger, sprite, label)
 {
 	var action = this.editorUi.actions.get(key);
-
 	if (action != null && (menu.showDisabled || action.isEnabled()) && action.visible)
 	{
 		var item = menu.addItem(label || action.label, null, function()
@@ -1047,14 +1046,22 @@ Menus.prototype.createPopupMenu = function(menu, cell, evt)
 	}
 	else
 	{
-		this.addMenuItems(menu, ['delete', '-', 'cut', 'copy', '-', 'duplicate'], null, evt);
+		if ('GROUP' === Format.customizeType) {
+			this.addMenuItems(menu, ['delete','run', '-', ], null, evt);
+		}
+		else if('TASK' === Format.customizeType){
+			this.addMenuItems(menu, ['delete', '-',], null, evt);
+		}
+		else {
+			this.addMenuItems(menu, ['delete','run', '-', 'cut', 'copy', '-', 'duplicate'], null, evt);
+		}
 	}
 
 	if (!graph.isSelectionEmpty())
 	{
 		if (graph.getSelectionCount() == 1)
 		{
-			this.addMenuItems(menu, ['setAsDefaultStyle'], null, evt);
+			// this.addMenuItems(menu, ['setAsDefaultStyle'], null, evt);
 		}
 		
 		menu.addSeparator();
@@ -1065,7 +1072,7 @@ Menus.prototype.createPopupMenu = function(menu, cell, evt)
 		if (state != null)
 		{
 			var hasWaypoints = false;
-			this.addMenuItems(menu, ['toFront', 'toBack', '-'], null, evt);
+			// this.addMenuItems(menu, ['toFront', 'toBack', '-'], null, evt);
 
 			if (graph.getModel().isEdge(cell) && mxUtils.getValue(state.style, mxConstants.STYLE_EDGE, null) != 'entityRelationEdgeStyle' &&
 				mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) != 'arrow')
@@ -1116,7 +1123,7 @@ Menus.prototype.createPopupMenu = function(menu, cell, evt)
 			if (graph.getSelectionCount() == 1)
 			{
 				menu.addSeparator();
-				this.addMenuItems(menu, ['editData', 'editLink'], null, evt);
+				// this.addMenuItems(menu, ['editData', 'editLink'], null, evt);
 
 				// Shows edit image action if there is an image in the style
 				if (graph.getModel().isVertex(cell) && mxUtils.getValue(state.style, mxConstants.STYLE_IMAGE, null) != null)
@@ -1129,8 +1136,12 @@ Menus.prototype.createPopupMenu = function(menu, cell, evt)
 	}
 	else
 	{
-		this.addMenuItems(menu, ['-', 'selectVertices', 'selectEdges',
-			'selectAll', '-', 'clearDefaultStyle'], null, evt);
+		if ('GROUP' === Format.customizeType) {
+			this.addMenuItems(menu, ['-', 'selectVertices', 'selectEdges',
+				'selectAll', '-',  'runAll', '-',  'clearDefaultStyle'], null, evt);		}
+		else if('TASK' === Format.customizeType){
+			this.addMenuItems(menu, ['-', 'selectVertices', 'selectEdges',
+				'selectAll', '-', '-',  'clearDefaultStyle'], null, evt);		}
 	}
 };
 

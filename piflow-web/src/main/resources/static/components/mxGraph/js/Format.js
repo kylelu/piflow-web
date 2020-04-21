@@ -97,7 +97,135 @@ Format.prototype.init = function()
 	this.update = mxUtils.bind(this, function(sender, evt)
 	{
 		this.clearSelectionState();
-		this.refresh();
+		if(evt.properties.removed){
+			var strtext=evt.properties.removed[0].style
+			if(strtext && strtext.indexOf("text\;") === 0){
+				var div = document.createElement('div');
+				div.className = 'geFormatSection';
+				div.style.padding = '12px 0px 12px 18px';
+				// addView(div)
+				var ui = this.editorUi;
+				var editor = ui.editor;
+				var graph = editor.graph;
+				if ('TASK' === Format.customizeType) {
+					queryFlowInfo();
+				} else if ('GROUP' === Format.customizeType) {
+					queryFlowGroup();
+				}
+				var div1 = document.createElement('div');
+				div1.style.padding = '0px 0px 6px 0px';
+				div1.style.whiteSpace = 'nowrap';
+				div1.style.overflow = 'hidden';
+				div1.style.width = '200px';
+				div1.style.fontWeight = 'bold';
+				mxUtils.write(div1, Format.drawingBoardDescription_title);
+				div.appendChild(div1);
+				var drawingBoardDescription_table = document.createElement("table");
+				drawingBoardDescription_table.style.borderCollapse = "separate";
+				drawingBoardDescription_table.style.borderSpacing = "0px 5px";
+				drawingBoardDescription_table.style.width = "98%";
+				drawingBoardDescription_table.style.wordWrap = "break-word";
+				drawingBoardDescription_table.style.wordBreak = "break-all";
+				drawingBoardDescription_table.setAttribute('id', 'drawingBoardDescription_table_id');
+				var drawingBoardDescription_tbody = document.createElement("tbody");
+				var drawingBoardDescription_tr_1 = document.createElement("tr");
+				var drawingBoardDescription_tr_2 = document.createElement("tr");
+				var drawingBoardDescription_tr_3 = document.createElement("tr");
+				var drawingBoardDescription_tr_4 = document.createElement("tr");
+				var drawingBoardDescription_tr_5 = document.createElement("tr");
+				var drawingBoardDescription_td_1_1 = document.createElement("td");
+				var drawingBoardDescription_td_1_2 = document.createElement("td");
+				var drawingBoardDescription_td_2_1 = document.createElement("td");
+				var drawingBoardDescription_td_2_2 = document.createElement("td");
+				var drawingBoardDescription_td_3_1 = document.createElement("td");
+				var drawingBoardDescription_td_3_2 = document.createElement("td");
+				var drawingBoardDescription_td_4_1 = document.createElement("td");
+				var drawingBoardDescription_td_4_2 = document.createElement("td");
+				var drawingBoardDescription_td_5_1 = document.createElement("td");
+				var drawingBoardDescription_td_5_2 = document.createElement("td");
+
+				var drawingBoardDescription_td_1_2_label = document.createElement('label');
+				var drawingBoardDescription_td_2_2_label = document.createElement('label');
+				var drawingBoardDescription_td_3_2_label = document.createElement('label');
+				var drawingBoardDescription_td_4_2_label = document.createElement('label');
+				var drawingBoardDescription_td_5_2_label = document.createElement('label');
+				drawingBoardDescription_td_1_2_label.setAttribute('id', 'drawingBoardDescription_td_1_2_label_id');
+				drawingBoardDescription_td_2_2_label.setAttribute('id', 'drawingBoardDescription_td_2_2_label_id');
+				drawingBoardDescription_td_3_2_label.setAttribute('id', 'drawingBoardDescription_td_3_2_label_id');
+				drawingBoardDescription_td_4_2_label.setAttribute('id', 'drawingBoardDescription_td_4_2_label_id');
+				drawingBoardDescription_td_5_2_label.setAttribute('id', 'drawingBoardDescription_td_5_2_label_id');
+
+				var drawingBoardDescription_td_1_1_span = document.createElement('span');
+				var drawingBoardDescription_td_2_1_span = document.createElement('span');
+				var drawingBoardDescription_td_3_1_span = document.createElement('span');
+				var drawingBoardDescription_td_4_1_span = document.createElement('span');
+				var drawingBoardDescription_td_5_1_span = document.createElement('span');
+				var hr = document.createElement('hr');
+				mxUtils.write(drawingBoardDescription_td_1_1_span, Format.customizeTypeAttr.drawingBoardDescription_td_1_1_span_value);
+				mxUtils.write(drawingBoardDescription_td_2_1_span, Format.customizeTypeAttr.drawingBoardDescription_td_2_1_span_value);
+				mxUtils.write(drawingBoardDescription_td_3_1_span, Format.customizeTypeAttr.drawingBoardDescription_td_3_1_span_value);
+				mxUtils.write(drawingBoardDescription_td_4_1_span, Format.customizeTypeAttr.drawingBoardDescription_td_4_1_span_value);
+				mxUtils.write(drawingBoardDescription_td_5_1_span, Format.customizeTypeAttr.drawingBoardDescription_td_5_1_span_value);
+
+				drawingBoardDescription_td_1_1.appendChild(drawingBoardDescription_td_1_1_span);
+				drawingBoardDescription_td_1_2.appendChild(drawingBoardDescription_td_1_2_label);
+				drawingBoardDescription_td_2_1.appendChild(drawingBoardDescription_td_2_1_span);
+				drawingBoardDescription_td_2_2.appendChild(drawingBoardDescription_td_2_2_label);
+				drawingBoardDescription_td_3_1.appendChild(drawingBoardDescription_td_3_1_span);
+				drawingBoardDescription_td_3_2.appendChild(drawingBoardDescription_td_3_2_label);
+				drawingBoardDescription_td_4_1.appendChild(drawingBoardDescription_td_4_1_span);
+				drawingBoardDescription_td_4_2.appendChild(drawingBoardDescription_td_4_2_label);
+				drawingBoardDescription_td_5_1.appendChild(drawingBoardDescription_td_5_1_span);
+				drawingBoardDescription_td_5_2.appendChild(drawingBoardDescription_td_5_2_label);
+				drawingBoardDescription_tr_1.appendChild(drawingBoardDescription_td_1_1);
+				drawingBoardDescription_tr_1.appendChild(drawingBoardDescription_td_1_2);
+				drawingBoardDescription_tr_2.appendChild(drawingBoardDescription_td_2_1);
+				drawingBoardDescription_tr_2.appendChild(drawingBoardDescription_td_2_2);
+				drawingBoardDescription_tr_3.appendChild(drawingBoardDescription_td_3_1);
+				drawingBoardDescription_tr_3.appendChild(drawingBoardDescription_td_3_2);
+				drawingBoardDescription_tr_4.appendChild(drawingBoardDescription_td_4_1);
+				drawingBoardDescription_tr_4.appendChild(drawingBoardDescription_td_4_2);
+				drawingBoardDescription_tr_5.appendChild(drawingBoardDescription_td_5_1);
+				drawingBoardDescription_tr_5.appendChild(drawingBoardDescription_td_5_2);
+				drawingBoardDescription_td_1_1.style.width = "105px";
+				drawingBoardDescription_tr_1.vAlign = 'top';
+				drawingBoardDescription_tr_2.vAlign = 'top';
+				drawingBoardDescription_tr_3.vAlign = 'top';
+				drawingBoardDescription_tr_4.vAlign = 'top';
+				drawingBoardDescription_tr_5.vAlign = 'top';
+				drawingBoardDescription_tbody.appendChild(drawingBoardDescription_tr_1);
+				drawingBoardDescription_tbody.appendChild(drawingBoardDescription_tr_2);
+				drawingBoardDescription_tbody.appendChild(drawingBoardDescription_tr_3);
+				drawingBoardDescription_tbody.appendChild(drawingBoardDescription_tr_4);
+				drawingBoardDescription_tbody.appendChild(drawingBoardDescription_tr_5);
+				drawingBoardDescription_table.appendChild(drawingBoardDescription_tbody);
+				div.appendChild(drawingBoardDescription_table);
+				// Grid
+				// this.addGridOption(div);
+				this.container.innerHTML=""
+
+				this.container.appendChild(div)
+				// console.log(div,"jjjjjjjjjjjjjjjjj")
+				// console.log(this.container,"ggggggggggg")
+			}else{
+				// console.log("77777777777777")
+				this.refresh();
+				strtext=false
+			}
+		}else{
+			if(evt.properties.cell && evt.properties.cell.style.indexOf("text\;") === 0){
+				// console.log(evt,"ppppppppppppppppp")
+			}else{
+				// console.log(evt,"iiiiiii")
+				this.refresh();
+			}
+		}
+
+
+
+
+
+
 	});
 	
 	graph.getSelectionModel().addListener(mxEvent.CHANGE, this.update);
