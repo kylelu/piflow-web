@@ -1,6 +1,7 @@
 package com.nature.controller;
 
-import com.nature.component.template.service.ITestService;
+import com.nature.base.util.ReturnMapUtils;
+import com.nature.component.template.service.IFlowTemplateService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 public class FlowTemplateCtrl {
 
     @Resource
-    private ITestService testServiceImpl;
+    private IFlowTemplateService flowTemplateServiceImpl;
 
 
     @RequestMapping("/saveFlowTemplate")
@@ -27,14 +28,14 @@ public class FlowTemplateCtrl {
 
         String name = request.getParameter("name");
         String loadId = request.getParameter("load");
-        String value = request.getParameter("value");
-        return testServiceImpl.addFlowTemplate(name, loadId, value);
+        String templateType = request.getParameter("templateType");
+        return flowTemplateServiceImpl.addFlowTemplate(name, loadId, templateType);
     }
 
     @RequestMapping("/flowTemplatePage")
     @ResponseBody
     public String templatePage(Integer page, Integer limit, String param) {
-        return testServiceImpl.getFlowTemplateListPage(page, limit, param);
+        return flowTemplateServiceImpl.getFlowTemplateListPage(page, limit, param);
     }
 
     /**
@@ -46,7 +47,7 @@ public class FlowTemplateCtrl {
     @RequestMapping("/deleteFlowTemplate")
     @ResponseBody
     public int deleteFlowTemplate(String id) {
-        return testServiceImpl.deleteFlowTemplate(id);
+        return flowTemplateServiceImpl.deleteFlowTemplate(id);
     }
 
     /**
@@ -58,7 +59,7 @@ public class FlowTemplateCtrl {
      */
     @RequestMapping("/templateDownload")
     public void templateDownload(HttpServletResponse response, String flowTemplateId) throws Exception {
-        testServiceImpl.templateDownload(response, flowTemplateId);
+        flowTemplateServiceImpl.templateDownload(response, flowTemplateId);
     }
 
     /**
@@ -70,7 +71,7 @@ public class FlowTemplateCtrl {
     @RequestMapping(value = "/uploadXmlFile", method = RequestMethod.POST)
     @ResponseBody
     public String uploadXmlFile(@RequestParam("file") MultipartFile file) {
-        return testServiceImpl.uploadXmlFile(file);
+        return flowTemplateServiceImpl.uploadXmlFile(file);
     }
 
     /**
@@ -81,7 +82,7 @@ public class FlowTemplateCtrl {
     @RequestMapping("/flowTemplateList")
     @ResponseBody
     public String flowTemplateList() {
-        return testServiceImpl.flowTemplateAllSelect();
+        return flowTemplateServiceImpl.flowTemplateList();
     }
 
     /**
@@ -96,6 +97,13 @@ public class FlowTemplateCtrl {
     public String loadingXml(HttpServletRequest request) {
         String templateId = request.getParameter("templateId");
         String loadId = request.getParameter("load");
-        return testServiceImpl.loadFlowTemplate(templateId, loadId);
+        String loadType = request.getParameter("loadType");
+        if ("TASK".equals(loadType)) {
+            return flowTemplateServiceImpl.loadTaskTemplate(templateId, loadId);
+        } else if ("GROUP".equals(loadType)) {
+            return flowTemplateServiceImpl.loadGroupTemplate(templateId, loadId);
+        } else {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("loadType is null");
+        }
     }
 }

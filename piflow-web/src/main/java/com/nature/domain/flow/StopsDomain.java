@@ -20,8 +20,8 @@ public class StopsDomain {
 
     private Specification<Stops> addEnableFlagParam() {
         Specification<Stops> specification = new Specification<Stops>() {
-        	private static final long serialVersionUID = 1L;
-        	
+            private static final long serialVersionUID = 1L;
+
             @Override
             public Predicate toPredicate(Root<Stops> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
                 //root.get("enableFlag") means to get the field name of enableFlag
@@ -54,5 +54,16 @@ public class StopsDomain {
     public int updateEnableFlagById(String id, boolean enableFlag) {
         return stopsJpaRepository.updateEnableFlagById(id, enableFlag);
     }
+
+    public Integer getMaxStopPageIdByFlowId(String flowId) {
+        return stopsJpaRepository.getMaxStopPageIdByFlowId(flowId);
+    }
+
+    public String[] getStopNamesByFlowId(String flowId) {
+        return stopsJpaRepository.getStopNamesByFlowId(flowId);
+    }
+
+
+
 
 }

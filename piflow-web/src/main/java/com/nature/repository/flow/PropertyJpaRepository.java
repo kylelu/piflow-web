@@ -18,7 +18,7 @@ public interface PropertyJpaRepository extends JpaRepository<Property, String>, 
     @Query("update Property c set c.enableFlag = :enableFlag where c.id = :id")
     int updateEnableFlagById(@Param("id") String id, @Param("enableFlag") boolean enableFlag);
 
-    @Query(value = "select * from flow_stops_property fsp where fsp.enable_flag = 1 and fsp.fk_stops_id = (:stopId)", nativeQuery = true)
+    @Query(nativeQuery = true,value = "select * from flow_stops_property fsp where fsp.enable_flag = 1 and fsp.fk_stops_id = (:stopId)")
     List<Property> getPropertyListByStopsId(@Param("stopId") String stopId);
 
 }

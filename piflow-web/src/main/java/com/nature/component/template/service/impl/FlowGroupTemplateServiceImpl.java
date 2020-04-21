@@ -95,7 +95,7 @@ public class FlowGroupTemplateServiceImpl implements IFlowGroupTemplateService {
             flowGroupTemplate.setLastUpdateDttm(new Date());
             flowGroupTemplate.setName(name);
             //XML to file and save to specified directory
-            String path = FileUtils.createXml(flowGroupXmlStr, name, ".xml", SysParamsCache.XML_PATH);
+            String path = FileUtils.createXml(flowGroupXmlStr, name, SysParamsCache.XML_PATH);
             flowGroupTemplate.setPath(path);
             flowGroupTemplateDomain.saveOrUpdate(flowGroupTemplate);
             rtnMap.put("code", 200);
@@ -241,9 +241,8 @@ public class FlowGroupTemplateServiceImpl implements IFlowGroupTemplateService {
         }
         // Get the maximum value of pageid in stop
         //String maxStopPageIdByFlowGroupId = flowMapper.getMaxFlowPageIdByFlowGroupId(loadId);
-        String maxStopPageIdByFlowGroupId = flowDomain.getMaxStopPageIdByFlowGroupId(loadId);
-        maxStopPageIdByFlowGroupId = StringUtils.isNotBlank(maxStopPageIdByFlowGroupId) ? maxStopPageIdByFlowGroupId : "0";
-        int maxPageId = Integer.parseInt(maxStopPageIdByFlowGroupId);
+        Integer maxPageId = flowDomain.getMaxFlowPageIdByFlowGroupId(loadId);
+        maxPageId = (null != maxPageId ? maxPageId : 0);
         String username = currentUser.getUsername();
         // Get the current flowGroup containing all flow names
         //String[] flowNamesByFlowGroupId = flowMapper.getFlowNamesByFlowGroupId(loadId);

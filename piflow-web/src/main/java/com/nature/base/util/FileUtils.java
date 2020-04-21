@@ -35,15 +35,14 @@ public class FileUtils {
      *
      * @param xmlStr   xml string
      * @param fileName File name
-     * @param type     File type (suffix)
      * @param path     (Storage path)
      * @return
      */
     @SuppressWarnings("deprecation")
-    public static String createXml(String xmlStr, String fileName, String type, String path) {
+    public static String createXml(String xmlStr, String fileName, String path) {
         CheckPathUtils.isChartPathExist(path);
         Document doc = strToDocument(xmlStr);
-        String realPath = path + fileName + type;
+        String realPath = path + fileName + ".xml";
         logger.debug("============Entry Generation Method：" + new Date().toLocaleString() + "=================");
         try {
             // Determine if the file exists, delete it if it exists
@@ -69,7 +68,7 @@ public class FileUtils {
             logger.error("update " + fileName + " error ：", exception);
         }
         logger.debug("============Exit Generation Method：" + new Date().toLocaleString() + "=================");
-        return path + fileName + type;
+        return realPath;
     }
 
 

@@ -34,16 +34,16 @@ public interface ProcessJpaRepository extends JpaRepository<Process, String>, Jp
     @Query("update Process c set c.enableFlag = :enableFlag where c.id = :id")
     int updateEnableFlagById(@Param("id") String id, @Param("enableFlag") boolean enableFlag);
 
-    @Query(value = "select * from flow_process s where s.enable_flag = 1 and s.fk_flow_process_group_id = :fid and s.page_id = :pageId", nativeQuery = true)
+    @Query(nativeQuery = true, value = "select * from flow_process s where s.enable_flag = 1 and s.fk_flow_process_group_id = :fid and s.page_id = :pageId")
     Process getProcessByPageId(@Param("fid") String fid, @Param("pageId") String pageId);
 
-    @Query(value = "select s.id from flow_process s where s.enable_flag = 1 and s.fk_flow_process_group_id = :fid and s.page_id = :pageId", nativeQuery = true)
+    @Query(nativeQuery = true, value = "select s.id from flow_process s where s.enable_flag = 1 and s.fk_flow_process_group_id = :fid and s.page_id = :pageId")
     String getProcessIdByPageId(@Param("fid") String fid, @Param("pageId") String pageId);
 
-    @Query(value = "select s.id from flow_process s where s.enable_flag = 1 and s.fk_flow_process_group_id = :fid and s.name = :processName", nativeQuery = true)
+    @Query(nativeQuery = true, value = "select s.id from flow_process s where s.enable_flag = 1 and s.fk_flow_process_group_id = :fid and s.name = :processName")
     String getProcessIdByNameAndProcessGroupId(@Param("fid") String fid, @Param("processName") String processName);
 
-    @Query(value = "select MAX(s.page_id+0) from flow_process s where s.enable_flag = 1 and s.fk_flow_process_group_id = :processGroupId", nativeQuery = true)
+    @Query(nativeQuery = true, value = "select MAX(s.page_id+0) from flow_process s where s.enable_flag = 1 and s.fk_flow_process_group_id = :processGroupId")
     String getMaxStopPageIdByProcessGroupId(@Param("processGroupId") String processGroupId);
 
 }

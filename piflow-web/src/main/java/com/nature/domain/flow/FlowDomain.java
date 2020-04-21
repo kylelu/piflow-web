@@ -54,8 +54,8 @@ public class FlowDomain {
         return flowJpaRepository.getFlowIdByNameAndFlowGroupId(fid, flowName);
     }
 
-    public String getMaxStopPageIdByFlowGroupId(String flowGroupId) {
-        return flowJpaRepository.getMaxStopPageIdByFlowGroupId(flowGroupId);
+    public Integer getMaxFlowPageIdByFlowGroupId(String flowGroupId) {
+        return flowJpaRepository.getMaxFlowPageIdByFlowGroupId(flowGroupId);
     }
 
     public String[] getFlowNamesByFlowGroupId(String flowGroupId){

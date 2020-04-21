@@ -78,7 +78,7 @@ function saveFlow() {
                 if (200 === dataMap.code) {
                     layer.msg('create success ', {icon: 1, shade: 0, time: 2000}, function () {
                         var tempWindow = window.open('_blank');
-                        if (tempWindow == null || typeof(tempWindow)=='undefined'){
+                        if (tempWindow == null || typeof (tempWindow) == 'undefined') {
                             alert('The window cannot be opened. Please check your browser settings.')
                         } else {
                             tempWindow.location = "/piflow-web/mxGraph/drawingBoard?drawingBoardType=TASK&load=" + dataMap.flowId;
@@ -162,7 +162,7 @@ function runFlows(loadId, runMode) {
                 layer.msg(dataMap.errorMsg, {icon: 1, shade: 0, time: 2000}, function () {
                     //Jump to monitoring page after successful startup
                     var tempWindow = window.open('_blank');
-                    if (tempWindow == null || typeof(tempWindow)=='undefined'){
+                    if (tempWindow == null || typeof (tempWindow) == 'undefined') {
                         alert('The window cannot be opened. Please check your browser settings.')
                     } else {
                         tempWindow.location = "/piflow-web/process/getProcessById?processId=" + dataMap.processId;
@@ -253,8 +253,12 @@ function saveTableTemplate(id, name) {
         $.ajax({
             cache: true,//Keep cached data
             type: "get",//Request type post
-            url: "/piflow-web/template/saveTemplate",//This is the name of the file where I receive data in the background.
-            data: {load: id, name: text},
+            url: "/piflow-web/flowTemplate/saveFlowTemplate",//This is the name of the file where I receive data in the background.
+            data: {
+                load: id,
+                name: text,
+                templateType: "TASK"
+            },
             async: true,
             error: function (request) {//Operation after request failure
                 console.log(" save template error");

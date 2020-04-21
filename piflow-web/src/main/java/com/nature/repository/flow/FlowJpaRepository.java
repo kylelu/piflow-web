@@ -35,19 +35,19 @@ public interface FlowJpaRepository extends JpaRepository<Flow, String>, JpaSpeci
     @Query("update Flow c set c.enableFlag = :enableFlag where c.id = :id")
     int updateEnableFlagById(@Param("id") String id, @Param("enableFlag") boolean enableFlag);
 
-    @Query(value = "select * from flow s where s.enable_flag=1 and s.fk_flow_group_id=:fid and s.page_id=:pageId", nativeQuery = true)
+    @Query(nativeQuery = true, value = "select * from flow s where s.enable_flag=1 and s.fk_flow_group_id=:fid and s.page_id=:pageId")
     Flow getFlowByPageId(@Param("fid") String fid, @Param("pageId") String pageId);
 
-    @Query(value = "select s.id from flow s where s.enable_flag=1 and s.fk_flow_group_id=:fid and s.page_id=:pageId", nativeQuery = true)
+    @Query(nativeQuery = true, value = "select s.id from flow s where s.enable_flag=1 and s.fk_flow_group_id=:fid and s.page_id=:pageId")
     String getFlowIdByPageId(@Param("fid") String fid, @Param("pageId") String pageId);
 
-    @Query(value = "select s.id from flow s where s.enable_flag=1 and s.fk_flow_group_id=:fid and s.name=:flowName", nativeQuery = true)
+    @Query(nativeQuery = true, value = "select s.id from flow s where s.enable_flag=1 and s.fk_flow_group_id=:fid and s.name=:flowName")
     String getFlowIdByNameAndFlowGroupId(@Param("fid") String fid, @Param("flowName") String flowName);
 
-    @Query(value = "select MAX(s.page_id+0) from flow s where s.enable_flag=1 and s.fk_flow_group_id=:flowGroupId", nativeQuery = true)
-    String getMaxStopPageIdByFlowGroupId(@Param("flowGroupId") String flowGroupId);
+    @Query(nativeQuery = true, value = "select MAX(s.page_id+0) from flow s where s.enable_flag=1 and s.fk_flow_group_id=:flowGroupId")
+    Integer getMaxFlowPageIdByFlowGroupId(@Param("flowGroupId") String flowGroupId);
 
-    @Query(value = "select f.name from flow f WHERE f.enable_flag=1 and f.fk_flow_group_id=:flowGroupId", nativeQuery = true)
+    @Query(nativeQuery = true, value = "select f.name from flow f WHERE f.enable_flag=1 and f.fk_flow_group_id=:flowGroupId")
     String[] getFlowNamesByFlowGroupId(@Param("flowGroupId") String flowGroupId);
 
 }

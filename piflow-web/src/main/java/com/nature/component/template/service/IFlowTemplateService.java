@@ -1,45 +1,22 @@
 package com.nature.component.template.service;
 
-import com.nature.component.template.model.FlowTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 
 
 public interface IFlowTemplateService {
 
+
     /**
-     * save FlowTemplate
+     * add FlowTemplate
      *
      * @param name
      * @param loadId
-     * @param value
+     * @param templateType
      * @return
      */
-    public String addFlowTemplate(String name, String loadId, String value);
-
-    /**
-     * Query the list of all FlowTemplates
-     *
-     * @return
-     */
-    public List<FlowTemplate> findFlowTemPlateList();
-
-    /**
-     * Delete the FlowTemplate based on id
-     *
-     * @param id
-     * @return
-     */
-    public int deleteFlowTemplate(String id);
-
-    /**
-     * Query the FlowTemplate by id
-     *
-     * @param id
-     * @return
-     */
-    public FlowTemplate queryFlowTemplate(String id);
+    public String addFlowTemplate(String name, String loadId, String templateType);
 
     /**
      * Query all FlowTemplate list pagination
@@ -51,7 +28,38 @@ public interface IFlowTemplateService {
      */
     public String getFlowTemplateListPage(Integer offset, Integer limit, String param);
 
-    public String loadFlowTemplateToFlow(String flowId,String flowTemplateId);
+    /**
+     * Delete the template based on id
+     *
+     * @param id
+     * @return
+     */
+    public int deleteFlowTemplate(String id);
 
-    public String uploadFlowTemplate(MultipartFile file);
+    /**
+     * Download template
+     *
+     * @param flowTemplateId
+     */
+    public void templateDownload(HttpServletResponse response, String flowTemplateId);
+
+    /**
+     * Query all templates for drop-down displays
+     *
+     * @return
+     */
+    public String flowTemplateList();
+
+    /**
+     * Upload xml file and save flowTemplate
+     *
+     * @param file
+     * @return
+     */
+    public String uploadXmlFile(MultipartFile file);
+
+    public String loadGroupTemplate(String templateId, String loadId);
+
+    public String loadTaskTemplate(String templateId, String flowId);
+
 }

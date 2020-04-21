@@ -36,6 +36,11 @@
         .error_class {
             border-color: #FF5722 !important;
         }
+
+        .layui-table-cell{
+            height:36px;
+            line-height: 36px;
+        }
     </style>
 </head>
 
@@ -137,7 +142,8 @@
                 initMenuFunc(sysMenuVoList);
             }
         }
-        $('#' + accessPath + 'MenuID').addClass("current");
+        var currentUrlId = window.location.pathname.replace(new RegExp("/", "gm"), "_") + '_menu_id';
+        $('a[menu_id=' + currentUrlId + ']').addClass("current");
     })();
 
     function playVideo() {
@@ -206,7 +212,8 @@
                     menuActiveMenuId = menuUrlSpits[menuUrlSpits.length - 1];
                 }
                 if (currentMenu) {
-                    menuParentHtml.find("a." + value.menuName).attr("menu_id", menuActiveMenuId + '_menu_id');
+                    var menu_id_str = value.menuUrl.replace(new RegExp("/", "gm"), "_");
+                    menuParentHtml.find("a." + value.menuName).attr("menu_id", menu_id_str + '_menu_id');
                     menuParentHtml.find("a." + value.menuName).attr("active_li_id", active_li_id);
                 }
                 if (currentPath == menuActiveMenuId) {

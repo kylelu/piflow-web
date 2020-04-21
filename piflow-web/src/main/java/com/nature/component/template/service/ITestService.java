@@ -1,14 +1,16 @@
 package com.nature.component.template.service;
 
+import com.nature.component.template.model.FlowTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 
 public interface ITestService {
 
+
     /**
-     * add FlowTemplate
+     * save FlowTemplate
      *
      * @param name
      * @param loadId
@@ -16,6 +18,29 @@ public interface ITestService {
      * @return
      */
     public String addFlowTemplate(String name, String loadId, String value);
+
+    /**
+     * Query the list of all FlowTemplates
+     *
+     * @return
+     */
+    public List<FlowTemplate> findFlowTemPlateList();
+
+    /**
+     * Delete the FlowTemplate based on id
+     *
+     * @param id
+     * @return
+     */
+    public int deleteFlowTemplate(String id);
+
+    /**
+     * Query the FlowTemplate by id
+     *
+     * @param id
+     * @return
+     */
+    public FlowTemplate queryFlowTemplate(String id);
 
     /**
      * Query all FlowTemplate list pagination
@@ -27,35 +52,8 @@ public interface ITestService {
      */
     public String getFlowTemplateListPage(Integer offset, Integer limit, String param);
 
-    /**
-     * Delete the template based on id
-     *
-     * @param id
-     * @return
-     */
-    public int deleteFlowTemplate(String id);
+    public String loadFlowTemplateToFlow(String flowId, String flowTemplateId);
 
-    /**
-     * Download template
-     *
-     * @param flowTemplateId
-     */
-    public void templateDownload(HttpServletResponse response, String flowTemplateId);
+    public String uploadFlowTemplate(MultipartFile file);
 
-    /**
-     * Query all templates for drop-down displays
-     *
-     * @return
-     */
-    public String flowTemplateAllSelect();
-
-    /**
-     * Upload xml file and save flowTemplate
-     *
-     * @param file
-     * @return
-     */
-    public String uploadXmlFile(MultipartFile file);
-
-    public String loadFlowTemplate(String templateId, String loadId);
 }

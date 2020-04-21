@@ -7,11 +7,11 @@ var pathsCells = [];
 var flag = 0;
 var timerPath;
 var currentStopPageId;
+var drawingBoardType = $("#drawingBoardType").val();
 var statusgroup,flowPageIdcha,flowGroupdata,cellsave,flowdatas,removegroupPaths
 
-
 function initGraph() {
-    Format.customizeType = $("#drawingBoardType").val();
+    Format.customizeType = drawingBoardType;
     Format.customizeTypeAttr_init();
     var editorUiInit = EditorUi.prototype.init;
 
@@ -1842,15 +1842,8 @@ function saveCheckpoints(stopId) {
     });
 }
 
-function saveTemplate() {
-    saveTemplateFun("/piflow-web/template/saveTemplate");
-}
-
-function saveFlowGroupTemplate() {
-    saveTemplateFun("/piflow-web/flowGroupTemplate/saveFlowGroupTemplate")
-}
-
 function saveTemplateFun(url) {
+    var templateType = drawingBoardType;
     var getXml = thisEditor.getGraphXml();
     var xml_outer_html = getXml.outerHTML;
     layer.prompt({
@@ -1862,11 +1855,12 @@ function saveTemplateFun(url) {
         $.ajax({
             cache: true,//Keep cached data
             type: "POST",//Request type post
-            url: url,
+            url: "/piflow-web/flowTemplate/saveFlowTemplate",
             data: {
                 value: xml_outer_html,
                 load: loadId,
-                name: text
+                name: text,
+                templateType: templateType
             },
             async: true,
             error: function (request) {//Operation after request failure
@@ -1895,16 +1889,8 @@ function uploadFlowGroupTemplateBtn() {
     document.getElementById("flowGroupTemplateFile").click();
 }
 
-function uploadXmlFile() {
-    uploadTemplateFile("uploadFile", "/piflow-web/template/upload");
-}
-
-function uploadFlowGroupTemplate() {
-    uploadTemplateFile("flowGroupTemplateFile", "/piflow-web/flowGroupTemplate/uploadXmlFile");
-}
-
-function uploadTemplateFile(elementId, url) {
-    if (!FileTypeCheck(elementId)) {
+function uploadTemplateFile(element) {
+    if (!FileTypeCheck(element)) {
         return false;
     }
     if (url) {
@@ -1913,7 +1899,7 @@ function uploadTemplateFile(elementId, url) {
     var formData = new FormData($('#uploadForm')[0]);
     $.ajax({
         type: 'post',
-        url: url,
+        url: '/piflow-web/flowTemplate/uploadXmlFile',
         data: formData,
         cache: false,
         processData: false,
@@ -1933,17 +1919,16 @@ function uploadTemplateFile(elementId, url) {
     });
 }
 
-function FileTypeCheck(elementId) {
-    var obj = document.getElementById(elementId);
-    if (obj.value == null || obj.value == '') {
+function FileTypeCheck(element) {
+    if (element.value == null || element.value == '') {
         layer.msg('please upload the XML file', {icon: 2, shade: 0, time: 2000}, function () {
         });
         this.focus()
         return false;
     }
-    var length = obj.value.length;
-    var charindex = obj.value.lastIndexOf(".");
-    var ExtentName = obj.value.substring(charindex, charindex + 4);
+    var length = element.value.length;
+    var charindex = element.value.lastIndexOf(".");
+    var ExtentName = element.value.substring(charindex, charindex + 4);
     if (!(ExtentName == ".xml")) {
         layer.msg('please upload the XML file', {icon: 2, shade: 0, time: 2000}, function () {
         });
@@ -1954,21 +1939,17 @@ function FileTypeCheck(elementId) {
 }
 
 function loadingXml(id, loadId) {
-    var url = "/piflow-web/template/loadingXmlPage";
-    if ('TASK' === Format.customizeType) {
-        url = "/piflow-web/template/loadingXmlPage";
-    } else if ('GROUP' === Format.customizeType) {
-        url = "/piflow-web/flowGroupTemplate/loadingXmlPage";
-    }
+    var loadType = Format.customizeType;
     fullScreen.show();
     $.ajax({
         type: 'post',
         data: {
             templateId: id,
+            loadType: loadType,
             load: loadId
         },
         async: true,
-        url: url,
+        url: "/piflow-web/flowTemplate/loadingXmlPage",
     }).success(function (data) {
         var dataMap = JSON.parse(data);
         var icon_code = 2;
@@ -1992,17 +1973,11 @@ function openTemplateList() {
     }
     var url = "";
     var functionNameStr = "";
-    if ('TASK' === Format.customizeType) {
-        url = "/piflow-web/template/templateAllSelect";
-        functionNameStr = "loadTemplate()";
-    } else if ('GROUP' === Format.customizeType) {
-        url = "/piflow-web/flowGroupTemplate/flowGroupTemplateAllSelect";
-        functionNameStr = "loadFlowGroupTemplate()";
-    } else {
+    if ('TASK' !== Format.customizeType && 'GROUP' !== Format.customizeType) {
         return;
     }
     $.ajax({
-        url: url,
+        url: "/piflow-web/flowTemplate/flowTemplateList",
         type: "post",
         async: false,
         success: function (data) {
@@ -2024,7 +1999,7 @@ function openTemplateList() {
                         + '</select>'
                         + '</div>');
                     loadTemplateBtn = '<div style="position: absolute;bottom: 12px;right: 10px;">'
-                        + '<input type="button" class="btn" value="Submit" onclick="' + functionNameStr + '"/>'
+                        + '<input type="button" class="btn" value="Submit" onclick="loadTemplateFun()"/>'
                         + '</div>';
                 }
                 showSelectDivHtml += (showSelectHtml + loadTemplateBtn + '</div>');
@@ -2044,14 +2019,6 @@ function openTemplateList() {
             }
         }
     });
-}
-
-function loadTemplate() {
-    loadTemplateFun();
-}
-
-function loadFlowGroupTemplate() {
-    loadTemplateFun();
 }
 
 function loadTemplateFun() {

@@ -20,6 +20,19 @@ import java.util.*;
 
 public class MxGraphModelUtils {
 
+    public static MxGraphModel mxGraphModelNewNoId(String username) {
+        MxGraphModel mxGraphModel = new MxGraphModel();
+        // basic properties (required when creating)
+        mxGraphModel.setCrtDttm(new Date());
+        mxGraphModel.setCrtUser(username);
+        // basic properties
+        mxGraphModel.setEnableFlag(true);
+        mxGraphModel.setLastUpdateUser(username);
+        mxGraphModel.setLastUpdateDttm(new Date());
+        mxGraphModel.setVersion(0L);
+        return mxGraphModel;
+    }
+
     public static MxGraphModel setMxGraphModelBasicInformation(MxGraphModel mxGraphModel, boolean isSetId, String username) {
         if (null == mxGraphModel) {
             mxGraphModel = new MxGraphModel();
@@ -270,7 +283,7 @@ public class MxGraphModelUtils {
      * @return
      */
     @SuppressWarnings("rawtypes")
-	public static Map<String, List> mxCellVoListToFlowAndFlowGroups(List<MxCellVo> mxCellVoList, FlowGroup flowGroup, String username) {
+    public static Map<String, List> mxCellVoListToFlowAndFlowGroups(List<MxCellVo> mxCellVoList, FlowGroup flowGroup, String username) {
         Map<String, List> rtnMapData = new HashMap<>();
         List<Flow> flowList = new ArrayList<>();
         List<FlowGroup> flowGroupList = new ArrayList<>();

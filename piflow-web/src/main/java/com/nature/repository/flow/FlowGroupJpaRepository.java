@@ -38,12 +38,12 @@ public interface FlowGroupJpaRepository extends JpaRepository<FlowGroup, String>
     @Query("update FlowGroup c set c.enableFlag = :enableFlag where c.id = :id")
     int updateEnableFlagById(@Param("id") String id, @Param("enableFlag") boolean enableFlag);
 
-    @Query(value = "select * from flow_group s where s.enable_flag = 1 and s.fk_flow_group_id = :fid and s.page_id = :pageId", nativeQuery = true)
+    @Query(nativeQuery = true, value = "select * from flow_group s where s.enable_flag = 1 and s.fk_flow_group_id = :fid and s.page_id = :pageId")
     FlowGroup getFlowGroupByPageId(@Param("fid") String fid, @Param("pageId") String pageId);
 
-    @Query(value = "select s.id from flow_group s where s.enable_flag = 1 and s.fk_flow_group_id = :fid and s.page_id = :pageId", nativeQuery = true)
+    @Query(nativeQuery = true, value = "select s.id from flow_group s where s.enable_flag = 1 and s.fk_flow_group_id = :fid and s.page_id = :pageId")
     String getFlowGroupIdByPageId(@Param("fid") String fid, @Param("pageId") String pageId);
 
-    @Query(value = "select s.id from flow_group s where s.enable_flag = 1 and s.fk_flow_group_id = :fid and s.name = :flowGroupName", nativeQuery = true)
+    @Query(nativeQuery = true, value = "select s.id from flow_group s where s.enable_flag = 1 and s.fk_flow_group_id = :fid and s.name = :flowGroupName")
     String getFlowGroupIdByNameAndFid(@Param("fid") String fid, @Param("flowGroupName") String flowGroupName);
 }

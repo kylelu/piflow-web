@@ -8,11 +8,11 @@ function initDatatableFlowTemplatePage(testTableId, url, searchInputId) {
             elem: '#' + testTableId
             , url: url
             , cols: [[
-                {field: 'name', title: 'TemplateName', sort: true}
-                , {field: 'crtDttm', title: 'CreateTime', sort: true}
-                , {
+                {field: 'name', title: 'TemplateName', sort: true},
+                {field: 'crtDttm', title: 'CreateTime', sort: true},
+                {
                     field: 'right', title: 'Actions', sort: true, height: 100, templet: function (data) {
-                        return responseHandlerTemplate(data);
+                        return responseActionsTemplate(data);
                     }
                 }
             ]]
@@ -21,13 +21,6 @@ function initDatatableFlowTemplatePage(testTableId, url, searchInputId) {
         });
     });
 
-    // $("#" + searchInputId).keyup(function (event) {
-    //     if(13==event.keyCode){
-    //         event.preventDefault();
-    //         searchMonitor(table, testTableId, searchInputId);
-    //     }
-    //
-    // });
     $("#" + searchInputId).bind('input propertychange', function () {
         searchMonitor(table, testTableId, searchInputId);
     });
@@ -44,16 +37,16 @@ function searchMonitor(layui_table, layui_table_id, searchInputId) {
 }
 
 //Results returned in the background
-function responseHandlerTemplate(res) {
+function responseActionsTemplate(res) {
     var actionsHtmlStr = '<div style="width: 100%; text-align: center" >' +
         '<a class="btn" ' +
         'href="javascript:void(0);" ' +
-        'onclick="javascript:downloadFlowGroupTemplate(\'' + res.id + '\');" ' +
+        'onclick="javascript:downloadFlowTemplate(\'' + res.id + '\');" ' +
         'title="download template">' +
         '<i class="icon-download icon-white"></i>' +
         '</a>' +
         '<a class="btn" href="javascript:void(0);" ' +
-        'onclick="javascript:deleteFlowGroupTemPlate(\'' + res.id + '\',\'' + res.name + '\'); "' +
+        'onclick="javascript:deleteFlowTemPlate(\'' + res.id + '\',\'' + res.name + '\'); "' +
         'title="delete template" > ' +
         '<i class="icon-trash icon-white"></i>' +
         '</a>' +
@@ -65,7 +58,7 @@ function searchTemplatePage() {
     flowGroupTemplateTable.ajax.reload();
 }
 
-function deleteFlowGroupTemPlate(id, name) {
+function deleteFlowTemPlate(id, name) {
     layer.confirm("Are you sure to delete '" + name + "' ?", {
         btn: ['confirm', 'cancel'] //button
         , title: 'Confirmation prompt'
@@ -73,7 +66,7 @@ function deleteFlowGroupTemPlate(id, name) {
         $.ajax({
             cache: true,//Keep cached data
             type: "get",//Request type post
-            url: "/piflow-web/flowGroupTemplate/deleteFlowGroupTemplate",//This is the name of the file where I receive data in the background.
+            url: "/piflow-web/flowTemplate/deleteFlowTemplate",//This is the name of the file where I receive data in the background.
             data: {id: id},
             async: true,//Setting it to true indicates that other code can still be executed after the request has started. If this option is set to false, it means that all requests are no longer asynchronous, which also causes the browser to be locked.
             error: function (request) {//Operation after request failure
@@ -99,7 +92,7 @@ function initAll(url) {
 }
 
 function listUploadFlowTemplateBtn() {
-    document.getElementById("flowGroupTemplateFile").click();
+    document.getElementById("flowTemplateFile").click();
 }
 
 function listUploadFlowTemplate() {
@@ -150,7 +143,7 @@ function listFileTypeCheck() {
     return true;
 }
 
-function downloadFlowGroupTemplate(id) {
-    window.location.href = "/piflow-web/flowGroupTemplate/templateDownload?flowGroupTemplateId=" + id;
+function downloadFlowTemplate(id) {
+    window.location.href = "/piflow-web/flowTemplate/templateDownload?flowTemplateId=" + id;
 }
 

@@ -188,9 +188,10 @@ public class FlowGroupServiceImpl implements IFlowGroupService {
                     }
                 }
             }
-            rtnMap.put("iTotalDisplayRecords", flowGroupListPage.getTotalElements());
-            rtnMap.put("iTotalRecords", flowGroupListPage.getTotalElements());
-            rtnMap.put("pageData", contentVo);//Data collection
+            rtnMap.put(ReturnMapUtils.KEY_CODE, ReturnMapUtils.SUCCEEDED_CODE);
+            rtnMap.put("msg", "");
+            rtnMap.put("count", flowGroupListPage.getTotalElements());
+            rtnMap.put("data", contentVo);//Data collection
             logger.debug("success");
         }
         return JsonUtils.toJsonNoException(rtnMap);
