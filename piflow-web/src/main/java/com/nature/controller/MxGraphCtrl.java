@@ -16,6 +16,8 @@ import com.nature.component.mxGraph.model.MxGraphModel;
 import com.nature.component.mxGraph.service.IMxGraphModelService;
 import com.nature.component.mxGraph.service.IMxNodeImageService;
 import com.nature.component.mxGraph.vo.MxGraphModelVo;
+import com.nature.component.process.service.IProcessGroupService;
+import com.nature.component.process.vo.ProcessGroupVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -55,6 +57,9 @@ public class MxGraphCtrl {
     @Resource
     private IMxNodeImageService mxNodeImageServiceImpl;
 
+    @Resource
+    private IProcessGroupService processGroupServiceImpl;
+
     /**
      * Enter the front page of the drawing board
      *
@@ -81,8 +86,8 @@ public class MxGraphCtrl {
             return "errorPage";
         }
         switch (drawingBoardType) {
-            case FLOW: {
-                Model flowHandleModel = flowHandle(model, load);
+            case PROCESS: {
+                Model flowHandleModel = processHandle(model, load);
                 if (null != flowHandleModel) {
                     model = flowHandleModel;
                     pagePath = "mxGraph/index";
@@ -109,13 +114,25 @@ public class MxGraphCtrl {
         return pagePath;
     }
 
-    private Model flowHandle(Model model, String load) {
+    private Model processHandle(Model model, String load) {
         if (StringUtils.isBlank(load)) {
             return null;
         }
         if (null == model) {
             return null;
         }
+        ProcessGroupVo processGroupVo = processGroupServiceImpl.getProcessGroupVoAllById(load);
+        if (null == processGroupVo) {
+            return null;
+        }
+        ProcessGroupVo parentsProcessGroupVo = processGroupVo.getProcessGroupVo();
+        if (null != processGroupVo) {
+            model.addAttribute("parentsId", parentsProcessGroupVo.getId());
+        }
+        MxGraphModelVo mxGraphModelVo = processGroupVo.getMxGraphModelVo();
+        String loadXml = FlowXmlUtils.mxGraphModelToXml(mxGraphModelVo);
+        model.addAttribute("xmlDate", loadXml);
+        model.addAttribute("load", load);
         return model;
     }
 

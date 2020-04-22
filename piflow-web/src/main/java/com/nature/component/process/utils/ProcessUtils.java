@@ -12,6 +12,8 @@ import com.nature.component.dataSource.model.DataSource;
 import com.nature.component.dataSource.model.DataSourceProperty;
 import com.nature.component.flow.model.*;
 import com.nature.component.mxGraph.model.MxGraphModel;
+import com.nature.component.mxGraph.utils.MxGraphModelUtils;
+import com.nature.component.mxGraph.vo.MxGraphModelVo;
 import com.nature.component.process.model.*;
 import com.nature.component.process.model.Process;
 import com.nature.component.process.vo.ProcessPathVo;
@@ -37,23 +39,28 @@ public class ProcessUtils {
     }
 
     public static ProcessVo processPoToVo(Process process) {
-        ProcessVo processVo = null;
-        if (null != process) {
-            processVo = new ProcessVo();
-            BeanUtils.copyProperties(process, processVo);
-            List<ProcessStop> processStopList = process.getProcessStopList();
-            List<ProcessPath> processPathList = process.getProcessPathList();
-            if (CollectionUtils.isNotEmpty(processStopList)) {
-                List<ProcessStopVo> processStopVos = processStopListPoToVo(processStopList);
-                if (CollectionUtils.isNotEmpty(processStopVos)) {
-                    processVo.setProcessStopVoList(processStopVos);
-                }
+        if (null == process) {
+            return null;
+        }
+        ProcessVo processVo = new ProcessVo();
+        BeanUtils.copyProperties(process, processVo);
+        MxGraphModel mxGraphModel = process.getMxGraphModel();
+        if (null != mxGraphModel) {
+            MxGraphModelVo mxGraphModelVo = MxGraphModelUtils.mxGraphModelPoToVo(mxGraphModel);
+            processVo.setMxGraphModelVo(mxGraphModelVo);
+        }
+        List<ProcessStop> processStopList = process.getProcessStopList();
+        if (CollectionUtils.isNotEmpty(processStopList)) {
+            List<ProcessStopVo> processStopVos = processStopListPoToVo(processStopList);
+            if (CollectionUtils.isNotEmpty(processStopVos)) {
+                processVo.setProcessStopVoList(processStopVos);
             }
-            if (CollectionUtils.isNotEmpty(processPathList)) {
-                List<ProcessPathVo> processPathVos = processPathListPoToVo(processPathList);
-                if (CollectionUtils.isNotEmpty(processPathVos)) {
-                    processVo.setProcessPathVoList(processPathVos);
-                }
+        }
+        List<ProcessPath> processPathList = process.getProcessPathList();
+        if (CollectionUtils.isNotEmpty(processPathList)) {
+            List<ProcessPathVo> processPathVos = processPathListPoToVo(processPathList);
+            if (CollectionUtils.isNotEmpty(processPathVos)) {
+                processVo.setProcessPathVoList(processPathVos);
             }
         }
         return processVo;

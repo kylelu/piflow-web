@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
@@ -33,10 +34,10 @@ public class ProcessGroupCtrl {
      */
     Logger logger = LoggerUtil.getLogger();
 
-    @Autowired
+    @Resource
     private IProcessGroupService processGroupServiceImpl;
 
-    @Autowired
+    @Resource
     private IProcessService processServiceImpl;
 
 
@@ -81,7 +82,7 @@ public class ProcessGroupCtrl {
         // Determine whether there is a flow id (load), if it exists, load it, otherwise generate UUID to return to the return page
         if (StringUtils.isNotBlank(processGroupId)) {
             // Query process by load id
-            ProcessGroupVo processGroupVo = processGroupServiceImpl.getProcessAllVoById(processGroupId);
+            ProcessGroupVo processGroupVo = processGroupServiceImpl.getProcessGroupVoAllById(processGroupId);
             if (null != processGroupVo) {
                 String svgStr = processGroupVo.getViewXml();
                 if (StringUtils.isNotBlank(svgStr)) {

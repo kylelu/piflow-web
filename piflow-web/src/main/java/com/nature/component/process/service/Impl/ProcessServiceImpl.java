@@ -73,7 +73,7 @@ public class ProcessServiceImpl implements IProcessService {
         	processVoList = new ArrayList<>();
             for (Process process : processList) {
                 if (null != process) {
-                    ProcessVo processVo = this.processPoToVo(process);
+                    ProcessVo processVo = ProcessUtils.processPoToVo(process);
                     processVo.setCrtDttm(process.getCrtDttm());
                     processVoList.add(processVo);
                 }
@@ -116,7 +116,7 @@ public class ProcessServiceImpl implements IProcessService {
         ProcessVo processVo = null;
         if (StringUtils.isNotBlank(id)) {
             Process processById = processMapper.getProcessById(id);
-            processVo = this.processPoToVo(processById);
+            processVo = ProcessUtils.processPoToVo(processById);
             ProcessGroup processGroup = processById.getProcessGroup();
             if (null != processGroup) {
                 ProcessGroupVo processGroupVo = new ProcessGroupVo();
@@ -158,7 +158,7 @@ public class ProcessServiceImpl implements IProcessService {
         ProcessVo processVo = null;
         Process processById = processMapper.getProcessById(id);
         if (null != processById) {
-            processVo = this.processPoToVo(processById);
+            processVo = ProcessUtils.processPoToVo(processById);
         }
         return processVo;
     }
@@ -175,7 +175,7 @@ public class ProcessServiceImpl implements IProcessService {
         if (StringUtils.isNotBlank(appId)) {
             Process processById = processMapper.getProcessByAppId(appId);
             if (null != processById) {
-                processVo = this.processPoToVo(processById);
+                processVo = ProcessUtils.processPoToVo(processById);
             }
         }
         return processVo;
@@ -270,7 +270,7 @@ public class ProcessServiceImpl implements IProcessService {
                     }
                 }
             }
-            processVo = this.processPoToVo(processById);
+            processVo = ProcessUtils.processPoToVo(processById);
         }
 
         return processVo;
@@ -358,7 +358,7 @@ public class ProcessServiceImpl implements IProcessService {
                                     processTransaction.updateProcess(process);
                                 }
                             }
-                            processVo = this.processPoToVo(process);
+                            processVo = ProcessUtils.processPoToVo(process);
                         } else if (null == process.getStartTime()) {
                             processVo = this.getAppInfoByThirdAndSave(process.getAppId());
                         }
@@ -396,7 +396,7 @@ public class ProcessServiceImpl implements IProcessService {
                 rtnMap.put("code", 200);
                 for (Process process : processListByAppIDs) {
                     if (null != process) {
-                        ProcessVo processVo = this.processPoToVo(process);
+                        ProcessVo processVo = ProcessUtils.processPoToVo(process);
                         if (null != process) {
                             rtnMap.put(processVo.getAppId(), processVo);
                         }
@@ -475,7 +475,7 @@ public class ProcessServiceImpl implements IProcessService {
                 if (null != process) {
                     int addProcess = processTransaction.addProcess(process);
                     if (addProcess > 0) {
-                        processVo = this.processPoToVo(process);
+                        processVo = ProcessUtils.processPoToVo(process);
                     } else {
                         logger.warn("Save failed, transform failed");
                     }
@@ -487,30 +487,6 @@ public class ProcessServiceImpl implements IProcessService {
             }
         } else {
             logger.warn("The parameter'flowId'is empty and the conversion fails");
-        }
-        return processVo;
-    }
-
-    private ProcessVo processPoToVo(Process process) {
-        ProcessVo processVo = null;
-        if (null != process) {
-            processVo = new ProcessVo();
-            BeanUtils.copyProperties(process, processVo);
-            processVo.setCrtDttm(process.getCrtDttm());
-            List<ProcessStopVo> processStopVoList = ProcessUtils.processStopListPoToVo(process.getProcessStopList());
-            processVo.setProcessStopVoList(processStopVoList);
-            List<ProcessPath> processPathList = process.getProcessPathList();
-            if (null != processPathList && processPathList.size() > 0) {
-                List<ProcessPathVo> processPathVoList = new ArrayList<>();
-                for (ProcessPath processPath : processPathList) {
-                    if (null != processPath) {
-                        ProcessPathVo processPathVo = new ProcessPathVo();
-                        BeanUtils.copyProperties(processPath, processPathVo);
-                        processPathVoList.add(processPathVo);
-                    }
-                }
-                processVo.setProcessPathVoList(processPathVoList);
-            }
         }
         return processVo;
     }

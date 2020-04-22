@@ -4,6 +4,7 @@ import com.nature.base.BaseHibernateModelUUIDNoCorpAgentId;
 import com.nature.common.Eunm.ProcessParentType;
 import com.nature.common.Eunm.ProcessState;
 import com.nature.common.Eunm.RunModeType;
+import com.nature.component.mxGraph.model.MxGraphModel;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OrderBy;
@@ -26,6 +27,10 @@ public class Process extends BaseHibernateModelUUIDNoCorpAgentId {
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FK_FLOW_PROCESS_GROUP_ID")
     private ProcessGroup processGroup;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "process")
+    @Where(clause = "enable_flag=1")
+    private MxGraphModel mxGraphModel;
 
     @Column(columnDefinition = "varchar(255) COMMENT 'Process name'")
     private String name;
