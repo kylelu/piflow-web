@@ -494,6 +494,4 @@ public class ProcessGroupUtils {
         }
         return processGroupVo;
     }
-
-
 }

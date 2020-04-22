@@ -1,6 +1,5 @@
 package com.nature.component.process.service.Impl;
 
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.nature.base.util.*;
 import com.nature.base.vo.UserVo;
@@ -24,6 +23,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -209,9 +209,25 @@ public class ProcessGroupServiceImpl implements IProcessGroupService {
         if (null == offset || null == limit) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr(ReturnMapUtils.ERROR_MSG);
         }
-        Page<ProcessGroup> page = PageHelper.startPage(offset, limit);
-        processGroupMapper.getProcessGroupListByParam(param);
-        Map<String, Object> rtnMap = PageHelperUtils.setDataTableParam(page, null);
+        Page<ProcessGroup> processGroupListPage = processGroupDomain.getProcessGroupListPage(offset - 1, limit, param);
+        List<ProcessGroup> content = processGroupListPage.getContent();
+        List<ProcessGroupVo> processGroupVoList = null;
+        if (null != content && content.size() > 0) {
+            processGroupVoList = new ArrayList<>();
+            ProcessGroupVo processGroupVo;
+            for (ProcessGroup processGroup : content) {
+                if (null == processGroup) {
+                    continue;
+                }
+                processGroupVo = new ProcessGroupVo();
+                BeanUtils.copyProperties(processGroup, processGroupVo);
+                processGroupVoList.add(processGroupVo);
+            }
+        }
+        Map<String, Object> rtnMap = ReturnMapUtils.setSucceededMsg(ReturnMapUtils.SUCCEEDED_MSG);
+        rtnMap.put("msg", "");
+        rtnMap.put("count", processGroupListPage.getTotalElements());
+        rtnMap.put("data", processGroupVoList);//Data collection
         return JsonUtils.toJsonNoException(rtnMap);
     }
 

@@ -30,7 +30,6 @@
                         <input class="layui-input" name="param" id="search_input_id" autocomplete="off">
                     </div>
                 </div>
-
                 <table class="layui-hide" id="flowTemplateTableId" lay-filter="user"></table>
             </div>
         </div>
@@ -41,7 +40,7 @@
     <script th:include="Macro/csrfTokeHeadMacro :: csrfTokeHeadMacroScript"/>
     <script th:src="@{/custom/js/flow/flowTemplateList.js}"></script>
     <script th:inline="javascript">
-        initDatatableFlowTemplatePage('flowTemplateTableId', "/piflow-web/flowTemplate/flowTemplatePage","search_input_id");
+        initDatatableFlowTemplatePage('flowTemplateTableId', "/piflow-web/flowTemplate/flowTemplatePage", "search_input_id");
         //@ sourceURL=flow_template_List.js
     </script>
 </body>

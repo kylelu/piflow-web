@@ -44,13 +44,15 @@ public class ProcessGroupCtrl {
     /**
      * Query and enter the process list
      *
-     * @param request
+     * @param page
+     * @param limit
+     * @param param
      * @return
      */
     @RequestMapping("/processGroupListPage")
     @ResponseBody
-    public String processGroupListPage(HttpServletRequest request, Integer start, Integer length, Integer draw, String extra_search) {
-        return processGroupServiceImpl.getProcessGroupVoListPage(start / length + 1, length, extra_search);
+    public String processGroupListPage(Integer page, Integer limit, String param) {
+        return processGroupServiceImpl.getProcessGroupVoListPage(page, limit, param);
     }
 
     /**
