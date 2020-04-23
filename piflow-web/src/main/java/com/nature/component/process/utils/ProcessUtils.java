@@ -8,8 +8,7 @@ import com.nature.common.Eunm.PortType;
 import com.nature.common.Eunm.ProcessParentType;
 import com.nature.common.Eunm.ProcessState;
 import com.nature.common.Eunm.RunModeType;
-import com.nature.component.dataSource.model.DataSource;
-import com.nature.component.dataSource.model.DataSourceProperty;
+import com.nature.component.dataSource.utils.DataSourceUtils;
 import com.nature.component.flow.model.*;
 import com.nature.component.mxGraph.model.MxGraphModel;
 import com.nature.component.mxGraph.utils.MxGraphModelUtils;
@@ -30,6 +29,21 @@ public class ProcessUtils {
 
     public static Process processNewNoId(String username) {
         Process process = new Process();
+        // basic properties (required when creating)
+        process.setCrtDttm(new Date());
+        process.setCrtUser(username);
+        // basic properties
+        process.setEnableFlag(true);
+        process.setLastUpdateUser(username);
+        process.setLastUpdateDttm(new Date());
+        process.setVersion(0L);
+        return process;
+    }
+
+    public static Process initProcessBasicPropertiesNoId(Process process, String username) {
+        if (null == process) {
+            return processNewNoId(username);
+        }
         // basic properties (required when creating)
         process.setCrtDttm(new Date());
         process.setCrtUser(username);
@@ -146,12 +160,8 @@ public class ProcessUtils {
             // Copy flow information to process
             BeanUtils.copyProperties(flow, process);
             // Set basic information
+            process = initProcessBasicPropertiesNoId(process, username);
             process.setId(SqlUtils.getUUID32());
-            process.setCrtDttm(new Date());
-            process.setCrtUser(username);
-            process.setLastUpdateDttm(new Date());
-            process.setLastUpdateUser(username);
-            process.setEnableFlag(true);
             FlowGroup flowGroup = flow.getFlowGroup();
             //Set default
             process.setProcessParentType(ProcessParentType.PROCESS);
@@ -160,10 +170,22 @@ public class ProcessUtils {
             }
             // Take out the flow board information of the flow
             MxGraphModel mxGraphModel = flow.getMxGraphModel();
-            // Flow artboard information is converted to ViewXml
+            // Flow artBoard information is converted to ViewXml
+            /*
             String viewXml = SvgUtils.mxGraphModelToViewXml(mxGraphModel, false, false);
             // set viewXml
             process.setViewXml(viewXml);
+            */
+            MxGraphModel mxGraphModelProcess = new MxGraphModel();
+            BeanUtils.copyProperties(mxGraphModel, mxGraphModelProcess);
+            mxGraphModelProcess = MxGraphModelUtils.removeIdMxGraphModel(mxGraphModelProcess);
+            mxGraphModelProcess = MxGraphModelUtils.initMxGraphModelBasicPropertiesNoId(mxGraphModelProcess, username);
+            // unlink
+            mxGraphModelProcess.setFlow(null);
+            // add link
+            mxGraphModelProcess.setProcess(process);
+            process.setMxGraphModel(mxGraphModelProcess);
+
             // set flowId
             process.setFlowId(flow.getId());
             // Stops to remove flow
@@ -175,103 +197,78 @@ public class ProcessUtils {
                 // Loop stopsList
                 for (Stops stops : stopsList) {
                     // isEmpty
-                    if (null != stops) {
-                        ProcessStop processStop = new ProcessStop();
-                        // Copy stops information into processStop
-                        BeanUtils.copyProperties(stops, processStop);
-                        // Set basic information
-                        processStop.setId(SqlUtils.getUUID32());
-                        processStop.setCrtDttm(new Date());
-                        processStop.setCrtUser(username);
-                        processStop.setLastUpdateDttm(new Date());
-                        processStop.setLastUpdateUser(username);
-                        processStop.setEnableFlag(true);
-                        // Associate foreign key
-                        processStop.setProcess(process);
-                        // Remove the properties of stops
-                        List<Property> properties = stops.getProperties();
-                        // Determine if the stops attribute is empty
-                        if (null != properties && properties.size() > 0) {
-                            List<ProcessStopProperty> processStopPropertyList = new ArrayList<ProcessStopProperty>();
-                            Map<String, String> dataSourcePropertyMap = new HashMap<>();
-                            DataSource dataSource = stops.getDataSource();
-                            if (null != dataSource) {
-                                List<DataSourceProperty> dataSourcePropertyList = dataSource.getDataSourcePropertyList();
-                                if (null != dataSourcePropertyList && dataSourcePropertyList.size() > 0) {
-                                    // Loop "datasource" attribute to map
-                                    for (DataSourceProperty dataSourceProperty : dataSourcePropertyList) {
-                                        // "datasource" attribute name
-                                        String dataSourcePropertyName = dataSourceProperty.getName();
-                                        // Judge empty and lowercase
-                                        if (StringUtils.isNotBlank(dataSourcePropertyName)) {
-                                            dataSourcePropertyName = dataSourcePropertyName.toLowerCase();
-                                        }
-                                        dataSourcePropertyMap.put(dataSourcePropertyName, dataSourceProperty.getValue());
-                                    }
-                                }
-                            }
-                            // Attributes of loop stops
-                            for (Property property : properties) {
-                                // isEmpty
-                                if (null != property) {
-                                    ProcessStopProperty processStopProperty = new ProcessStopProperty();
-                                    // Copy property information into processStopProperty
-                                    BeanUtils.copyProperties(property, processStopProperty);
-                                    // Set basic information
-                                    processStopProperty.setId(SqlUtils.getUUID32());
-                                    processStopProperty.setCrtDttm(new Date());
-                                    processStopProperty.setCrtUser(username);
-                                    processStopProperty.setLastUpdateDttm(new Date());
-                                    processStopProperty.setLastUpdateUser(username);
-                                    processStopProperty.setEnableFlag(true);
-                                    // "stop" attribute name
-                                    String name = property.getName();
-                                    // Judge empty
-                                    if (StringUtils.isNotBlank(name)) {
-                                        // Go to the map of the "datasource" attribute
-                                        String value = dataSourcePropertyMap.get(name.toLowerCase());
-                                        // Judge empty
-                                        if (StringUtils.isNotBlank(value)) {
-                                            // Assignment
-                                            processStopProperty.setCustomValue(value);
-                                        }
-                                    }
-                                    // Associated foreign key
-                                    processStopProperty.setProcessStop(processStop);
-                                    processStopPropertyList.add(processStopProperty);
-                                }
-                            }
-                            processStop.setProcessStopPropertyList(processStopPropertyList);
-                        }
-
-                        // Take out the custom properties of stops
-                        List<CustomizedProperty> customizedPropertyList = stops.getCustomizedPropertyList();
-                        // Determine if the stops attribute is empty
-                        if (null != customizedPropertyList && customizedPropertyList.size() > 0) {
-                            List<ProcessStopCustomizedProperty> processStopCustomizedPropertyList = new ArrayList<>();
-                            // Attributes of loop stops
-                            for (CustomizedProperty customizedProperty : customizedPropertyList) {
-                                // isEmpty
-                                if (null != customizedProperty) {
-                                    ProcessStopCustomizedProperty processStopCustomizedProperty = new ProcessStopCustomizedProperty();
-                                    // Copy customizedProperty information into processStopCustomizedProperty
-                                    BeanUtils.copyProperties(customizedProperty, processStopCustomizedProperty);
-                                    // Set basic information
-                                    processStopCustomizedProperty.setId(SqlUtils.getUUID32());
-                                    processStopCustomizedProperty.setCrtDttm(new Date());
-                                    processStopCustomizedProperty.setCrtUser(username);
-                                    processStopCustomizedProperty.setLastUpdateDttm(new Date());
-                                    processStopCustomizedProperty.setLastUpdateUser(username);
-                                    processStopCustomizedProperty.setEnableFlag(true);
-                                    // Associated foreign key
-                                    processStopCustomizedProperty.setProcessStop(processStop);
-                                    processStopCustomizedPropertyList.add(processStopCustomizedProperty);
-                                }
-                            }
-                            processStop.setProcessStopCustomizedPropertyList(processStopCustomizedPropertyList);
-                        }
-                        processStopList.add(processStop);
+                    if (null == stops) {
+                        continue;
                     }
+                    ProcessStop processStop = new ProcessStop();
+                    // Copy stops information into processStop
+                    BeanUtils.copyProperties(stops, processStop);
+                    // Set basic information
+                    processStop = ProcessStopUtils.initProcessStopBasicPropertiesNoId(processStop, username);
+                    processStop.setId(SqlUtils.getUUID32());
+                    // Associate foreign key
+                    processStop.setProcess(process);
+                    // Remove the properties of stops
+                    List<Property> properties = stops.getProperties();
+                    // Determine if the stops attribute is empty
+                    if (null != properties && properties.size() > 0) {
+                        Map<String, String> dataSourcePropertyMap = DataSourceUtils.dataSourceToPropertyMap(stops.getDataSource());
+                        List<ProcessStopProperty> processStopPropertyList = new ArrayList<>();
+                        // Attributes of loop stops
+                        for (Property property : properties) {
+                            // isEmpty
+                            if (null == property) {
+                                continue;
+                            }
+                            ProcessStopProperty processStopProperty = new ProcessStopProperty();
+                            // Copy property information into processStopProperty
+                            BeanUtils.copyProperties(property, processStopProperty);
+                            // Set basic information
+                            processStopProperty = ProcessStopPropertyUtils.initProcessStopPropertyBasicPropertiesNoId(processStopProperty, username);
+                            processStopProperty.setId(SqlUtils.getUUID32());
+                            // "stop" attribute name
+                            String name = property.getName();
+                            // Judge empty
+                            if (StringUtils.isNotBlank(name)) {
+                                // Go to the map of the "datasource" attribute
+                                String value = dataSourcePropertyMap.get(name.toLowerCase());
+                                // Judge empty
+                                if (StringUtils.isNotBlank(value)) {
+                                    // Assignment
+                                    processStopProperty.setCustomValue(value);
+                                }
+                            }
+                            // Associated foreign key
+                            processStopProperty.setProcessStop(processStop);
+                            processStopPropertyList.add(processStopProperty);
+                        }
+                        processStop.setProcessStopPropertyList(processStopPropertyList);
+                    }
+
+                    // Take out the custom properties of stops
+                    List<CustomizedProperty> customizedPropertyList = stops.getCustomizedPropertyList();
+                    // Determine if the stops attribute is empty
+                    if (null != customizedPropertyList && customizedPropertyList.size() > 0) {
+                        List<ProcessStopCustomizedProperty> processStopCustomizedPropertyList = new ArrayList<>();
+                        // Attributes of loop stops
+                        for (CustomizedProperty customizedProperty : customizedPropertyList) {
+                            // isEmpty
+                            if (null == customizedProperty) {
+                                continue;
+                            }
+                            ProcessStopCustomizedProperty processStopCustomizedProperty = new ProcessStopCustomizedProperty();
+                            // Copy customizedProperty information into processStopCustomizedProperty
+                            BeanUtils.copyProperties(customizedProperty, processStopCustomizedProperty);
+                            // Set basic information
+                            processStopCustomizedProperty = ProcessStopCustomizedPropertyUtils.initProcessStopCustomizedPropertyBasicPropertiesNoId(processStopCustomizedProperty, username);
+                            processStopCustomizedProperty.setId(SqlUtils.getUUID32());
+                            // Associated foreign key
+                            processStopCustomizedProperty.setProcessStop(processStop);
+                            processStopCustomizedPropertyList.add(processStopCustomizedProperty);
+                        }
+                        processStop.setProcessStopCustomizedPropertyList(processStopCustomizedPropertyList);
+                    }
+                    processStopList.add(processStop);
                 }
                 process.setProcessStopList(processStopList);
             }
@@ -283,21 +280,18 @@ public class ProcessUtils {
                 // Loop paths information
                 for (Paths paths : pathsList) {
                     // isEmpty
-                    if (null != paths) {
-                        ProcessPath processPath = new ProcessPath();
-                        // Copy paths information into processPath
-                        BeanUtils.copyProperties(paths, processPath);
-                        // Set basic information
-                        processPath.setId(SqlUtils.getUUID32());
-                        processPath.setCrtDttm(new Date());
-                        processPath.setCrtUser(username);
-                        processPath.setLastUpdateDttm(new Date());
-                        processPath.setLastUpdateUser(username);
-                        processPath.setEnableFlag(true);
-                        // Associated foreign key
-                        processPath.setProcess(process);
-                        processPathList.add(processPath);
+                    if (null == paths) {
+                        continue;
                     }
+                    ProcessPath processPath = new ProcessPath();
+                    // Copy paths information into processPath
+                    BeanUtils.copyProperties(paths, processPath);
+                    // Set basic information
+                    processPath = ProcessPathUtils.initProcessPathBasicPropertiesNoId(processPath, username);
+                    processPath.setId(SqlUtils.getUUID32());
+                    // Associated foreign key
+                    processPath.setProcess(process);
+                    processPathList.add(processPath);
                 }
                 process.setProcessPathList(processPathList);
             }
@@ -311,22 +305,12 @@ public class ProcessUtils {
             String username = currentUser.getUsername();
             if (StringUtils.isNotBlank(username) && null != process) {
                 processCopy = new Process();
+                BeanUtils.copyProperties(process, processCopy);
+                processCopy = ProcessUtils.initProcessBasicPropertiesNoId(processCopy, username);
                 processCopy.setId(SqlUtils.getUUID32());
-                processCopy.setCrtUser(username);
-                processCopy.setCrtDttm(new Date());
-                processCopy.setLastUpdateUser(username);
-                processCopy.setLastUpdateDttm(new Date());
-                processCopy.setEnableFlag(true);
                 processCopy.setState(ProcessState.STARTED);
                 processCopy.setRunModeType(null != runModeType ? runModeType : RunModeType.RUN);
-                processCopy.setName(process.getName());
-                processCopy.setDriverMemory(process.getDriverMemory());
-                processCopy.setExecutorNumber(process.getExecutorNumber());
-                processCopy.setExecutorMemory(process.getExecutorMemory());
-                processCopy.setExecutorCores(process.getExecutorCores());
-                processCopy.setDescription(process.getDescription());
-                processCopy.setViewXml(process.getViewXml());
-                processCopy.setFlowId(process.getFlowId());
+
                 processCopy.setParentProcessId(StringUtils.isNotBlank(process.getParentProcessId()) ? process.getParentProcessId() : process.getProcessId());
                 processCopy.setProcessParentType(ProcessParentType.PROCESS);
                 ProcessGroup processGroup = process.getProcessGroup();

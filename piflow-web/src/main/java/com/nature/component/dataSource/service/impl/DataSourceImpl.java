@@ -1,12 +1,11 @@
 package com.nature.component.dataSource.service.impl;
 
-import com.github.pagehelper.PageInfo;
 import com.nature.base.util.*;
 import com.nature.base.vo.UserVo;
 import com.nature.component.dataSource.model.DataSource;
 import com.nature.component.dataSource.model.DataSourceProperty;
 import com.nature.component.dataSource.service.IDataSource;
-import com.nature.component.dataSource.utils.DataSourceUtil;
+import com.nature.component.dataSource.utils.DataSourceUtils;
 import com.nature.component.dataSource.vo.DataSourcePropertyVo;
 import com.nature.component.dataSource.vo.DataSourceVo;
 import com.nature.component.flow.model.Property;
@@ -227,7 +226,7 @@ public class DataSourceImpl implements IDataSource {
         if (StringUtils.isNotBlank(id)) {
             DataSource dataSourceById = dataSourceMapper.getDataSourceById(id);
             if (null != dataSourceById) {
-                dataSourceVo = DataSourceUtil.dataSourcePoToVo(dataSourceById, true);
+                dataSourceVo = DataSourceUtils.dataSourcePoToVo(dataSourceById, true);
             }
         }
         return dataSourceVo;
@@ -257,7 +256,7 @@ public class DataSourceImpl implements IDataSource {
         } else {
             dataSourceList = dataSourceMapper.getDataSourceList();
         }
-        List<DataSourceVo> dataSourceVoList = DataSourceUtil.dataSourceListPoToVo(dataSourceList, false);
+        List<DataSourceVo> dataSourceVoList = DataSourceUtils.dataSourceListPoToVo(dataSourceList, false);
         if (null != dataSourceVoList && dataSourceVoList.size() > 0) {
             rtnMap.put("data", dataSourceVoList);
         }
@@ -267,7 +266,7 @@ public class DataSourceImpl implements IDataSource {
 
     @Override
     public List<DataSourceVo> getDataSourceTemplateList() {
-        return DataSourceUtil.dataSourceListPoToVo(dataSourceMapper.getDataSourceTemplateList(), true);
+        return DataSourceUtils.dataSourceListPoToVo(dataSourceMapper.getDataSourceTemplateList(), true);
     }
 
     @Override

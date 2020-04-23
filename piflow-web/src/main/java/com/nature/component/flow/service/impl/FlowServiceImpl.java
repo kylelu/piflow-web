@@ -9,7 +9,7 @@ import com.nature.common.Eunm.RunModeType;
 import com.nature.component.flow.model.*;
 import com.nature.component.flow.service.IFlowService;
 import com.nature.component.flow.utils.PathsUtil;
-import com.nature.component.flow.utils.StopsUtil;
+import com.nature.component.flow.utils.StopsUtils;
 import com.nature.component.flow.vo.FlowVo;
 import com.nature.component.flow.vo.PathsVo;
 import com.nature.component.flow.vo.StopsVo;
@@ -153,7 +153,7 @@ public class FlowServiceImpl implements IFlowService {
             //Take out 'mxGraphModel' and convert to Vo
             MxGraphModelVo mxGraphModelVo = MxGraphModelUtils.mxGraphModelPoToVo(flowById.getMxGraphModel());
             //Take out 'stopsList' and turn it to Vo
-            List<StopsVo> stopsVoList = StopsUtil.stopsListPoToVo(flowById.getStopsList());
+            List<StopsVo> stopsVoList = StopsUtils.stopsListPoToVo(flowById.getStopsList());
             //Take out 'pathsList' and turn it to Vo
             List<PathsVo> pathsVoList = PathsUtil.pathsListPoToVo(flowById.getPathsList());
             //Take out 'flowInfoDb' and turn it to Vo

@@ -8,7 +8,7 @@ import com.nature.component.flow.model.Property;
 import com.nature.component.flow.model.Stops;
 import com.nature.component.flow.request.UpdatePathRequest;
 import com.nature.component.flow.service.IPropertyService;
-import com.nature.component.flow.utils.StopsUtil;
+import com.nature.component.flow.utils.StopsUtils;
 import com.nature.component.flow.vo.StopsVo;
 import com.nature.component.group.model.PropertyTemplate;
 import com.nature.component.group.model.StopsTemplate;
@@ -44,7 +44,7 @@ public class PropertyServiceImpl implements IPropertyService {
     @Override
     public StopsVo queryAll(String fid, String stopPageId) {
         Stops stops = propertyMapper.getStopGroupList(fid, stopPageId);
-        StopsVo stopsVo = StopsUtil.stopPoToVo(stops);
+        StopsVo stopsVo = StopsUtils.stopPoToVo(stops);
         return stopsVo;
     }
 
