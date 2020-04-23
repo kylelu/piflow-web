@@ -126,7 +126,7 @@ public class MxGraphCtrl {
             return null;
         }
         ProcessGroupVo parentsProcessGroupVo = processGroupVo.getProcessGroupVo();
-        if (null != processGroupVo) {
+        if (null != parentsProcessGroupVo) {
             model.addAttribute("parentsId", parentsProcessGroupVo.getId());
         }
         MxGraphModelVo mxGraphModelVo = processGroupVo.getMxGraphModelVo();

@@ -297,12 +297,7 @@ public class ProcessGroupUtils {
         if (null != currentUser) {
             String username = currentUser.getUsername();
             if (StringUtils.isNotBlank(username) && null != process) {
-                processCopy = new Process();
-                processCopy.setCrtUser(username);
-                processCopy.setCrtDttm(new Date());
-                processCopy.setLastUpdateUser(username);
-                processCopy.setLastUpdateDttm(new Date());
-                processCopy.setEnableFlag(true);
+                processCopy = ProcessUtils.processNewNoId(username);
                 processCopy.setState(ProcessState.INIT);
                 processCopy.setRunModeType(null != runModeType ? runModeType : RunModeType.RUN);
                 processCopy.setName(process.getName());

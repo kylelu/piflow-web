@@ -28,6 +28,19 @@ import java.util.*;
 
 public class ProcessUtils {
 
+    public static Process processNewNoId(String username) {
+        Process process = new Process();
+        // basic properties (required when creating)
+        process.setCrtDttm(new Date());
+        process.setCrtUser(username);
+        // basic properties
+        process.setEnableFlag(true);
+        process.setLastUpdateUser(username);
+        process.setLastUpdateDttm(new Date());
+        process.setVersion(0L);
+        return process;
+    }
+
     public static ProcessVo processOnePoToVo(Process process) {
         ProcessVo processVo = null;
         if (null != process) {
