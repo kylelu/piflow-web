@@ -45,10 +45,6 @@ public class ProcessDomain {
         return processJpaRepository.saveAll(processList);
     }
 
-    public int updateEnableFlagById(String id, boolean enableFlag) {
-        return processJpaRepository.updateEnableFlagById(id, enableFlag);
-    }
-
     public Process getProcessByPageId(String fid, String pageId) {
         return processJpaRepository.getProcessByPageId(fid, pageId);
     }
