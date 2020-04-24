@@ -42,6 +42,11 @@ public class IndexCtrl {
         return setBaseModeAndView(new ModelAndView(), "groupTypeProcessList");
     }
 
+    @RequestMapping("/processAndProcessGroup")
+    public ModelAndView processAndProcessGroup() {
+        return setBaseModeAndView(new ModelAndView(), "processAndProcessGroup");
+    }
+
     @RequestMapping("/template")
     public ModelAndView template() {
         return setBaseModeAndView(new ModelAndView(), "template");
