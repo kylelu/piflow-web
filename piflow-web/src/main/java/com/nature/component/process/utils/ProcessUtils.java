@@ -152,10 +152,9 @@ public class ProcessUtils {
         return processPathVo;
     }
 
-    public static Process flowToProcess(Flow flow, UserVo user) {
+    public static Process flowToProcess(Flow flow, String username) {
         Process process = null;
         if (null != flow) {
-            String username = (null != user) ? user.getUsername() : "-1";
             process = new Process();
             // Copy flow information to process
             BeanUtils.copyProperties(flow, process);
@@ -170,16 +169,16 @@ public class ProcessUtils {
             }
             // Take out the flow board information of the flow
             MxGraphModel mxGraphModel = flow.getMxGraphModel();
-//---------------------------------------------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
             // Flow artBoard information is converted to ViewXml
             String viewXml = SvgUtils.mxGraphModelToViewXml(mxGraphModel, false, false);
             // set viewXml
             process.setViewXml(viewXml);
-//---------------------------------------------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
             MxGraphModel mxGraphModelProcess = new MxGraphModel();
             BeanUtils.copyProperties(mxGraphModel, mxGraphModelProcess);
             mxGraphModelProcess = MxGraphModelUtils.removeIdMxGraphModel(mxGraphModelProcess);
@@ -338,6 +337,7 @@ public class ProcessUtils {
             mxGraphModelCopy.setProcess(processCopy);
             processCopy.setMxGraphModel(mxGraphModelCopy);
         }
+
         // processPathListCopy removeId
         List<ProcessPath> processPathListCopy = processCopy.getProcessPathList();
         if (null != processPathListCopy && processPathListCopy.size() > 0) {

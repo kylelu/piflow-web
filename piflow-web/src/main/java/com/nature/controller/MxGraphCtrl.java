@@ -109,9 +109,9 @@ public class MxGraphCtrl {
                 break;
             }
             case PROCESS: {
-                Model flowHandleModel = processHandle(model, load, processType);
-                if (null != flowHandleModel) {
-                    model = flowHandleModel;
+                Model processHandleModel = processHandle(model, load, processType);
+                if (null != processHandleModel) {
+                    model = processHandleModel;
                     pagePath = "mxGraph/index";
                 }
                 break;

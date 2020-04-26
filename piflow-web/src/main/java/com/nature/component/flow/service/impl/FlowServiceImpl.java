@@ -353,8 +353,8 @@ public class FlowServiceImpl implements IFlowService {
 
     @Override
     public String runFlow(String flowId, String runMode) {
-        UserVo currentUser = SessionUserUtil.getCurrentUser();
-        if (null == currentUser) {
+        String currentUsername = SessionUserUtil.getCurrentUsername();
+        if (StringUtils.isBlank(currentUsername)) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("illegal user");
         }
         if (StringUtils.isBlank(flowId)) {
@@ -366,7 +366,7 @@ public class FlowServiceImpl implements IFlowService {
         if (null == flowById) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("Flow with FlowId" + flowId + "was not queried");
         }
-        Process process = ProcessUtils.flowToProcess(flowById, currentUser);
+        Process process = ProcessUtils.flowToProcess(flowById, currentUsername);
         if (null == process) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("Conversion failed");
         }
@@ -394,14 +394,14 @@ public class FlowServiceImpl implements IFlowService {
         if (null == stringObjectMap || 200 != ((Integer) stringObjectMap.get("code"))) {
             process.setEnableFlag(false);
             process.setLastUpdateDttm(new Date());
-            process.setLastUpdateUser(currentUser.getUsername());
+            process.setLastUpdateUser(currentUsername);
             processDomain.saveOrUpdate(process);
             return ReturnMapUtils.setFailedMsgRtnJsonStr((String) stringObjectMap.get("errorMsg"));
         }
         process.setAppId((String) stringObjectMap.get("appId"));
         process.setProcessId((String) stringObjectMap.get("appId"));
         process.setState(ProcessState.STARTED);
-        process.setLastUpdateUser(currentUser.getUsername());
+        process.setLastUpdateUser(currentUsername);
         process.setLastUpdateDttm(new Date());
         processDomain.saveOrUpdate(process);
         Map<String, Object> rtnMap = ReturnMapUtils.setSucceededMsg("save process success,update success");

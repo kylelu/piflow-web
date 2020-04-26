@@ -73,7 +73,7 @@ function responseActionsFlow(res) {
         '</a>' +
         '<a class="btn" ' +
         'href="javascript:void(0);" ' +
-        'onclick="javascript:listRunFlows(\'' + res.id + '\');" ' +
+        'onclick="javascript:listRunFlowGroup(\'' + res.id + '\');" ' +
         'style="margin-right: 2px;">' +
         '<i class="icon-play icon-white"></i>' +
         '</a>' +
@@ -197,7 +197,7 @@ function updateFlowGroup() {
 }
 
 //run
-function listRunFlows(loadId, runMode) {
+function listRunFlowGroup(loadId, runMode) {
     $('#fullScreen').show();
     var data = {flowGroupId: loadId}
     if (runMode) {

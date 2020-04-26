@@ -316,7 +316,8 @@ function delProcessGroup(processGroupID) {
 }
 
 function openProcessGroup(processGroupId) {
-    var windowOpen = window.open('/piflow-web/mxGraph/drawingBoard?drawingBoardType=PROCESS&load=' + processGroupId);
+    var windowOpen = window.open('/piflow-web/processGroup/getProcessGroupById?processGroupId=' + processGroupId);
+    //var windowOpen = window.open('/piflow-web/mxGraph/drawingBoard?drawingBoardType=PROCESS&load=' + processGroupId);
     if (windowOpen == null || typeof (windowOpen) == 'undefined') {
         alert('The window cannot be opened. Please check your browser settings.')
     }

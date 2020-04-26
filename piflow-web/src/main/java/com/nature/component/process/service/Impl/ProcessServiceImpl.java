@@ -463,7 +463,7 @@ public class ProcessServiceImpl implements IProcessService {
      */
     @Override
     public ProcessVo flowToProcessAndSave(String flowId) {
-        UserVo user = SessionUserUtil.getCurrentUser();
+        String user = SessionUserUtil.getCurrentUsername();
         //Determine if the flowId is empty
         if (StringUtils.isBlank(flowId)) {
             logger.warn("The parameter'flowId'is empty and the conversion fails");
