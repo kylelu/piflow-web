@@ -17,7 +17,9 @@ import com.nature.component.mxGraph.service.IMxGraphModelService;
 import com.nature.component.mxGraph.service.IMxNodeImageService;
 import com.nature.component.mxGraph.vo.MxGraphModelVo;
 import com.nature.component.process.service.IProcessGroupService;
+import com.nature.component.process.service.IProcessService;
 import com.nature.component.process.vo.ProcessGroupVo;
+import com.nature.component.process.vo.ProcessVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -58,7 +60,11 @@ public class MxGraphCtrl {
     private IMxNodeImageService mxNodeImageServiceImpl;
 
     @Resource
+    private IProcessService processServiceImpl;
+
+    @Resource
     private IProcessGroupService processGroupServiceImpl;
+
 
     /**
      * Enter the front page of the drawing board
@@ -69,7 +75,7 @@ public class MxGraphCtrl {
      * @return
      */
     @RequestMapping("/drawingBoard")
-    public String drawingBoard(HttpServletRequest request, Model model, DrawingBoardType drawingBoardType) {
+    public String drawingBoard(HttpServletRequest request, Model model, DrawingBoardType drawingBoardType, String processType) {
         String load = request.getParameter("load");
         //set parentAccessPath
         String parentAccessPath = request.getParameter("parentAccessPath");
@@ -87,7 +93,7 @@ public class MxGraphCtrl {
         }
         switch (drawingBoardType) {
             case PROCESS: {
-                Model flowHandleModel = processHandle(model, load);
+                Model flowHandleModel = processHandle(model, load, processType);
                 if (null != flowHandleModel) {
                     model = flowHandleModel;
                     pagePath = "mxGraph/index";
@@ -114,22 +120,33 @@ public class MxGraphCtrl {
         return pagePath;
     }
 
-    private Model processHandle(Model model, String load) {
+    private Model processHandle(Model model, String load, String processType) {
         if (StringUtils.isBlank(load)) {
             return null;
         }
         if (null == model) {
             return null;
         }
-        ProcessGroupVo processGroupVo = processGroupServiceImpl.getProcessGroupVoAllById(load);
-        if (null == processGroupVo) {
-            return null;
+        ProcessGroupVo parentsProcessGroupVo = null;
+        MxGraphModelVo mxGraphModelVo = null;
+        if ("PROCESS".equals(processType)) {
+            ProcessVo processVo = processServiceImpl.getProcessById(load);
+            if (null == processVo) {
+                return null;
+            }
+            parentsProcessGroupVo = processVo.getProcessGroupVo();
+            mxGraphModelVo = processVo.getMxGraphModelVo();
+        } else {
+            ProcessGroupVo processGroupVo = processGroupServiceImpl.getProcessGroupVoAllById(load);
+            if (null == processGroupVo) {
+                return null;
+            }
+            parentsProcessGroupVo = processGroupVo.getProcessGroupVo();
+            mxGraphModelVo = processGroupVo.getMxGraphModelVo();
         }
-        ProcessGroupVo parentsProcessGroupVo = processGroupVo.getProcessGroupVo();
         if (null != parentsProcessGroupVo) {
             model.addAttribute("parentsId", parentsProcessGroupVo.getId());
         }
-        MxGraphModelVo mxGraphModelVo = processGroupVo.getMxGraphModelVo();
         String loadXml = FlowXmlUtils.mxGraphModelToXml(mxGraphModelVo);
         model.addAttribute("xmlDate", loadXml);
         model.addAttribute("load", load);

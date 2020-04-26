@@ -20,14 +20,12 @@ public class ProcessAndProcessGroupDomain {
 
     public Page<Map<String,Object>> getProcessAndProcessGroupListPage(int page, int size, String param) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "crt_dttm"));
-        boolean isAdmin = SessionUserUtil.isAdmin();
         return processGroupJpaRepository.getProcessAndProcessGroupListPage(null == param ? "" : param, pageRequest);
-        /*if (isAdmin) {
-            return processGroupJpaRepository.getProcessAndProcessGroupListPage(null == param ? "" : param, pageRequest);
-        } else {
-            String currentUser = SessionUserUtil.getCurrentUsername();
-            return processGroupJpaRepository.getProcessAndProcessGroupListPageByUser(currentUser, null == param ? "" : param, pageRequest);
-        }*/
+    }
+    public Page<Map<String,Object>> getProcessAndProcessGroupListPageByUser(int page, int size, String param) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "crt_dttm"));
+        String currentUser = SessionUserUtil.getCurrentUsername();
+        return processGroupJpaRepository.getProcessAndProcessGroupListPageByUser(currentUser, null == param ? "" : param, pageRequest);
     }
 
 }

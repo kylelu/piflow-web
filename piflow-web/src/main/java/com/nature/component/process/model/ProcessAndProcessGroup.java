@@ -21,6 +21,6 @@ public class ProcessAndProcessGroup {
     private String progress;
     private String parentProcessId;
     private String state;
-    private String tpye;
+    private String processType;
 
 }

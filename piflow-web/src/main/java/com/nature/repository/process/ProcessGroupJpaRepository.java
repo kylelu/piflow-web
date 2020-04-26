@@ -54,11 +54,11 @@ public interface ProcessGroupJpaRepository extends JpaRepository<ProcessGroup, S
      * @return
      */
     @Query(nativeQuery = true,
-            value = "SELECT id,last_update_dttm AS lastUpdateDttm,crt_dttm AS crtDttm,app_id AS appId,name,description,start_time AS startTime,end_time AS endTime,progress,state,parent_process_id AS parentProcessId,tpye FROM (" +
-                    "SELECT id,last_update_dttm,crt_dttm,app_id,name,description,start_time,end_time,progress,state,parent_process_id,'TASK' AS tpye FROM flow_process " +
+            value = "SELECT id,last_update_dttm AS lastUpdateDttm,crt_dttm AS crtDttm,app_id AS appId,name,description,start_time AS startTime,end_time AS endTime,progress,state,parent_process_id AS parentProcessId,processType FROM (" +
+                    "SELECT id,last_update_dttm,crt_dttm,app_id,name,description,start_time,end_time,progress,state,parent_process_id,'TASK' AS processType FROM flow_process " +
                     "WHERE enable_flag=1 AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
                     "UNION ALL " +
-                    "SELECT id,last_update_dttm,crt_dttm,app_id,name,description,start_time,end_time,progress,state,parent_process_id,'GROUP' AS tpye FROM flow_process_group " +
+                    "SELECT id,last_update_dttm,crt_dttm,app_id,name,description,start_time,end_time,progress,state,parent_process_id,'GROUP' AS processType FROM flow_process_group " +
                     "WHERE enable_flag=1 AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
                     ") AS re"
             , countQuery = "SELECT COUNT(re.id) FROM " +
@@ -75,12 +75,12 @@ public interface ProcessGroupJpaRepository extends JpaRepository<ProcessGroup, S
      * @return
      */
     @Query(nativeQuery = true,
-            value = "SELECT id,last_update_dttm AS lastUpdateDttm,crt_dttm AS crtDttm,app_id AS appId,name,description,start_time AS startTime,end_time AS endTime,progress,state,parent_process_id AS parentProcessId,tpye FROM " +
+            value = "SELECT id,last_update_dttm AS lastUpdateDttm,crt_dttm AS crtDttm,app_id AS appId,name,description,start_time AS startTime,end_time AS endTime,progress,state,parent_process_id AS parentProcessId,processType FROM " +
                     "(" +
-                    "SELECT id,last_update_dttm,crt_dttm,app_id,name,description,start_time,end_time,progress,state,parent_process_id,'TASK' AS tpye FROM flow_process " +
+                    "SELECT id,last_update_dttm,crt_dttm,app_id,name,description,start_time,end_time,progress,state,parent_process_id,'TASK' AS processType FROM flow_process " +
                     "WHERE enable_flag=1 AND crt_user=:userName AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
                     "UNION ALL " +
-                    "SELECT id,last_update_dttm,crt_dttm,app_id,name,description,start_time,end_time,progress,state,parent_process_id,'GROUP' AS tpye FROM flow_process_group " +
+                    "SELECT id,last_update_dttm,crt_dttm,app_id,name,description,start_time,end_time,progress,state,parent_process_id,'GROUP' AS processType FROM flow_process_group " +
                     "WHERE enable_flag=1 AND crt_user=:userName AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
                     ")"
             , countQuery = "SELECT COUNT(re.id) FROM " +

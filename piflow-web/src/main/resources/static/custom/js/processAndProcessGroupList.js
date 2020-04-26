@@ -12,7 +12,8 @@ function initProcessAndProcessGroupDatatablePage(testTableId, url, searchInputId
             , cols: [[
                 {
                     field: 'appId', title: 'ProcessGroupId', sort: true, templet: function (data) {
-                        return ('<div name="processAppId">' + data.appId + '</div>');
+                        console.log(data);
+                        return ('<div name="processAppId">' +data.processType+'_'+ data.appId + '</div>');
                     }
                 },
                 {field: 'name', title: 'Name', sort: true},
@@ -32,13 +33,13 @@ function initProcessAndProcessGroupDatatablePage(testTableId, url, searchInputId
                 {
                     field: 'progress', title: 'Progress', sort: true, templet: function (data) {
                         var progressHtmlStr = '<div>' +
-                            '<p id="' + data.id + 'Info">progress:' +
-                            (data.progress ? (data.progress + '%') : '0.00%') +
-                            '</p>' +
+                            '<p id="' + data.id + 'Info">' +
                             '<progress id="' + data.id + '" max="100" value="' +
                             (data.progress ? (data.progress) : '0.00')
                             + '">' +
-                            '</progress>' +
+                            '</progress> ' +
+                            (data.progress ? (data.progress + '%') : '0.00%') +
+                            '</p>' +
                             '</div>';
                         return progressHtmlStr;
                     }
@@ -67,32 +68,39 @@ function initProcessAndProcessGroupDatatablePage(testTableId, url, searchInputId
 //Results returned in the background
 function responseActionHandler(res) {
     if (res) {
-        var actionsHtmlStr = '<p style="width: 100%; text-align: center" >' +
-            '<a class="btn" ' +
+        var processType = 'TASK' == res.processType ? 'PROCESS' : 'PROCESS_GROUP';
+
+        var openProcessBtn = '<a class="btn" ' +
             'href="javascript:void(0);" ' +
-            'onclick="javascript:openProcessGroup(\'' + res.id + '\');" ' +
+            'onclick="javascript:openProcessOrProcessGroup(\'' + res.id + '\',\'' + processType + '\');" ' +
             'style="margin-right: 2px;">' +
             '<i class="icon-share-alt icon-white"></i>' +
-            '</a>' +
-            '<a class="btn" ' +
+            '</a>';
+        var runProcessBtn = '<a class="btn" ' +
             'href="javascript:void(0);" ' +
-            'onclick="javascript:selectRunMode(\'' + res.id + '\',\'' + res.parentProcessId + '\',\'RUN\');" ' +
+            'onclick="javascript:selectRunMode(\'' + processType + '\',\'' + res.id + '\',\'RUN\');" ' +
             'style="margin-right: 2px;">' +
             '<i class="icon-play icon-white"></i>' +
-            '</a>' +
-            '<a class="btn" ' +
+            '</a>';
+        var debugProcessBtn = '<a class="btn" ' +
             'href="javascript:void(0);" ' +
-            'onclick="javascript:listStopProcessGroup(\'' + res.id + '\');" ' +
+            'onclick="javascript:selectRunMode(\'' + processType + '\',\'' + res.id + '\',\'DEBUG\');" ' +
+            'style="margin-right: 2px;">' +
+            '<i class="icon-play icon-white"></i>' +
+            '</a>';
+        var stopProcessBtn = '<a class="btn" ' +
+            'href="javascript:void(0);" ' +
+            'onclick="javascript:stopProcessOrProcessGroup(\'' + processType + '\',\'' + res.id + '\');" ' +
             'style="margin-right: 2px;">' +
             '<i class="icon-stop icon-white"></i>' +
-            '</a>' +
-            '<a class="btn" ' +
+            '</a>';
+        var delProcessBtn = '<a class="btn" ' +
             'href="javascript:void(0);" ' +
-            'onclick="javascript:delProcessGroup(\'' + res.id + '\');" ' +
+            'onclick="javascript:delProcessOrProcessGroup(\'' + processType + '\',\'' + res.id + '\');" ' +
             'style="margin-right: 2px;">' +
             '<i class="icon-trash icon-white"></i>' +
-            '</a>' +
-            '</p>';
+            '</a>';
+        var actionsHtmlStr = '<p style="width: 100%; text-align: center" >' + openProcessBtn + runProcessBtn + stopProcessBtn + delProcessBtn + '</p>';
         return actionsHtmlStr;
     }
     return "";
@@ -187,14 +195,16 @@ function processGroupListMonitoring() {
 }
 
 //Select run mode
-function selectRunMode(id, processId, parentProcessId, runMode) {
-    var runModeContent = '<div style="width: 100%;">'
-        + '<div style="width: 210px;height: 50px;line-height: 50px;overflow: hidden;text-align: center;">'
-        + '<button type="button" class="btn btn-default" onclick="listRunProcessGroup(\'' + id + '\',null)">Run</button>&nbsp;'
-        // + '<button type="button" class="btn btn-default" onclick="listRunProcessGroup(\'' + id + '\',\'DEBUG\')">Debug</button>&nbsp;'
-        + '<button type="button" class="btn btn-default" onclick="cancelListRunProcessGroup()">Cancel</button>'
-        + '</div>'
-        + '</div>';
+function selectRunMode(processType, id, runMode) {
+    var runModeContent = '<div style="width: 100%;"><div style="width: 210px;height: 50px;line-height: 50px;overflow: hidden;text-align: center;">';
+    var onclickFunc = "runProcessOrProcessGroup('" + processType + "','" + id + "','" + runMode + "')"
+    if ('RUN' === runMode) {
+        runModeContent += '<button type="button" class="btn btn-default" onclick="' + onclickFunc + '">Run</button>&nbsp;'
+    } else if ('DEBUG' === runMode) {
+        runModeContent += '<button type="button" class="btn btn-default" onclick="' + onclickFunc + '">Debug</button>&nbsp;'
+    }
+    runModeContent += '<button type="button" class="btn btn-default" onclick="cancelListRunProcessGroup()">Cancel</button>';
+    runModeContent += '</div></div>';
     layer.open({
         type: 1,
         title: '<span style="color: #269252;">Select Run Mode</span>',
@@ -214,18 +224,18 @@ function cancelListRunProcessGroup() {
 }
 
 //run
-function listRunProcessGroup(id, runMode) {
+function runProcessOrProcessGroup(processType, id, runMode) {
     $('#fullScreen').show();
-    var data = {
-        id: id,
-    }
+    var data = {};
+    data.id = id;
+    data.processType = processType;
     if (runMode) {
         data.runMode = runMode;
     }
     $.ajax({
         cache: true,//Keep cached data
         type: "POST",//Request type post
-        url: "/piflow-web/processGroup/runProcessGroup",//This is the name of the file where I receive data in the background.
+        url: "/piflow-web/processAndProcessGroup/runProcessOrProcessGroup",//This is the name of the file where I receive data in the background.
         //data:$('#loginForm').serialize(),//Serialize the form
         data: data,
         async: true,//Setting it to true indicates that other code can still be executed after the request has started. If this option is set to false, it means that all requests are no longer asynchronous, which also causes the browser to be locked.
@@ -254,16 +264,14 @@ function listRunProcessGroup(id, runMode) {
 }
 
 //stop
-function listStopProcessGroup(processGroupID) {
+function stopProcessOrProcessGroup(processType, id) {
     $('#fullScreen').show();
     $.ajax({
         cache: true,//Keep cached data
         type: "POST",//Request type post
-        url: "/piflow-web/processGroup/stopProcessGroup",//This is the name of the file where I receive data in the background.
+        url: "/piflow-web/processAndProcessGroup/stopProcessOrProcessGroup",//This is the name of the file where I receive data in the background.
         //data:$('#loginForm').serialize(),//Serialize the form
-        data: {
-            processGroupId: processGroupID
-        },
+        data: {processType: processType, id: id},
         async: true,//Setting it to true indicates that other code can still be executed after the request has started. If this option is set to false, it means that all requests are no longer asynchronous, which also causes the browser to be locked.
         error: function (request) {//Operation after request failure
             alert("Request Failed");
@@ -286,16 +294,14 @@ function listStopProcessGroup(processGroupID) {
 }
 
 //remove
-function delProcessGroup(processGroupID) {
+function delProcessOrProcessGroup(processType, id) {
     $('#fullScreen').show();
     $.ajax({
         cache: true,//Keep cached data
         type: "get",//get
-        url: "/piflow-web/processGroup/delProcessGroup",//This is the name of the file where I receive data in the background.
+        url: "/piflow-web/processAndProcessGroup/delProcessOrProcessGroup",//This is the name of the file where I receive data in the background.
         //data:$('#loginForm').serialize(),//Serialize the form
-        data: {
-            processGroupId: processGroupID
-        },
+        data: {processType: processType, id: id},
         async: true,//Setting it to true indicates that other code can still be executed after the request has started. If this option is set to false, it means that all requests are no longer asynchronous, which also causes the browser to be locked.
         error: function (request) {//Operation after request failure
             alert("Request Failed");
@@ -315,9 +321,9 @@ function delProcessGroup(processGroupID) {
     });
 }
 
-function openProcessGroup(processGroupId) {
-    var windowOpen = window.open('/piflow-web/mxGraph/drawingBoard?drawingBoardType=PROCESS&load=' + processGroupId);
+function openProcessOrProcessGroup(loadId, processType) {
+    var windowOpen = window.open('/piflow-web/mxGraph/drawingBoard?drawingBoardType=PROCESS&processType=' + processType + '&load=' + loadId);
     if (windowOpen == null || typeof (windowOpen) == 'undefined') {
-        alert('The window cannot be opened. Please check your browser settings.')
+        alert('The window cannot be opened. Please check your browser settings.');
     }
 }
