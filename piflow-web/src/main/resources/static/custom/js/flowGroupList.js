@@ -28,8 +28,8 @@ function initDatatableFlowGroupPage(testTableId, url, searchInputId) {
             , url: url
             , cols: [[
                 {field: 'name', title: 'Name', sort: true},
-                {field: 'description', title: 'description', sort: true},
-                {field: 'crtDttm', title: 'crtDttm', sort: true},
+                {field: 'description', title: 'Description', sort: true},
+                {field: 'crtDttm', title: 'CreateTime', sort: true},
                 {
                     field: 'right', title: 'Actions', sort: true, height: 100, templet: function (data) {
                         return responseActionsFlow(data);

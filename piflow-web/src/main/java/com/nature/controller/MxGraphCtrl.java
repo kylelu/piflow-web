@@ -92,14 +92,6 @@ public class MxGraphCtrl {
             return "errorPage";
         }
         switch (drawingBoardType) {
-            case PROCESS: {
-                Model flowHandleModel = processHandle(model, load, processType);
-                if (null != flowHandleModel) {
-                    model = flowHandleModel;
-                    pagePath = "mxGraph/index";
-                }
-                break;
-            }
             case GROUP: {
                 Model groupHandleModel = groupHandle(model, load);
                 if (null != groupHandleModel) {
@@ -112,6 +104,14 @@ public class MxGraphCtrl {
                 Model taskHandleModel = taskHandle(model, load);
                 if (null != taskHandleModel) {
                     model = taskHandleModel;
+                    pagePath = "mxGraph/index";
+                }
+                break;
+            }
+            case PROCESS: {
+                Model flowHandleModel = processHandle(model, load, processType);
+                if (null != flowHandleModel) {
+                    model = flowHandleModel;
                     pagePath = "mxGraph/index";
                 }
                 break;
@@ -136,6 +136,7 @@ public class MxGraphCtrl {
             }
             parentsProcessGroupVo = processVo.getProcessGroupVo();
             mxGraphModelVo = processVo.getMxGraphModelVo();
+            model.addAttribute("processType","TASK");
         } else {
             ProcessGroupVo processGroupVo = processGroupServiceImpl.getProcessGroupVoAllById(load);
             if (null == processGroupVo) {
@@ -143,6 +144,7 @@ public class MxGraphCtrl {
             }
             parentsProcessGroupVo = processGroupVo.getProcessGroupVo();
             mxGraphModelVo = processGroupVo.getMxGraphModelVo();
+            model.addAttribute("processType","GROUP");
         }
         if (null != parentsProcessGroupVo) {
             model.addAttribute("parentsId", parentsProcessGroupVo.getId());

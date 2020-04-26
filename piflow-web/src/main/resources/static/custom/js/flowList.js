@@ -1,5 +1,3 @@
-var flowTable;
-
 function newPath() {
     $("#buttonFlow").attr("onclick", "");
     $("#buttonFlow").attr("onclick", "saveFlow()");
@@ -20,6 +18,101 @@ function newPath() {
         skin: 'layui-layer-rim', //Add borders
         content: $("#SubmitPage")
     });
+}
+
+function initDatatableFlowPage(testTableId, url, searchInputId) {
+    var table = "";
+    layui.use('table', function () {
+        table = layui.table;
+
+        //Method-level rendering
+        table.render({
+            elem: '#' + testTableId
+            , url: url
+            , cols: [[
+                {field: 'name', title: 'Name', sort: true},
+                {field: 'description', title: 'Description', sort: true},
+                {field: 'crtDttm', title: 'CreateTime', sort: true},
+                {
+                    field: 'right', title: 'Actions', sort: true, height: 100, templet: function (data) {
+                        return responseHandlerFlow(data);
+                    }
+                }
+            ]]
+            , id: testTableId
+            , page: true
+        });
+    });
+
+    $("#" + searchInputId).bind('input propertychange', function () {
+        searchMonitor(table, testTableId, searchInputId);
+    });
+}
+
+function searchMonitor(layui_table, layui_table_id, searchInputId) {
+    //Perform overload
+    layui_table.reload(layui_table_id, {
+        page: {
+            curr: 1 //Start again on page 1
+        }
+        , where: {param: $('#' + searchInputId).val()}
+    }, 'data');
+}
+
+//Results returned in the background
+function responseHandlerFlow(res) {
+    if (res) {
+        var openHtmlStr = '<a class="btn" ' +
+            'href="/piflow-web/mxGraph/drawingBoard?drawingBoardType=TASK&load=' + res.id + '"' +
+            'target="_blank" ' +
+            'style="margin-right: 2px;">' +
+            '<i class="icon-share-alt icon-white"></i>' +
+            '</a>';
+        var editHtmlStr = '<a class="btn" ' +
+            'href="javascript:void(0);" ' +
+            'onclick="javascript:update(' +
+            '\'' + res.id + '\',' +
+            '\'' + res.name + '\',' +
+            '\'' + res.description + '\',' +
+            '\'' + res.driverMemory + '\',' +
+            '\'' + res.executorNumber + '\',' +
+            '\'' + res.executorMemory + '\',' +
+            '\'' + res.executorCores + '\'' +
+            ');" style="margin-right: 2px;">' +
+            '<i class="icon-edit icon-white"></i>' +
+            '</a>';
+        var runHtmlStr = '<a class="btn" ' +
+            'href="javascript:void(0);" ' +
+            'onclick="javascript:runFlows(\'' + res.id + '\');" ' +
+            'style="margin-right: 2px;">' +
+            '<i class="icon-play icon-white"></i>' +
+            '</a>';
+        var debugHtmlStr = '<a class="btn" ' +
+            'href="javascript:void(0);" ' +
+            'onclick="javascript:runFlows(' +
+            '\'' + res.id + '\',\'DEBUG\'' +
+            ');" style="margin-right: 2px;">' +
+            '<i class="fa-bug icon-white"></i>' +
+            '</a>';
+        var delHtmlStr = '<a class="btn" ' +
+            'href="javascript:void(0);" ' +
+            'onclick="javascript:deleteFlow(' +
+            '\'' + res.id + '\',' +
+            '\'' + res.name + '\'' +
+            ');" style="margin-right: 2px;">' +
+            '<i class="icon-trash icon-white"></i>' +
+            '</a>';
+        var templateHtmlStr = '<a class="btn" ' +
+            'href="javascript:void(0);" ' +
+            'onclick="javascript:saveTableTemplate(' +
+            '\'' + res.id + '\',' +
+            '\'' + res.name + '\'' +
+            ');" style="margin-right: 2px;">' +
+            '<i class="icon-check icon-white"></i>' +
+            '</a>';
+        return '<div style="width: 100%; text-align: center" >' + openHtmlStr + editHtmlStr + runHtmlStr + debugHtmlStr + delHtmlStr + templateHtmlStr + '</div>';
+    }
+    return "";
 }
 
 function update(id, updateName, updateDescription, driverMemory, executorNumber, executorMemory, executorCores) {
@@ -275,164 +368,5 @@ function saveTableTemplate(id, name) {
                 }
             }
         });
-    });
-}
-
-function initDatatableFlowPage(testTableId, url) {
-    flowTable = $('#' + testTableId).DataTable({
-        "pagingType": "full_numbers",//Set the mode of the paging control
-        "searching": true,//Query the query box for datatales
-        "aLengthMenu": [10, 20, 50, 100],//Set one page to display 10 records
-        "bAutoWidth": true,
-        "bLengthChange": true,//A drop-down list of how many records are displayed on a page of a blocked table
-        "ordering": false, // Prohibit sorting
-        "oLanguage": {
-            "sSearch": "<span>Filter records:</span> _INPUT_",
-            "sLengthMenu": "<span>Show entries:</span> _MENU_",
-            "oPaginate": {"sFirst": "First", "sLast": "Last", "sNext": ">", "sPrevious": "<"}
-        },
-        "processing": true, //Open wait effect when data is loaded
-        "serverSide": true,//Open background paging
-        "ajax": {
-            "url": url,
-            "data": function (d) {
-                var level1 = $('#level1').val();
-                //Add additional parameters to the server
-                d.extra_search = d.search.value;
-            },
-            "dataSrc": responseHandlerFlow
-        },
-        "columns": [
-            {"mDataProp": "name"},
-            {"mDataProp": "description"},
-            {"mDataProp": "crtDttm"},
-            {"mDataProp": "actions", 'sClass': "text-center"}
-        ]
-
-    });
-}
-
-//Results returned in the background
-function responseHandlerFlow(res) {
-    var resPageData = res.pageData;
-    var pageData = []
-    if (resPageData && resPageData.length > 0) {
-        for (var i = 0; i < resPageData.length; i++) {
-            var data1 = {
-                "name": "",
-                "description": "",
-                "crtDttm": "",
-                "actions": ""
-            }
-            if (resPageData[i]) {
-                var descriptionHtmlStr = '<div ' +
-                    'style="width: 85px;overflow: hidden;text-overflow:ellipsis;white-space:nowrap;" ' +
-                    'data-toggle="tooltip" ' +
-                    'data-placement="top" ' +
-                    'title="' + resPageData[i].description + '">' +
-                    resPageData[i].description +
-                    '</div>';
-                var actionsHtmlStr = '<div style="width: 100%; text-align: center" >' +
-                    '<a class="btn" ' +
-                    'href="/piflow-web/mxGraph/drawingBoard?drawingBoardType=TASK&load=' + resPageData[i].id + '"' +
-                    'target="_blank" ' +
-                    'style="margin-right: 2px;">' +
-                    '<i class="icon-share-alt icon-white"></i>' +
-                    '</a>' +
-                    '<a class="btn" ' +
-                    'href="javascript:void(0);" ' +
-                    'onclick="javascript:update(\'' +
-                    resPageData[i].id + '\',\'' +
-                    resPageData[i].name + '\',\'' +
-                    resPageData[i].description + '\',\'' +
-                    resPageData[i].driverMemory + '\',\'' +
-                    resPageData[i].executorNumber + '\',\'' +
-                    resPageData[i].executorMemory + '\',\'' +
-                    resPageData[i].executorCores + '\');" ' +
-                    'style="margin-right: 2px;">' +
-                    '<i class="icon-edit icon-white"></i>' +
-                    '</a>' +
-                    '<a class="btn" ' +
-                    'href="javascript:void(0);" ' +
-                    'onclick="javascript:runFlows(\'' + resPageData[i].id + '\');" ' +
-                    'style="margin-right: 2px;">' +
-                    '<i class="icon-play icon-white"></i>' +
-                    '</a>' +
-                    '<a class="btn" ' +
-                    'href="javascript:void(0);" ' +
-                    'onclick="javascript:runFlows(\'' + resPageData[i].id + '\',\'DEBUG\');" ' +
-                    'style="margin-right: 2px;">' +
-                    '<i class="fa-bug icon-white"></i>' +
-                    '</a>' +
-                    '<a class="btn" ' +
-                    'href="javascript:void(0);" ' +
-                    'onclick="javascript:deleteFlow(\'' +
-                    resPageData[i].id + '\',\'' +
-                    resPageData[i].name + '\');" ' +
-                    'style="margin-right: 2px;">' +
-                    '<i class="icon-trash icon-white"></i>' +
-                    '</a>' +
-                    '<a class="btn" ' +
-                    'href="javascript:void(0);" ' +
-                    'onclick="javascript:saveTableTemplate(\'' +
-                    resPageData[i].id + '\',\'' +
-                    resPageData[i].name + '\');" ' +
-                    'style="margin-right: 2px;">' +
-                    '<i class="icon-check icon-white"></i>' +
-                    '</a>' +
-                    '</div>';
-                if (resPageData[i].name) {
-                    data1.name = resPageData[i].name;
-                }
-                if (resPageData[i].crtDttm) {
-                    data1.crtDttm = resPageData[i].crtDttm;
-                }
-                if (descriptionHtmlStr) {
-                    data1.description = descriptionHtmlStr;
-                }
-                if (actionsHtmlStr) {
-                    data1.actions = actionsHtmlStr;
-                }
-            }
-            pageData.push(data1);
-        }
-    }
-    return pageData;
-}
-
-function searchFlowPage() {
-    flowTable.ajax.reload();
-}
-
-//请求接口重新加载stops
-function reloadStopsList() {
-    var fullScreen = $('#fullScreen');
-    fullScreen.show();
-    $.ajax({
-        data: {"load": ''},
-        cache: true,//Keep cached data
-        type: "POST",//Request type post
-        url: "/piflow-web/stops/reloadStops",
-        error: function (request) {//Operation after request failure
-            //fullScreen.hide();
-            //alert("reload fail");
-            layer.msg("reload fail", {icon: 2, shade: 0, time: 2000}, function () {
-            });
-            return;
-        },
-        success: function (data) {//Operation after request successful
-            var dataMap = JSON.parse(data);
-            if (200 === dataMap.code) {
-                //alert("reload success");
-                layer.msg("reload success", {icon: 1, shade: 0, time: 2000}, function () {
-                });
-                fullScreen.hide();
-            } else {
-                //alert("reload fail");
-                layer.msg("reload fail", {icon: 2, shade: 0, time: 2000}, function () {
-                });
-                fullScreen.hide();
-            }
-        }
     });
 }

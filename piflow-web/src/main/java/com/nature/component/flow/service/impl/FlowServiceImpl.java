@@ -1,7 +1,5 @@
 package com.nature.component.flow.service.impl;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import com.nature.base.util.*;
 import com.nature.base.vo.UserVo;
 import com.nature.common.Eunm.ProcessState;
@@ -40,6 +38,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -301,11 +300,33 @@ public class FlowServiceImpl implements IFlowService {
 
     @Override
     public String getFlowListPage(Integer offset, Integer limit, String param) {
-        Map<String, Object> rtnMap = new HashMap<String, Object>();
+        Map<String, Object> rtnMap = new HashMap<>();
         if (null != offset && null != limit) {
-            Page<Flow> page = PageHelper.startPage(offset, limit);
-            flowMapper.getFlowListParam(param);
-            rtnMap = PageHelperUtils.setDataTableParam(page, rtnMap);
+            boolean admin = SessionUserUtil.isAdmin();
+            String currentUsername = SessionUserUtil.getCurrentUsername();
+            Page<Flow> flowListPage = null;
+            if (admin) {
+                flowListPage = flowDomain.getFlowListPage(offset - 1, limit, param);
+            } else {
+                flowListPage = flowDomain.getFlowListPageByUser(offset - 1, limit, param, currentUsername);
+            }
+            List<FlowVo> contentVo = new ArrayList<>();
+            List<Flow> content = flowListPage.getContent();
+            if (content.size() > 0) {
+                for (Flow flow : content) {
+                    if (null == flow) {
+                        continue;
+                    }
+                    FlowVo flowVo = new FlowVo();
+                    BeanUtils.copyProperties(flow, flowVo);
+                    contentVo.add(flowVo);
+                }
+            }
+            rtnMap.put(ReturnMapUtils.KEY_CODE, ReturnMapUtils.SUCCEEDED_CODE);
+            rtnMap.put("msg", "");
+            rtnMap.put("count", flowListPage.getTotalElements());
+            rtnMap.put("data", contentVo);//Data collection
+            rtnMap.put(ReturnMapUtils.KEY_CODE, ReturnMapUtils.SUCCEEDED_CODE);
         }
         return JsonUtils.toJsonNoException(rtnMap);
     }

@@ -1,10 +1,15 @@
 package com.nature.domain.flow;
 
+import com.nature.base.util.SessionUserUtil;
+import com.nature.base.vo.UserVo;
 import com.nature.component.flow.model.Flow;
 import com.nature.repository.flow.FlowJpaRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -15,9 +20,6 @@ import java.util.List;
 
 @Component
 public class FlowDomain {
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Resource
     private FlowJpaRepository flowJpaRepository;
@@ -60,6 +62,16 @@ public class FlowDomain {
 
     public String[] getFlowNamesByFlowGroupId(String flowGroupId){
         return flowJpaRepository.getFlowNamesByFlowGroupId(flowGroupId);
+    }
+
+    public Page<Flow> getFlowListPage(int page, int size, String param) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "crtDttm"));
+        return flowJpaRepository.getFlowListPage(null == param ? "" : param, pageRequest);
+    }
+
+    public Page<Flow> getFlowListPageByUser(int page, int size, String param,String username) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "crtDttm"));
+        return flowJpaRepository.getFlowListPage(username, null == param ? "" : param, pageRequest);
     }
 
 }
