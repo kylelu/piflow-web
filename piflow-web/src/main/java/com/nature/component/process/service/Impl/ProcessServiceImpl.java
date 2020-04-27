@@ -11,13 +11,15 @@ import com.nature.common.Eunm.StopState;
 import com.nature.component.flow.model.Flow;
 import com.nature.component.process.model.Process;
 import com.nature.component.process.model.ProcessGroup;
-import com.nature.component.process.model.ProcessPath;
 import com.nature.component.process.model.ProcessStop;
 import com.nature.component.process.service.IProcessService;
 import com.nature.component.process.utils.ProcessUtils;
-import com.nature.component.process.vo.*;
+import com.nature.component.process.vo.DebugDataRequest;
+import com.nature.component.process.vo.DebugDataResponse;
+import com.nature.component.process.vo.ProcessGroupVo;
+import com.nature.component.process.vo.ProcessVo;
+import com.nature.domain.flow.FlowDomain;
 import com.nature.domain.process.ProcessDomain;
-import com.nature.mapper.flow.FlowMapper;
 import com.nature.mapper.process.ProcessMapper;
 import com.nature.mapper.process.ProcessStopMapper;
 import com.nature.third.service.IFlow;
@@ -52,7 +54,7 @@ public class ProcessServiceImpl implements IProcessService {
     private ProcessStopMapper processStopMapper;
 
     @Resource
-    private FlowMapper flowMapper;
+    private FlowDomain flowDomain;
 
     @Resource
     private IFlow flowImpl;
@@ -70,7 +72,7 @@ public class ProcessServiceImpl implements IProcessService {
         List<ProcessVo> processVoList = null;
         List<Process> processList = processMapper.getProcessList();
         if (null != processList && processList.size() > 0) {
-        	processVoList = new ArrayList<>();
+            processVoList = new ArrayList<>();
             for (Process process : processList) {
                 if (null != process) {
                     ProcessVo processVo = ProcessUtils.processPoToVo(process);
@@ -441,17 +443,15 @@ public class ProcessServiceImpl implements IProcessService {
      */
     @Override
     public Process processCopyProcessAndAdd(String processId, UserVo currentUser, RunModeType runModeType) {
-        Process processCopy = null;
         if (StringUtils.isNotBlank(processId)) {
-            Process process = processDomain.getProcessById(processId);
-            processCopy = ProcessUtils.copyProcessAndNew(process, currentUser, runModeType);
-            if (null != processCopy) {
-                int addProcess = processTransaction.addProcess(processCopy);
-                if (addProcess <= 0) {
-                    processCopy = null;
-                }
-            }
+            return null;
         }
+        Process process = processDomain.getProcessById(processId);
+        Process processCopy = ProcessUtils.copyProcessAndNew(process, currentUser, runModeType);
+        if (null != processCopy) {
+            processCopy = processDomain.saveOrUpdate(processCopy);
+        }
+
         return processCopy;
     }
 
@@ -463,32 +463,32 @@ public class ProcessServiceImpl implements IProcessService {
      */
     @Override
     public ProcessVo flowToProcessAndSave(String flowId) {
-        UserVo user = SessionUserUtil.getCurrentUser();
-        ProcessVo processVo = null;
+        String user = SessionUserUtil.getCurrentUsername();
         //Determine if the flowId is empty
-        if (StringUtils.isNotBlank(flowId)) {
-            // Query flow according to Id
-            Flow flowById = flowMapper.getFlowById(flowId);
-            // Determine if the queryed flow is empty
-            if (null != flowById) {
-                Process process = ProcessUtils.flowToProcess(flowById, user);
-                if (null != process) {
-                    int addProcess = processTransaction.addProcess(process);
-                    if (addProcess > 0) {
-                        processVo = ProcessUtils.processPoToVo(process);
-                    } else {
-                        logger.warn("Save failed, transform failed");
-                    }
-                } else {
-                    logger.warn("Conversion failed");
-                }
-            } else {
-                logger.warn("Unable to query flow Id for'" + flowId + "'flow, the conversion failed");
-            }
-        } else {
+        if (StringUtils.isBlank(flowId)) {
             logger.warn("The parameter'flowId'is empty and the conversion fails");
+            return null;
         }
-        return processVo;
+        // Query flow according to Id
+        Flow flowById = flowDomain.getFlowById(flowId);
+        // Determine if the queryed flow is empty
+        if (null == flowById) {
+            logger.warn("Unable to query flow Id for'" + flowId + "'flow, the conversion failed");
+            return null;
+        }
+        Process process = ProcessUtils.flowToProcess(flowById, user);
+        if (null == process) {
+            logger.warn("Conversion failed");
+            return null;
+        }
+        process = processDomain.saveOrUpdate(process);
+        if (null != process) {
+            ProcessVo processVo = ProcessUtils.processPoToVo(process);
+            return processVo;
+        } else {
+            logger.warn("Save failed, transform failed");
+            return null;
+        }
     }
 
     /**
@@ -498,21 +498,27 @@ public class ProcessServiceImpl implements IProcessService {
      * @return
      */
     @Override
-    public StatefulRtnBase updateProcessEnableFlag(String processId, UserVo currentUser) {
-        StatefulRtnBase statefulRtnBase = new StatefulRtnBase();
-        if (StringUtils.isNotBlank(processId) && null != currentUser) {
-            Process processById = processMapper.getProcessById(processId);
-            if (null != processById) {
-                processTransaction.updateProcessEnableFlag(processId, currentUser);
-            } else {
-                statefulRtnBase = StatefulRtnBaseUtils.setFailedMsg("No process with ID of'" + processId + "'was queried");
-                logger.warn("No process with ID of'" + processId + "'was queried");
-            }
-        } else {
-            statefulRtnBase = StatefulRtnBaseUtils.setFailedMsg("The parameter is empty or missing");
-            logger.warn("The parameter is empty or missing");
+    public String delProcess(String processId) {
+        String username = SessionUserUtil.getCurrentUsername();
+        if (StringUtils.isBlank(username)) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("illegal user");
         }
-        return statefulRtnBase;
+        if (StringUtils.isBlank(processId)) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("processID is null");
+        }
+        // Query Process by 'ProcessId'
+        Process processById = processDomain.getProcessById(processId);
+        if (null == processById) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("No process with ID of'" + processId + "'was queried");
+        }
+        if (processById.getState() == ProcessState.STARTED) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("Status is STARTED, cannot be deleted");
+        }
+        processById.setEnableFlag(false);
+        processById.setLastUpdateDttm(new Date());
+        processById.setLastUpdateUser(username);
+        processDomain.saveOrUpdate(processById);
+        return ReturnMapUtils.setSucceededMsgRtnJsonStr("Successfully Deleted");
     }
 
     /**
@@ -585,49 +591,32 @@ public class ProcessServiceImpl implements IProcessService {
      */
     @Override
     public String startProcess(String processId, String checkpoint, String runMode, UserVo currentUser) {
-        Map<String, Object> rtnMap = new HashMap<>();
-        rtnMap.put("code", 500);
         RunModeType runModeType = RunModeType.RUN;
         if (StringUtils.isNotBlank(runMode)) {
             runModeType = RunModeType.selectGender(runMode);
         }
-        if (StringUtils.isNotBlank(processId) && null != currentUser) {
-            // Query Process by 'ProcessId' and copy new
-            Process process = this.processCopyProcessAndAdd(processId, currentUser, runModeType);
-            if (null != process) {
-
-                Map<String, Object> stringObjectMap = flowImpl.startFlow(process, checkpoint, runModeType);
-                if (200 == (Integer) stringObjectMap.get("code")) {
-                    process.setAppId((String) stringObjectMap.get("appId"));
-                    process.setProcessId((String) stringObjectMap.get("appId"));
-                    process.setState(ProcessState.STARTED);
-                    process.setLastUpdateUser(currentUser.getUsername());
-                    process.setLastUpdateDttm(new Date());
-                    int updateProcess = processTransaction.updateProcess(process);
-                    if (updateProcess > 0) {
-                        rtnMap.put("code", 200);
-                        rtnMap.put("processId", process.getId());
-                        rtnMap.put("errorMsg", "Successful startup");
-                        logger.info("save process success,update success");
-                        this.getAppInfoByThirdAndSave(process.getAppId());
-                    } else {
-                        this.updateProcessEnableFlag(process.getId(), currentUser);
-                        rtnMap.put("errorMsg", "save process failed,update failed");
-                    }
-                } else {
-                    this.updateProcessEnableFlag(process.getId(), currentUser);
-                    rtnMap.put("errorMsg", "Calling interface failed, startup failed");
-                    logger.warn("Calling interface failed, startup failed");
-                }
-            } else {
-                rtnMap.put("errorMsg", "No process Id'" + processId + "'");
-                logger.warn("No process Id'" + processId + "'");
-            }
-        } else {
-            rtnMap.put("errorMsg", "processId is null");
-            logger.warn("processId is null");
+        if (StringUtils.isBlank(processId) || null == currentUser) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("processId is null");
         }
-        return JsonUtils.toJsonNoException(rtnMap);
+        // Query Process by 'ProcessId' and copy new
+        Process process = this.processCopyProcessAndAdd(processId, currentUser, runModeType);
+        if (null == process) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("No process Id'" + processId + "'");
+        }
+        Map<String, Object> stringObjectMap = flowImpl.startFlow(process, checkpoint, runModeType);
+        process.setLastUpdateUser(currentUser.getUsername());
+        process.setLastUpdateDttm(new Date());
+        if (200 == (Integer) stringObjectMap.get("code")) {
+            process.setAppId((String) stringObjectMap.get("appId"));
+            process.setProcessId((String) stringObjectMap.get("appId"));
+            process.setState(ProcessState.STARTED);
+            processDomain.saveOrUpdate(process);
+            return ReturnMapUtils.setSucceededCustomParamRtnJsonStr("processId", process.getId());
+        } else {
+            process.setEnableFlag(false);
+            processDomain.saveOrUpdate(process);
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("Calling interface failed, startup failed");
+        }
     }
 
     /**

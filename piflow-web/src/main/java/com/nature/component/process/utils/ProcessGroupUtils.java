@@ -6,6 +6,7 @@ import com.nature.common.Eunm.ProcessParentType;
 import com.nature.common.Eunm.ProcessState;
 import com.nature.common.Eunm.RunModeType;
 import com.nature.component.flow.model.*;
+import com.nature.component.flow.utils.FlowUtil;
 import com.nature.component.mxGraph.model.MxGraphModel;
 import com.nature.component.mxGraph.utils.MxGraphModelUtils;
 import com.nature.component.mxGraph.vo.MxGraphModelVo;
@@ -35,16 +36,48 @@ public class ProcessGroupUtils {
         return processGroup;
     }
 
+    public static ProcessGroup initProcessGroupBasicPropertiesNoId(ProcessGroup processGroup, String username) {
+        if (null == processGroup) {
+            return processGroupNewNoId(username);
+        }
+        // basic properties (required when creating)
+        processGroup.setCrtDttm(new Date());
+        processGroup.setCrtUser(username);
+        // basic properties
+        processGroup.setEnableFlag(true);
+        processGroup.setLastUpdateUser(username);
+        processGroup.setLastUpdateDttm(new Date());
+        processGroup.setVersion(0L);
+        return processGroup;
+    }
+
     public static ProcessGroup flowGroupToProcessGroup(FlowGroup flowGroup, String username, RunModeType runModeType) {
         ProcessGroup processGroup = processGroupNewNoId(username);
         // copy FlowGroup to ProcessGroup
         BeanUtils.copyProperties(flowGroup, processGroup);
-        // Take out the sketchpad information of 'flowgroup'
-        MxGraphModel mxGraphModel = flowGroup.getMxGraphModel();
+
+        // Take out the sketchpad information of 'flowGroup'
+        MxGraphModel flowGroupMxGraphModel = flowGroup.getMxGraphModel();
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
         // The 'flowGroup' palette information changes to 'viewXml'
-        String viewXml = SvgUtils.mxGraphModelToViewXml(mxGraphModel, true, false);
+        String viewXml = SvgUtils.mxGraphModelToViewXml(flowGroupMxGraphModel, true, false);
         // set viewXml
         processGroup.setViewXml(viewXml);
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+        MxGraphModel mxGraphModelProcessGroup = new MxGraphModel();
+        BeanUtils.copyProperties(flowGroupMxGraphModel, mxGraphModelProcessGroup);
+        mxGraphModelProcessGroup = MxGraphModelUtils.removeIdMxGraphModel(mxGraphModelProcessGroup);
+        mxGraphModelProcessGroup = MxGraphModelUtils.initMxGraphModelBasicPropertiesNoId(mxGraphModelProcessGroup, username);
+        // unlink
+        mxGraphModelProcessGroup.setProcessGroup(null);
+        // add link
+        mxGraphModelProcessGroup.setProcessGroup(processGroup);
+        processGroup.setMxGraphModel(mxGraphModelProcessGroup);
+
         // set flowGroupId
         processGroup.setFlowId(flowGroup.getId());
 
@@ -89,127 +122,9 @@ public class ProcessGroupUtils {
                 if (null == flow) {
                     continue;
                 }
-
-                Process process = new Process();
-                // copy flow to process
-                BeanUtils.copyProperties(flow, process);
-                // set base info
-                process.setCrtDttm(new Date());
-                process.setCrtUser(username);
-                process.setLastUpdateDttm(new Date());
-                process.setLastUpdateUser(username);
-                process.setEnableFlag(true);
-                // Take out flow's Sketchpad information
-                MxGraphModel flowMxGraphModel = flow.getMxGraphModel();
-                // Flow Sketchpad information to viewxml
-                String processViewXml = SvgUtils.mxGraphModelToViewXml(flowMxGraphModel, false, false);
-                // set viewXml
-                process.setViewXml(processViewXml);
-                // set flowId
-                process.setFlowId(flow.getId());
-                process.setProcessParentType(ProcessParentType.GROUP);
-                process.setRunModeType(runModeType);
-                // Stops to remove flow
-                List<Stops> stopsList = flow.getStopsList();
-                // stopsList isEmpty
-                if (null != stopsList && stopsList.size() > 0) {
-                    // List of stop of process
-                    List<ProcessStop> processStopList = new ArrayList<>();
-                    // Loop stopsList
-                    for (Stops stops : stopsList) {
-                        // isEmpty
-                        if (null != stops) {
-                            ProcessStop processStop = new ProcessStop();
-                            // copy stops的信息到processStop中
-                            BeanUtils.copyProperties(stops, processStop);
-                            // set base info
-                            processStop.setCrtDttm(new Date());
-                            processStop.setCrtUser(username);
-                            processStop.setLastUpdateDttm(new Date());
-                            processStop.setLastUpdateUser(username);
-                            processStop.setEnableFlag(true);
-                            // link foreign key
-                            processStop.setProcess(process);
-                            // Take out the stops attribute
-                            List<Property> properties = stops.getProperties();
-                            // Empty attribute of stops
-                            if (null != properties && properties.size() > 0) {
-                                List<ProcessStopProperty> processStopPropertyList = new ArrayList<>();
-                                // Attributes of loop stops
-                                for (Property property : properties) {
-                                    // isEmpty
-                                    if (null != property) {
-                                        ProcessStopProperty processStopProperty = new ProcessStopProperty();
-                                        // Copy property information into processStopProperty
-                                        BeanUtils.copyProperties(property, processStopProperty);
-                                        // Set basic information
-                                        processStopProperty.setCrtDttm(new Date());
-                                        processStopProperty.setCrtUser(username);
-                                        processStopProperty.setLastUpdateDttm(new Date());
-                                        processStopProperty.setLastUpdateUser(username);
-                                        processStopProperty.setEnableFlag(true);
-                                        // Associated foreign key
-                                        processStopProperty.setProcessStop(processStop);
-                                        processStopPropertyList.add(processStopProperty);
-                                    }
-                                }
-                                processStop.setProcessStopPropertyList(processStopPropertyList);
-                            }
-
-                            // Take out the custom properties of stops
-                            List<CustomizedProperty> customizedPropertyList = stops.getCustomizedPropertyList();
-                            // Empty attribute of stops
-                            if (null != customizedPropertyList && customizedPropertyList.size() > 0) {
-                                List<ProcessStopCustomizedProperty> processStopCustomizedPropertyList = new ArrayList<>();
-                                // Attributes of loop stops
-                                for (CustomizedProperty customizedProperty : customizedPropertyList) {
-                                    // isEmpty
-                                    if (null != customizedProperty) {
-                                        ProcessStopCustomizedProperty processStopCustomizedProperty = new ProcessStopCustomizedProperty();
-                                        // Copy customizedProperty information into processStopCustomizedProperty
-                                        BeanUtils.copyProperties(customizedProperty, processStopCustomizedProperty);
-                                        // Set basic information
-                                        processStopCustomizedProperty.setCrtDttm(new Date());
-                                        processStopCustomizedProperty.setCrtUser(username);
-                                        processStopCustomizedProperty.setLastUpdateDttm(new Date());
-                                        processStopCustomizedProperty.setLastUpdateUser(username);
-                                        processStopCustomizedProperty.setEnableFlag(true);
-                                        // Associated foreign key
-                                        processStopCustomizedProperty.setProcessStop(processStop);
-                                        processStopCustomizedPropertyList.add(processStopCustomizedProperty);
-                                    }
-                                }
-                                processStop.setProcessStopCustomizedPropertyList(processStopCustomizedPropertyList);
-                            }
-                            processStopList.add(processStop);
-                        }
-                    }
-                    process.setProcessStopList(processStopList);
-                }
-                // Get the paths information of flow
-                List<Paths> pathsList = flow.getPathsList();
-                // isEmpty
-                if (null != pathsList && pathsList.size() > 0) {
-                    List<ProcessPath> processPathList = new ArrayList<>();
-                    // Loop paths information
-                    for (Paths paths : pathsList) {
-                        // isEmpty
-                        if (null != paths) {
-                            ProcessPath processPath = new ProcessPath();
-                            // Copy paths information into processPath
-                            BeanUtils.copyProperties(paths, processPath);
-                            // Set basic information
-                            processPath.setCrtDttm(new Date());
-                            processPath.setCrtUser(username);
-                            processPath.setLastUpdateDttm(new Date());
-                            processPath.setLastUpdateUser(username);
-                            processPath.setEnableFlag(true);
-                            // Associated foreign key
-                            processPath.setProcess(process);
-                            processPathList.add(processPath);
-                        }
-                    }
-                    process.setProcessPathList(processPathList);
+                Process process = ProcessUtils.flowToProcess(flow, username);
+                if (null == process) {
+                    continue;
                 }
                 process.setProcessGroup(processGroup);
                 processList.add(process);
@@ -251,32 +166,42 @@ public class ProcessGroupUtils {
     }
 
     public static ProcessGroup copyProcessGroup(ProcessGroup processGroup, UserVo currentUser, RunModeType runModeType) {
-        ProcessGroup processGroupCopy = null;
-        if (null != currentUser) {
-            String username = currentUser.getUsername();
-            if (null != processGroup) {
-                processGroupCopy = processGroupNewNoId(username);
-                processGroupCopy.setState(ProcessState.STARTED);
-                processGroupCopy.setRunModeType(null != runModeType ? runModeType : RunModeType.RUN);
-                processGroupCopy.setName(processGroup.getName());
-                processGroupCopy.setPageId(processGroup.getPageId());
-                processGroupCopy.setDescription(processGroup.getDescription());
-                processGroupCopy.setViewXml(processGroup.getViewXml());
-                processGroupCopy.setFlowId(processGroup.getFlowId());
-                processGroupCopy.setParentProcessId(StringUtils.isNotBlank(processGroup.getParentProcessId()) ? processGroup.getParentProcessId() : processGroup.getProcessId());
-                processGroupCopy.setProcessParentType(ProcessParentType.GROUP);
-
-                // processGroupPathList
-                List<ProcessGroupPath> processGroupPathList = processGroup.getProcessGroupPathList();
-                processGroupCopy.setProcessGroupPathList(copyProcessGroupPathList(processGroupPathList, processGroupCopy, username));
-                // processList
-                List<Process> processList = processGroup.getProcessList();
-                processGroupCopy.setProcessList(copyProcessList(processList, currentUser, runModeType, processGroupCopy));
-                // processGroupList
-                List<ProcessGroup> processGroupList = processGroup.getProcessGroupList();
-                processGroup.setProcessGroupList(copyProcessGroupList(processGroupList, processGroupCopy, currentUser, runModeType));
-            }
+        if (null == currentUser) {
+            return null;
         }
+        String username = currentUser.getUsername();
+        if (null == processGroup) {
+            return null;
+        }
+        ProcessGroup processGroupCopy = new ProcessGroup();
+        BeanUtils.copyProperties(processGroup, processGroupCopy);
+        processGroupCopy = ProcessGroupUtils.initProcessGroupBasicPropertiesNoId(processGroupCopy, username);
+        processGroupCopy.setParentProcessId(StringUtils.isNotBlank(processGroup.getParentProcessId()) ? processGroup.getParentProcessId() : processGroup.getProcessId());
+        processGroupCopy.setState(ProcessState.STARTED);
+        processGroupCopy.setRunModeType(null != runModeType ? runModeType : RunModeType.RUN);
+        processGroupCopy.setProcessParentType(ProcessParentType.GROUP);
+
+        // mxGraphModelCopy remove Id
+        MxGraphModel mxGraphModelCopy = processGroupCopy.getMxGraphModel();
+        if (null != mxGraphModelCopy) {
+            mxGraphModelCopy = MxGraphModelUtils.removeIdMxGraphModel(mxGraphModelCopy);
+            mxGraphModelCopy = MxGraphModelUtils.initMxGraphModelBasicPropertiesNoId(mxGraphModelCopy, username);
+            // unlink
+            mxGraphModelCopy.setProcessGroup(null);
+            // add link
+            mxGraphModelCopy.setProcessGroup(processGroupCopy);
+            processGroupCopy.setMxGraphModel(mxGraphModelCopy);
+        }
+
+        // processGroupPathList
+        List<ProcessGroupPath> processGroupPathList = processGroup.getProcessGroupPathList();
+        processGroupCopy.setProcessGroupPathList(copyProcessGroupPathList(processGroupPathList, processGroupCopy, username));
+        // processList
+        List<Process> processList = processGroup.getProcessList();
+        processGroupCopy.setProcessList(copyProcessList(processList, currentUser, runModeType, processGroupCopy));
+        // processGroupList
+        List<ProcessGroup> processGroupList = processGroup.getProcessGroupList();
+        processGroup.setProcessGroupList(copyProcessGroupList(processGroupList, processGroupCopy, currentUser, runModeType));
         return processGroupCopy;
     }
 

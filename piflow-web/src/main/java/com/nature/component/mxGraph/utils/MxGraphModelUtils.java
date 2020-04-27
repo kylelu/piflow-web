@@ -33,6 +33,45 @@ public class MxGraphModelUtils {
         return mxGraphModel;
     }
 
+    public static MxGraphModel initMxGraphModelBasicPropertiesNoId(MxGraphModel mxGraphModel, String username) {
+        if (null == mxGraphModel) {
+            return mxGraphModelNewNoId(username);
+        }
+        // basic properties (required when creating)
+        mxGraphModel.setCrtDttm(new Date());
+        mxGraphModel.setCrtUser(username);
+        // basic properties
+        mxGraphModel.setEnableFlag(true);
+        mxGraphModel.setLastUpdateUser(username);
+        mxGraphModel.setLastUpdateDttm(new Date());
+        mxGraphModel.setVersion(0L);
+        return mxGraphModel;
+    }
+
+    public static MxGraphModel removeIdMxGraphModel(MxGraphModel mxGraphModel) {
+        if (null == mxGraphModel) {
+            return mxGraphModel;
+        }
+        mxGraphModel.setId(null);
+        List<MxCell> root = mxGraphModel.getRoot();
+        mxGraphModel.setRoot(null);
+        for (MxCell mxCell : root) {
+            if (null == mxCell) {
+                continue;
+            }
+            mxCell.setId(null);
+            mxCell.setMxGraphModel(mxGraphModel);
+            MxGeometry mxGeometry = mxCell.getMxGeometry();
+            if (null != mxGeometry) {
+                mxGeometry.setId(null);
+                mxGeometry.setMxCell(mxCell);
+            }
+            mxCell.setMxGeometry(mxGeometry);
+        }
+        mxGraphModel.setRoot(root);
+        return mxGraphModel;
+    }
+
     public static MxGraphModel setMxGraphModelBasicInformation(MxGraphModel mxGraphModel, boolean isSetId, String username) {
         if (null == mxGraphModel) {
             mxGraphModel = new MxGraphModel();

@@ -4,12 +4,15 @@ import com.nature.component.dataSource.model.DataSource;
 import com.nature.component.dataSource.model.DataSourceProperty;
 import com.nature.component.dataSource.vo.DataSourcePropertyVo;
 import com.nature.component.dataSource.vo.DataSourceVo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class DataSourceUtil {
+public class DataSourceUtils {
     /**
      * dataSource Po To Vo
      *
@@ -71,5 +74,26 @@ public class DataSourceUtil {
             }
         }
         return dataSourceVoList;
+    }
+
+    public static Map<String, String> dataSourceToPropertyMap(DataSource dataSource) {
+        Map<String, String> dataSourcePropertyMap = new HashMap<>();
+        if (null == dataSource) {
+            return dataSourcePropertyMap;
+        }
+        List<DataSourceProperty> dataSourcePropertyList = dataSource.getDataSourcePropertyList();
+        if (null != dataSourcePropertyList && dataSourcePropertyList.size() > 0) {
+            // Loop "datasource" attribute to map
+            for (DataSourceProperty dataSourceProperty : dataSourcePropertyList) {
+                // "datasource" attribute name
+                String dataSourcePropertyName = dataSourceProperty.getName();
+                // Judge empty and lowercase
+                if (StringUtils.isNotBlank(dataSourcePropertyName)) {
+                    dataSourcePropertyName = dataSourcePropertyName.toLowerCase();
+                }
+                dataSourcePropertyMap.put(dataSourcePropertyName, dataSourceProperty.getValue());
+            }
+        }
+        return dataSourcePropertyMap;
     }
 }

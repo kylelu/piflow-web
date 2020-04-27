@@ -313,17 +313,6 @@ public class ProcessGroupServiceImpl implements IProcessGroupService {
         return debugDataResponse;
     }
 
-    public static void main(String[] args) {
-        String a = "";
-        String b = "";
-        String c = "";
-        if (StringUtils.isAllEmpty(a, b, c)) {
-            System.out.println("null");
-        } else {
-            System.out.println("no");
-        }
-    }
-
     /**
      * delProcessGroup
      *

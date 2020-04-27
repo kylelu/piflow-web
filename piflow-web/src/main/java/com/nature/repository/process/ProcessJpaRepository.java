@@ -29,11 +29,6 @@ public interface ProcessJpaRepository extends JpaRepository<Process, String>, Jp
     @Query("select c from Process c where c.enableFlag=true and c.crtUser=:userName and (c.name like CONCAT('%',:param,'%') or c.description like CONCAT('%',:param,'%'))")
     Page<Process> getProcessListPage(@Param("userName") String userName, @Param("param") String param, Pageable pageable);
 
-    @Transactional
-    @Modifying
-    @Query("update Process c set c.enableFlag = :enableFlag where c.id = :id")
-    int updateEnableFlagById(@Param("id") String id, @Param("enableFlag") boolean enableFlag);
-
     @Query(nativeQuery = true, value = "select * from flow_process s where s.enable_flag = 1 and s.fk_flow_process_group_id = :fid and s.page_id = :pageId")
     Process getProcessByPageId(@Param("fid") String fid, @Param("pageId") String pageId);
 

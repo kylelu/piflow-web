@@ -3,6 +3,7 @@ package com.nature.component.process.model;
 import com.nature.base.BaseHibernateModelUUIDNoCorpAgentId;
 import com.nature.common.Eunm.ProcessParentType;
 import com.nature.common.Eunm.ProcessState;
+import com.nature.common.Eunm.ProcessType;
 import com.nature.common.Eunm.RunModeType;
 import com.nature.component.mxGraph.model.MxGraphModel;
 import lombok.Getter;
@@ -15,10 +16,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "FLOW_PROCESS_GROUP")
-@Setter
-@Getter
 public class ProcessGroup extends BaseHibernateModelUUIDNoCorpAgentId {
 
     private static final long serialVersionUID = 1L;
@@ -68,13 +69,13 @@ public class ProcessGroup extends BaseHibernateModelUUIDNoCorpAgentId {
     @Enumerated(EnumType.STRING)
     private ProcessParentType processParentType;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "processGroup")
-    @Where(clause = "enable_flag=1")
-    private MxGraphModel mxGraphModel;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FK_FLOW_PROCESS_GROUP_ID")
     private ProcessGroup processGroup;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "processGroup")
+    @Where(clause = "enable_flag=1")
+    private MxGraphModel mxGraphModel;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "processGroup")
     @Where(clause = "enable_flag=1")

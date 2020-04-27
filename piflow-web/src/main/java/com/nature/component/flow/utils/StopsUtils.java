@@ -1,7 +1,7 @@
 package com.nature.component.flow.utils;
 
 import com.nature.component.dataSource.model.DataSource;
-import com.nature.component.dataSource.model.DataSourceProperty;
+import com.nature.component.dataSource.utils.DataSourceUtils;
 import com.nature.component.dataSource.vo.DataSourceVo;
 import com.nature.component.flow.model.CustomizedProperty;
 import com.nature.component.flow.model.Property;
@@ -14,7 +14,7 @@ import org.springframework.beans.BeanUtils;
 
 import java.util.*;
 
-public class StopsUtil {
+public class StopsUtils {
     /**
      * stopsList Po To Vo
      *
@@ -46,27 +46,13 @@ public class StopsUtil {
         if (null != stop) {
             stopsVo = new StopsVo();
             BeanUtils.copyProperties(stop, stopsVo);
-            // datasource Property Map(Key is the attribute name)
-            Map<String, String> dataSourcePropertyMap = new HashMap<>();
             DataSource dataSource = stop.getDataSource();
+            // datasource Property Map(Key is the attribute name)
+            Map<String, String> dataSourcePropertyMap = DataSourceUtils.dataSourceToPropertyMap(dataSource);
             if (null != dataSource) {
                 DataSourceVo dataSourceVo = new DataSourceVo();
                 BeanUtils.copyProperties(dataSource, dataSourceVo);
                 stopsVo.setDataSourceVo(dataSourceVo);
-                List<DataSourceProperty> dataSourcePropertyList = dataSource.getDataSourcePropertyList();
-                // Determine whether the Datasource attribute whose ID is "dataSourceId" is empty. Returns if it is empty, otherwise it is converted to Map.
-                if (null != dataSourcePropertyList && dataSourcePropertyList.size() > 0) {
-                    // Loop "datasource" attribute to map
-                    for (DataSourceProperty dataSourceProperty : dataSourcePropertyList) {
-                        // "datasource" attribute name
-                        String dataSourcePropertyName = dataSourceProperty.getName();
-                        // Judge empty and lowercase
-                        if (StringUtils.isNotBlank(dataSourcePropertyName)) {
-                            dataSourcePropertyName = dataSourcePropertyName.toLowerCase();
-                        }
-                        dataSourcePropertyMap.put(dataSourcePropertyName, dataSourceProperty.getValue());
-                    }
-                }
             }
             List<StopsPropertyVo> propertyVos = popertyListPoToVo(stop.getProperties(), dataSourcePropertyMap);
             stopsVo.setPropertiesVo(propertyVos);

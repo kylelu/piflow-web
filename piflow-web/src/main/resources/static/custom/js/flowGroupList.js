@@ -28,8 +28,8 @@ function initDatatableFlowGroupPage(testTableId, url, searchInputId) {
             , url: url
             , cols: [[
                 {field: 'name', title: 'Name', sort: true},
-                {field: 'description', title: 'description', sort: true},
-                {field: 'crtDttm', title: 'crtDttm', sort: true},
+                {field: 'description', title: 'Description', sort: true},
+                {field: 'crtDttm', title: 'CreateTime', sort: true},
                 {
                     field: 'right', title: 'Actions', sort: true, height: 100, templet: function (data) {
                         return responseActionsFlow(data);
@@ -73,7 +73,7 @@ function responseActionsFlow(res) {
         '</a>' +
         '<a class="btn" ' +
         'href="javascript:void(0);" ' +
-        'onclick="javascript:listRunFlows(\'' + res.id + '\');" ' +
+        'onclick="javascript:listRunFlowGroup(\'' + res.id + '\');" ' +
         'style="margin-right: 2px;">' +
         '<i class="icon-play icon-white"></i>' +
         '</a>' +
@@ -197,7 +197,7 @@ function updateFlowGroup() {
 }
 
 //run
-function listRunFlows(loadId, runMode) {
+function listRunFlowGroup(loadId, runMode) {
     $('#fullScreen').show();
     var data = {flowGroupId: loadId}
     if (runMode) {

@@ -17,7 +17,9 @@ import com.nature.component.mxGraph.service.IMxGraphModelService;
 import com.nature.component.mxGraph.service.IMxNodeImageService;
 import com.nature.component.mxGraph.vo.MxGraphModelVo;
 import com.nature.component.process.service.IProcessGroupService;
+import com.nature.component.process.service.IProcessService;
 import com.nature.component.process.vo.ProcessGroupVo;
+import com.nature.component.process.vo.ProcessVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -29,7 +31,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * grapheditorctrl
@@ -58,7 +63,11 @@ public class MxGraphCtrl {
     private IMxNodeImageService mxNodeImageServiceImpl;
 
     @Resource
+    private IProcessService processServiceImpl;
+
+    @Resource
     private IProcessGroupService processGroupServiceImpl;
+
 
     /**
      * Enter the front page of the drawing board
@@ -69,7 +78,7 @@ public class MxGraphCtrl {
      * @return
      */
     @RequestMapping("/drawingBoard")
-    public String drawingBoard(HttpServletRequest request, Model model, DrawingBoardType drawingBoardType) {
+    public String drawingBoard(HttpServletRequest request, Model model, DrawingBoardType drawingBoardType, String processType) {
         String load = request.getParameter("load");
         //set parentAccessPath
         String parentAccessPath = request.getParameter("parentAccessPath");
@@ -86,14 +95,6 @@ public class MxGraphCtrl {
             return "errorPage";
         }
         switch (drawingBoardType) {
-            case PROCESS: {
-                Model flowHandleModel = processHandle(model, load);
-                if (null != flowHandleModel) {
-                    model = flowHandleModel;
-                    pagePath = "mxGraph/index";
-                }
-                break;
-            }
             case GROUP: {
                 Model groupHandleModel = groupHandle(model, load);
                 if (null != groupHandleModel) {
@@ -110,26 +111,78 @@ public class MxGraphCtrl {
                 }
                 break;
             }
+            case PROCESS: {
+                Model processHandleModel = processHandle(model, load, processType);
+                if (null != processHandleModel) {
+                    model = processHandleModel;
+                    pagePath = "mxGraph/index";
+                }
+                break;
+            }
         }
         return pagePath;
     }
 
-    private Model processHandle(Model model, String load) {
+    private Model processHandle(Model model, String load, String processType) {
         if (StringUtils.isBlank(load)) {
             return null;
         }
         if (null == model) {
             return null;
         }
-        ProcessGroupVo processGroupVo = processGroupServiceImpl.getProcessGroupVoAllById(load);
-        if (null == processGroupVo) {
-            return null;
+        ProcessGroupVo parentsProcessGroupVo = null;
+        MxGraphModelVo mxGraphModelVo = null;
+        if ("PROCESS".equals(processType)) {
+            ProcessVo processVo = processServiceImpl.getProcessById(load);
+            if (null == processVo) {
+                return null;
+            }
+            parentsProcessGroupVo = processVo.getProcessGroupVo();
+            mxGraphModelVo = processVo.getMxGraphModelVo();
+            model.addAttribute("processType", "TASK");
+        } else {
+            ProcessGroupVo processGroupVo = processGroupServiceImpl.getProcessGroupVoAllById(load);
+            if (null == processGroupVo) {
+                return null;
+            }
+            parentsProcessGroupVo = processGroupVo.getProcessGroupVo();
+            mxGraphModelVo = processGroupVo.getMxGraphModelVo();
+            model.addAttribute("processType", "GROUP");
+
+            List<Map<String, String>> nodePageIdAndStates = new ArrayList<>();
+            // processGroupVoList
+            List<ProcessGroupVo> processGroupVoList = processGroupVo.getProcessGroupVoList();
+            if (null != processGroupVoList && processGroupVoList.size() > 0) {
+                Map<String, String> processGroupNode;
+                for (ProcessGroupVo processGroupVo_i : processGroupVoList) {
+                    if (null == processGroupVo_i) {
+                        continue;
+                    }
+                    processGroupNode = new HashMap<>();
+                    processGroupNode.put("pageId", processGroupVo_i.getPageId());
+                    processGroupNode.put("state", processGroupVo_i.getState().getText());
+                    nodePageIdAndStates.add(processGroupNode);
+                }
+            }
+            // processVoList
+            List<ProcessVo> processVoList = processGroupVo.getProcessVoList();
+            Map<String, String> processNode;
+            if (null != processVoList && processVoList.size() > 0) {
+                for (ProcessVo process_i : processVoList) {
+                    if (null == process_i) {
+                        continue;
+                    }
+                    processNode = new HashMap<>();
+                    processNode.put("pageId", process_i.getPageId());
+                    processNode.put("state", process_i.getState().getText());
+                    nodePageIdAndStates.add(processNode);
+                }
+            }
+            model.addAttribute("nodeArr", nodePageIdAndStates);
         }
-        ProcessGroupVo parentsProcessGroupVo = processGroupVo.getProcessGroupVo();
         if (null != parentsProcessGroupVo) {
             model.addAttribute("parentsId", parentsProcessGroupVo.getId());
         }
-        MxGraphModelVo mxGraphModelVo = processGroupVo.getMxGraphModelVo();
         String loadXml = FlowXmlUtils.mxGraphModelToXml(mxGraphModelVo);
         model.addAttribute("xmlDate", loadXml);
         model.addAttribute("load", load);

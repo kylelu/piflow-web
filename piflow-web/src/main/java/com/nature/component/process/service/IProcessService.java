@@ -136,7 +136,7 @@ public interface IProcessService {
      * @return
      */
     @Transactional
-    public StatefulRtnBase updateProcessEnableFlag(String processId, UserVo currentUser);
+    public String delProcess(String processId);
 
     /**
      * Query the running process List (process List) according to flowId
