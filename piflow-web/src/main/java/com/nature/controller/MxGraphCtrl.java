@@ -6,6 +6,7 @@ import com.nature.base.util.MxGraphUtils;
 import com.nature.base.util.SessionUserUtil;
 import com.nature.base.vo.UserVo;
 import com.nature.common.Eunm.DrawingBoardType;
+import com.nature.common.Eunm.ProcessState;
 import com.nature.component.flow.model.Flow;
 import com.nature.component.flow.model.FlowGroup;
 import com.nature.component.flow.service.IFlowGroupService;
@@ -172,9 +173,10 @@ public class MxGraphCtrl {
                     if (null == process_i) {
                         continue;
                     }
+                    String process_i_stateStr = (null != process_i.getState() ? process_i.getState().getText() : "INIT");
                     processNode = new HashMap<>();
                     processNode.put("pageId", process_i.getPageId());
-                    processNode.put("state", process_i.getState().getText());
+                    processNode.put("state", process_i_stateStr);
                     nodePageIdAndStates.add(processNode);
                 }
             }
