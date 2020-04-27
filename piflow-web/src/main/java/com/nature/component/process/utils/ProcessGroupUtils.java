@@ -172,6 +172,7 @@ public class ProcessGroupUtils {
         ProcessGroup processGroupCopy = new ProcessGroup();
         BeanUtils.copyProperties(processGroup, processGroupCopy);
         processGroupCopy = ProcessGroupUtils.initProcessGroupBasicPropertiesNoId(processGroupCopy, username);
+        processGroupCopy.setId(null);
         processGroupCopy.setParentProcessId(StringUtils.isNotBlank(processGroup.getParentProcessId()) ? processGroup.getParentProcessId() : processGroup.getProcessId());
         processGroupCopy.setState(ProcessState.STARTED);
         processGroupCopy.setRunModeType(null != runModeType ? runModeType : RunModeType.RUN);
@@ -212,101 +213,88 @@ public class ProcessGroupUtils {
     }
 
     public static Process copyProcess(Process process, UserVo currentUser, RunModeType runModeType, ProcessGroup processGroup) {
-        Process processCopy = null;
-        if (null != currentUser) {
-            String username = currentUser.getUsername();
-            if (StringUtils.isNotBlank(username) && null != process) {
-                processCopy = ProcessUtils.processNewNoId(username);
-                processCopy.setState(ProcessState.INIT);
-                processCopy.setRunModeType(null != runModeType ? runModeType : RunModeType.RUN);
-                processCopy.setName(process.getName());
-                processCopy.setDriverMemory(process.getDriverMemory());
-                processCopy.setExecutorNumber(process.getExecutorNumber());
-                processCopy.setExecutorMemory(process.getExecutorMemory());
-                processCopy.setExecutorCores(process.getExecutorCores());
-                processCopy.setDescription(process.getDescription());
-                processCopy.setViewXml(process.getViewXml());
-                processCopy.setFlowId(process.getFlowId());
-                processCopy.setParentProcessId(StringUtils.isNotBlank(process.getParentProcessId()) ? process.getParentProcessId() : process.getProcessId());
-                processCopy.setPageId(process.getPageId());
-                processCopy.setProcessGroup(processGroup);
-                processCopy.setProcessParentType(ProcessParentType.GROUP);
-                List<ProcessPath> processPathList = process.getProcessPathList();
-                if (null != processPathList && processPathList.size() > 0) {
-                    List<ProcessPath> processPathListCopy = new ArrayList<ProcessPath>();
-                    for (ProcessPath processPath : processPathList) {
-                        if (null != processPath) {
-                            ProcessPath processPathCopy = new ProcessPath();
-                            processPathCopy.setCrtDttm(new Date());
-                            processPathCopy.setCrtUser(username);
-                            processPathCopy.setLastUpdateDttm(new Date());
-                            processPathCopy.setLastUpdateUser(username);
-                            processPathCopy.setEnableFlag(true);
-                            processPathCopy.setFrom(processPath.getFrom());
-                            processPathCopy.setTo(processPath.getTo());
-                            processPathCopy.setInport(processPath.getInport());
-                            processPathCopy.setOutport(processPath.getOutport());
-                            processPathCopy.setPageId(processPath.getPageId());
-                            processPathCopy.setProcess(processCopy);
-                            processPathListCopy.add(processPathCopy);
-                        }
-                    }
-                    processCopy.setProcessPathList(processPathListCopy);
-                }
-                List<ProcessStop> processStopList = process.getProcessStopList();
-                if (null != processStopList && processStopList.size() > 0) {
-                    List<ProcessStop> processStopListCopy = new ArrayList<ProcessStop>();
-                    for (ProcessStop processStop : processStopList) {
-                        if (null != processStop) {
-                            ProcessStop processStopCopy = new ProcessStop();
-                            processStopCopy.setCrtDttm(new Date());
-                            processStopCopy.setCrtUser(username);
-                            processStopCopy.setLastUpdateDttm(new Date());
-                            processStopCopy.setLastUpdateUser(username);
-                            processStopCopy.setEnableFlag(true);
-                            processStopCopy.setBundel(processStop.getBundel());
-                            processStopCopy.setName(processStop.getName());
-                            processStopCopy.setDescription(processStop.getDescription());
-                            processStopCopy.setGroups(processStop.getGroups());
-                            processStopCopy.setInports(processStop.getInports());
-                            processStopCopy.setInPortType(processStop.getInPortType());
-                            processStopCopy.setOutports(processStop.getOutports());
-                            processStopCopy.setOutPortType(processStop.getOutPortType());
-                            processStopCopy.setOwner(processStop.getOwner());
-                            processStopCopy.setPageId(processStop.getPageId());
-                            processStopCopy.setProcess(processCopy);
-                            List<ProcessStopProperty> processStopPropertyList = processStop.getProcessStopPropertyList();
-                            if (null != processStopPropertyList && processStopPropertyList.size() > 0) {
-                                List<ProcessStopProperty> processStopPropertyListCopy = new ArrayList<>();
-                                for (ProcessStopProperty processStopProperty : processStopPropertyList) {
-                                    if (null != processStopProperty) {
-                                        ProcessStopProperty processStopPropertyCopy = new ProcessStopProperty();
-                                        processStopPropertyCopy.setCrtDttm(new Date());
-                                        processStopPropertyCopy.setCrtUser(username);
-                                        processStopPropertyCopy.setLastUpdateDttm(new Date());
-                                        processStopPropertyCopy.setLastUpdateUser(username);
-                                        processStopPropertyCopy.setEnableFlag(true);
-                                        processStopPropertyCopy.setCustomValue(processStopProperty.getCustomValue());
-                                        processStopPropertyCopy.setName(processStopProperty.getName());
-                                        processStopPropertyCopy.setAllowableValues(processStopProperty.getAllowableValues());
-                                        processStopPropertyCopy.setDescription(processStopProperty.getDescription());
-                                        processStopPropertyCopy.setDisplayName(processStopProperty.getDisplayName());
-                                        processStopPropertyCopy.setRequired(processStopProperty.getRequired());
-                                        processStopPropertyCopy.setSensitive(processStopPropertyCopy.getSensitive());
-                                        processStopPropertyCopy.setProcessStop(processStopCopy);
-                                        processStopPropertyListCopy.add(processStopPropertyCopy);
-                                    }
-                                }
-                                processStopCopy.setProcessStopPropertyList(processStopPropertyListCopy);
-                            }
-                            processStopListCopy.add(processStopCopy);
-                        }
-                    }
-                    processCopy.setProcessStopList(processStopListCopy);
+        if (null == currentUser) {
+            return null;
+        }
+        String username = currentUser.getUsername();
+        if (StringUtils.isBlank(username) || null == process) {
+            return null;
+        }
+        // process
+        Process processNew = new Process();
+        BeanUtils.copyProperties(process, processNew);
+        processNew = ProcessUtils.initProcessBasicPropertiesNoId(processNew, username);
+        processNew.setId(null);
+        processNew.setState(ProcessState.INIT);
+        processNew.setRunModeType(null != runModeType ? runModeType : RunModeType.RUN);
+        processNew.setParentProcessId(StringUtils.isNotBlank(process.getParentProcessId()) ? process.getParentProcessId() : process.getProcessId());
+        processNew.setProcessParentType(ProcessParentType.GROUP);
+
+        //unlink processGroup
+        processNew.setProcessGroup(null);
+        //link processGroup
+        processNew.setProcessGroup(processGroup);
+
+        // copy processMxGraphModel
+        MxGraphModel processMxGraphModel = process.getMxGraphModel();
+        MxGraphModel mxGraphModelNew = MxGraphModelUtils.copyMxGraphModelAndNewNoIdAndUnlink(processMxGraphModel);
+        mxGraphModelNew = MxGraphModelUtils.initMxGraphModelBasicPropertiesNoId(mxGraphModelNew, username);
+        // add link
+        mxGraphModelNew.setProcess(processNew);
+        processNew.setMxGraphModel(mxGraphModelNew);
+
+        //processPathList
+        List<ProcessPath> processPathList = process.getProcessPathList();
+        if (null != processPathList && processPathList.size() > 0) {
+            List<ProcessPath> processPathListNew = new ArrayList<ProcessPath>();
+            for (ProcessPath processPath : processPathList) {
+                if (null != processPath) {
+                    ProcessPath processPathNew = new ProcessPath();
+                    BeanUtils.copyProperties(processPath, processPathNew);
+                    processPathNew = ProcessPathUtils.initProcessPathBasicPropertiesNoId(processPathNew, username);
+                    processPathNew.setId(null);
+                    processPathNew.setProcess(processNew);
+                    processPathListNew.add(processPathNew);
                 }
             }
+            processNew.setProcessPathList(processPathListNew);
         }
-        return processCopy;
+
+        //processStopList
+        List<ProcessStop> processStopList = process.getProcessStopList();
+        if (null != processStopList && processStopList.size() > 0) {
+            List<ProcessStop> processStopListNew = new ArrayList<ProcessStop>();
+            for (ProcessStop processStop : processStopList) {
+                if (null == processStop) {
+                    continue;
+                }
+                ProcessStop processStopNew = new ProcessStop();
+                BeanUtils.copyProperties(processStop, processStopNew);
+                processStopNew = ProcessStopUtils.initProcessStopBasicPropertiesNoId(processStopNew, username);
+                processStopNew.setId(null);
+                processStopNew.setProcess(processNew);
+                List<ProcessStopProperty> processStopPropertyList = processStop.getProcessStopPropertyList();
+                if (null != processStopPropertyList && processStopPropertyList.size() > 0) {
+                    List<ProcessStopProperty> processStopPropertyListNew = new ArrayList<>();
+                    for (ProcessStopProperty processStopProperty : processStopPropertyList) {
+                        if (null == processStopProperty) {
+                            continue;
+                        }
+                        ProcessStopProperty processStopPropertyNew = new ProcessStopProperty();
+                        BeanUtils.copyProperties(processStopProperty, processStopPropertyNew);
+                        processStopPropertyNew = ProcessStopPropertyUtils.initProcessStopPropertyBasicPropertiesNoId(processStopPropertyNew, username);
+                        processStopPropertyNew.setId(null);
+                        processStopPropertyNew.setSensitive(processStopPropertyNew.getSensitive());
+                        processStopPropertyNew.setProcessStop(processStopNew);
+                        processStopPropertyListNew.add(processStopPropertyNew);
+                    }
+                    processStopNew.setProcessStopPropertyList(processStopPropertyListNew);
+                }
+                processStopListNew.add(processStopNew);
+            }
+            processNew.setProcessStopList(processStopListNew);
+        }
+        return processNew;
     }
 
     public static List<ProcessGroupPath> copyProcessGroupPathList(List<ProcessGroupPath> processGroupPathList, ProcessGroup processGroupCopy, String username) {

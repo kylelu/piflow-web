@@ -17,6 +17,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class ProcessGroupDomain {
@@ -110,6 +111,10 @@ public class ProcessGroupDomain {
 
     public ProcessGroup getProcessGroupByAppId(String appId) {
         return processGroupJpaRepository.getProcessGroupByAppId(appId);
+    }
+
+    public List<Map<String, Object>> getProcessGroupNamesAndPageIdsByPageIds(String fid, List<String> pageIds) {
+        return processGroupJpaRepository.getProcessGroupNamesAndPageIdsByPageIds(fid, pageIds);
     }
 
 }
