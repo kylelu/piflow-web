@@ -68,12 +68,8 @@ public class ProcessGroupUtils {
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
-        MxGraphModel mxGraphModelProcessGroup = new MxGraphModel();
-        BeanUtils.copyProperties(flowGroupMxGraphModel, mxGraphModelProcessGroup);
-        mxGraphModelProcessGroup = MxGraphModelUtils.removeIdMxGraphModel(mxGraphModelProcessGroup);
+        MxGraphModel mxGraphModelProcessGroup = MxGraphModelUtils.copyMxGraphModelAndNewNoIdAndUnlink(flowGroupMxGraphModel);
         mxGraphModelProcessGroup = MxGraphModelUtils.initMxGraphModelBasicPropertiesNoId(mxGraphModelProcessGroup, username);
-        // unlink
-        mxGraphModelProcessGroup.setProcessGroup(null);
         // add link
         mxGraphModelProcessGroup.setProcessGroup(processGroup);
         processGroup.setMxGraphModel(mxGraphModelProcessGroup);
@@ -184,10 +180,8 @@ public class ProcessGroupUtils {
         // mxGraphModelCopy remove Id
         MxGraphModel mxGraphModelCopy = processGroupCopy.getMxGraphModel();
         if (null != mxGraphModelCopy) {
-            mxGraphModelCopy = MxGraphModelUtils.removeIdMxGraphModel(mxGraphModelCopy);
+            mxGraphModelCopy = MxGraphModelUtils.copyMxGraphModelAndNewNoIdAndUnlink(mxGraphModelCopy);
             mxGraphModelCopy = MxGraphModelUtils.initMxGraphModelBasicPropertiesNoId(mxGraphModelCopy, username);
-            // unlink
-            mxGraphModelCopy.setProcessGroup(null);
             // add link
             mxGraphModelCopy.setProcessGroup(processGroupCopy);
             processGroupCopy.setMxGraphModel(mxGraphModelCopy);

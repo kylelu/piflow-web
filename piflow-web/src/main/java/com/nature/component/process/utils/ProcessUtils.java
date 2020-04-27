@@ -179,12 +179,8 @@ public class ProcessUtils {
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
-            MxGraphModel mxGraphModelProcess = new MxGraphModel();
-            BeanUtils.copyProperties(mxGraphModel, mxGraphModelProcess);
-            mxGraphModelProcess = MxGraphModelUtils.removeIdMxGraphModel(mxGraphModelProcess);
+            MxGraphModel mxGraphModelProcess = MxGraphModelUtils.copyMxGraphModelAndNewNoIdAndUnlink(mxGraphModel);
             mxGraphModelProcess = MxGraphModelUtils.initMxGraphModelBasicPropertiesNoId(mxGraphModelProcess, username);
-            // unlink
-            mxGraphModelProcess.setFlow(null);
             // add link
             mxGraphModelProcess.setProcess(process);
             process.setMxGraphModel(mxGraphModelProcess);
@@ -329,10 +325,8 @@ public class ProcessUtils {
         // mxGraphModelCopy remove Id
         MxGraphModel mxGraphModelCopy = processCopy.getMxGraphModel();
         if (null != mxGraphModelCopy) {
-            mxGraphModelCopy = MxGraphModelUtils.removeIdMxGraphModel(mxGraphModelCopy);
+            mxGraphModelCopy = MxGraphModelUtils.copyMxGraphModelAndNewNoIdAndUnlink(mxGraphModelCopy);
             mxGraphModelCopy = MxGraphModelUtils.initMxGraphModelBasicPropertiesNoId(mxGraphModelCopy, username);
-            // unlink
-            mxGraphModelCopy.setProcess(null);
             // add link
             mxGraphModelCopy.setProcess(processCopy);
             processCopy.setMxGraphModel(mxGraphModelCopy);

@@ -48,28 +48,42 @@ public class MxGraphModelUtils {
         return mxGraphModel;
     }
 
-    public static MxGraphModel removeIdMxGraphModel(MxGraphModel mxGraphModel) {
+    public static MxGraphModel copyMxGraphModelAndNewNoIdAndUnlink(MxGraphModel mxGraphModel) {
         if (null == mxGraphModel) {
             return mxGraphModel;
         }
-        mxGraphModel.setId(null);
+        MxGraphModel mxGraphModelNew = new MxGraphModel();
+        BeanUtils.copyProperties(mxGraphModel, mxGraphModelNew);
+        mxGraphModelNew.setId(null);
+        mxGraphModelNew.setFlow(null);
+        mxGraphModelNew.setFlowGroup(null);
+        mxGraphModelNew.setProcess(null);
+        mxGraphModelNew.setProcessGroup(null);
+
         List<MxCell> root = mxGraphModel.getRoot();
         mxGraphModel.setRoot(null);
-        for (MxCell mxCell : root) {
-            if (null == mxCell) {
-                continue;
+        if (null != root && root.size() > 0) {
+            List<MxCell> rootNew = new ArrayList<>();
+            for (MxCell mxCell : root) {
+                if (null == mxCell) {
+                    continue;
+                }
+                MxCell mxCellNew = new MxCell();
+                BeanUtils.copyProperties(mxCell, mxCellNew);
+                mxCellNew.setId(null);
+                mxCellNew.setMxGraphModel(mxGraphModelNew);
+                MxGeometry mxGeometry = mxCell.getMxGeometry();
+                if (null != mxGeometry) {
+                    MxGeometry mxGeometryNew = new MxGeometry();
+                    BeanUtils.copyProperties(mxGeometry, mxGeometryNew);
+                    mxGeometryNew.setId(null);
+                    mxGeometryNew.setMxCell(mxCellNew);
+                }
+                mxCellNew.setMxGeometry(mxGeometry);
             }
-            mxCell.setId(null);
-            mxCell.setMxGraphModel(mxGraphModel);
-            MxGeometry mxGeometry = mxCell.getMxGeometry();
-            if (null != mxGeometry) {
-                mxGeometry.setId(null);
-                mxGeometry.setMxCell(mxCell);
-            }
-            mxCell.setMxGeometry(mxGeometry);
+            mxGraphModelNew.setRoot(rootNew);
         }
-        mxGraphModel.setRoot(root);
-        return mxGraphModel;
+        return mxGraphModelNew;
     }
 
     public static MxGraphModel setMxGraphModelBasicInformation(MxGraphModel mxGraphModel, boolean isSetId, String username) {
