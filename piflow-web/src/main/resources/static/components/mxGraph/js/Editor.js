@@ -2081,10 +2081,15 @@ PageSetupDialog.getFormats = function()
 			canvas.style.backgroundColor = '';
 			//group中设置画板左边距=============
 
-			if(groupdragclass==null || Format.customizeType=="PROCESS" ){
+			if(groupdragclass!=null){
+				graph.container.style.left="0"
+
+			}
+			if( Format.customizeType=="PROCESS"){
 				graph.container.style.left="0"
 				graph.container.style.right="0"
 			}
+
 
 //===================
 		}

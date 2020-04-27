@@ -11,11 +11,9 @@ function getQueryString(name){
 	if(r!=null)return  unescape(r[2]); return null;
 }
 var getQueryStr = getQueryString("drawingBoardType")
-if(getQueryStr=="PROCESS" ){
-		console.log("5555555555555555")
-	}else {
+if(getQueryStr=="PROCESS"){
 
-
+} else {
 	(function () {
 		// Cube Shape, supports size style
 		function CubeShape() {

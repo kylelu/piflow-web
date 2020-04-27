@@ -3261,14 +3261,12 @@ mxGraph.prototype.updatePageBreaks = function(visible, width, height)
  *
  * cell - <mxCell> whose style should be returned as an array.
  */
-// console.log(Format.customizeType,"Format.customizeTypeFormat.customizeTypeFormat.customizeTypeFormat.customizeType")
 function getQueryString(name){
     var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
     var r = window.location.search.substr(1).match(reg);
     if(r!=null)return  unescape(r[2]); return null;
 }
 var getQueryStr = getQueryString("drawingBoardType")
-console.log(getQueryStr,"getQueryStrgetQueryStr")
 mxGraph.prototype.getCellStyle = function(cell)
 {
     var stylename = this.model.getStyle(cell);

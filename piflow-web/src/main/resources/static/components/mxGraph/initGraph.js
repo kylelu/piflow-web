@@ -10,6 +10,7 @@ var currentStopPageId;
 var drawingBoardType = $("#drawingBoardType").val();
 var statusgroup,flowPageIdcha,flowGroupdata,cellprecess,flowdatas,removegroupPaths
 
+getrightinfo()
 function getrightinfo(cell){
     var processGroupId = getQueryString("load")
     var pageId,value,data
@@ -99,7 +100,6 @@ function initGraph() {
     }else{
         $("#rightproupwrap")[0].style.display="none"
         $("#precessrun")[0].style.display="none"
-        // console.log($("#rightproup"),"llllllllllllll")
     }
     $(".triggerSlider").click(function(){
         var flag = ($(".triggerSlider i:first").hasClass("fa fa-angle-right fa-2x"));
@@ -137,12 +137,9 @@ function initGraph() {
         //Monitoring event
         graphGlobal.addListener(mxEvent.CELLS_ADDED, function (sender, evt) {
             processListener(evt, "ADD");
-            // console.log(evt,"jjjjjjjjjjjjj");
         });
         graphGlobal.addListener(mxEvent.CELLS_MOVED, function (sender, evt) {
             processListener(evt, "MOVED");
-            //console.log(evt);
-
         });
         graphGlobal.addListener(mxEvent.CELLS_REMOVED, function (sender, evt) {
             evtchan=evt
@@ -152,21 +149,15 @@ function initGraph() {
             findBasicInfo(evt);
 
             if(Format.customizeType=="PROCESS"){
-
                 getrightinfo(evt.properties.cell)
             }
 
         });
-        if ('GROUP' === Format.customizeType) {
+        if ('GROUP' === Format.customizeType || processType=="GROUP" ) {
             graphGlobal.addListener(mxEvent.DOUBLE_CLICK, function (sender, evt) {
                 openDrawingBoard(evt);
             });
         }
-        if ('PROCESS' === Format.customizeType) {
-            console.log(graphGlobal)
-        }
-        console.log(Format.customizeType,'这是当前画板的属性么')
-
         if (xmlDate) {
             var xml = mxUtils.parseXml(xmlDate);
             var node = xml.documentElement;
@@ -205,10 +196,6 @@ function initGraph() {
 function openDrawingBoard(evt) {
     var cellfor = evt.properties.cell;
     if (cellfor.style && (cellfor.style).indexOf("text\;") === 0) {
-
-
-
-
     } else {
         $.ajax({
             cache: true,
@@ -245,8 +232,6 @@ function findBasicInfo(evt) {
     var ss = [];
     //Set values for different events
     var cells = evt.properties.cells;
-
-    console.log(evt,"cellscells")
     if (null != cells) {
         //cellsAdded and cellsMoved operations go here
         value = cells[0].value;
@@ -451,7 +436,6 @@ function queryFlowOrFlowGroupProperty(flowPageId) {
                         } else {
                             if (!timerPath) {
                                 timerPath = window.setTimeout(queryFlowOrFlowGroupProperty(flowPageId), 500);
-                                console.log(3);
                             }
                             flag++;
                             if (flag > 5) {
@@ -498,7 +482,6 @@ function queryPathInfo(id) {
         },
         success: function (data) {
             var dataMap = JSON.parse(data);
-            console.log(dataMap);
             if (200 === dataMap.code) {
                 var queryInfo = dataMap.queryInfo;
                 if ("" != queryInfo) {
@@ -948,7 +931,7 @@ function addCellsCustom(cells, operType) {
         else if (cellfor.style && (cellfor.style).indexOf("image\;") === 0) {
             removegroupPaths[removegroupPaths.length] = cellfor;
         }
-        else if (cellfor.style && (cellfor.style).indexOf("text\;") === 0 && 'PROCESS' === Format.customizeType) {
+        else if (cellfor.style && (cellfor.style).indexOf("text\;") === 0 && Format.customizeType == "PROCESS") {
             removePaths[removePaths.length] = cellfor;
         }
         // else if (cellfor.style && (cellfor.style).indexOf("text\;") === 0) {
@@ -1096,9 +1079,6 @@ function checkGroupInput(flowName) {
     return true;
 };
 function saveOrUpdateFlowGroup() {
-    console.log(flowGroupdata,"flowGroupdataflowGroupdata")
-    // console.log(flowPageIdcha,"lllllllllllllll")
-    // console.log(loadId,"kooooooo")
     var id = $("#flowGroupId").val();
     var flowGroupName = $("#flowGroupName").val();
     var description = $("#description").val();
@@ -1126,7 +1106,6 @@ function saveOrUpdateFlowGroup() {
             },
             success: function (data) {
                 var dataMap = JSON.parse(data);
-                // console.log(dataMap,"nnnnnnnnnnnnn")
                 if (200 === dataMap.code) {
                     //reload xml
                     var xml = mxUtils.parseXml(dataMap.XmlData);
@@ -1215,7 +1194,7 @@ function saveOrUpdateFlowGroup() {
 }
 //弹框------------------end---------------------------
 
-//flow弹框-----
+//flow Information popup-----
 function saveFlow() {
     var flowName = $("#flowName").val();
     var description = $("#description").val();
@@ -1223,9 +1202,6 @@ function saveFlow() {
     var executorNumber = $("#executorNumber").val();
     var executorMemory = $("#executorMemory").val();
     var executorCores = $("#executorCores").val();
-
-    // console.log(flowPageIdcha,"lllllllllllllll")
-    // console.log(loadId,"kooooooo")
 if(flowdatas==undefined){
     layer.closeAll()
     layer.msg("Network Anomaly",{icon: 5})
@@ -1250,7 +1226,6 @@ if(flowdatas==undefined){
         },
         success: function (data) {
             var dataMap = JSON.parse(data);
-            // console.log(dataMap,"nnnnnnnnnnnnn")
             if (200 === dataMap.code) {
                 //reload xml
                 var xml = mxUtils.parseXml(dataMap.XmlData);
@@ -1523,7 +1498,6 @@ function runFlow(runMode) {
             return;
         },
         success: function (data) {//After the request is successful
-            //console.log("success");
             var dataMap = JSON.parse(data);
             if (200 === dataMap.code) {
                 layer.msg(dataMap.errorMsg, {icon: 1, shade: 0, time: 2000}, function () {
@@ -1568,7 +1542,6 @@ function runFlowGroup(runMode) {
             return;
         },
         success: function (data) {//After the request is successful
-            //console.log("success");
             var dataMap = JSON.parse(data);
             if (200 === dataMap.code) {
                 layer.msg(dataMap.errorMsg, {icon: 1, shade: 0, time: 2000}, function () {
@@ -1626,7 +1599,6 @@ function getStopsPortNew(paths) {
                 },
                 success: function (data) {
                     var dataMap = JSON.parse(data);
-                    //console.log(dataMap);
                     if (200 === dataMap.code) {
                         var showHtml = $('#portShowDiv').clone();
                         showHtml.find('#protInfo1Copy').attr('id', 'protInfoR_R');
@@ -2156,8 +2128,6 @@ function openTemplateList() {
 
 function loadTemplateFun() {
     var id = $("#loadingXmlSelectNew").val();
-    console.log("loadingXmlSelect");
-    console.log(id);
     if (id == '-1') {
         layer.msg('Please choose template', {icon: 2, shade: 0, time: 2000}, function () {
         });
@@ -2360,7 +2330,6 @@ function getRouterAllPaths(customPropertyId) {
                 if (dataMap.pathsVoList) {
                     var showPathsHtml = '<span>Deleting this rule will affect the following:</span>';
                     layer.confirm(showPathsHtml, {icon: 1, shade: 0, time: 1000}, function () {
-                        console.log("sssssss");
                     });
                 } else {
                     //removeRouterStopCustomProperty(customPropertyId);

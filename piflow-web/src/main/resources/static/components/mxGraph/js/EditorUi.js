@@ -3378,12 +3378,15 @@ EditorUi.prototype.createDivs = function()
 	{
 		this.diagramContainer.style.border = 'none';
 	}
-	//group中隐藏侧边栏和侧边栏拖拽==================================
-	if(groupdragclass!=null || Format.customizeType=="PROCESS" ){
+	console.log(groupdragclass,"oooooooooooooo")
+	//,==================================
+	if(groupdragclass!=null){
 		this.sidebarContainer.style.display="none"
 		this.hsplit.style.display="none"
 	}
 	if(Format.customizeType=="PROCESS"){
+		this.sidebarContainer.style.display="none"
+		this.hsplit.style.display="none"
 		this.hsplitRight.style.display="none"
 		this.formatContainer.style.display="none"
 	}

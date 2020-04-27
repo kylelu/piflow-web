@@ -8181,7 +8181,6 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		mxEdgeHandler.prototype.updateHint = function(me, point)
 		{
-			console.log("000000000000000000000")
 			if (this.hint == null)
 			{
 				this.hint = createHint();
@@ -8235,7 +8234,7 @@ if (typeof mxVertexHandler != 'undefined')
 			Graph.createSvgImage(16, 16, '<path d="m 8 3 L 13 8 L 8 13 L 3 8 z" stroke="#fff" fill="#fca000"/>');
 		HoverIcons.prototype.fixedHandle = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/handle-fixed.png', 17, 17) :
 			Graph.createSvgImage(18, 18, '<circle cx="9" cy="9" r="5" stroke="#fff" fill="' + HoverIcons.prototype.arrowFill + '" stroke-width="1"/><path d="m 7 7 L 11 11 M 7 11 L 11 7" stroke="#fff"/>');
-			console.log((!mxClient.IS_SVG),"(!mxClient.IS_SVG)(!mxClient.IS_SVG)")
+			// console.log((!mxClient.IS_SVG),"(!mxClient.IS_SVG)(!mxClient.IS_SVG)")
 		HoverIcons.prototype.terminalHandle = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/handle-terminal.png', 17, 17) :
 			Graph.createSvgImage(18, 18, '<circle cx="9" cy="9" r="5" stroke="#fff" fill="' + HoverIcons.prototype.arrowFill + '" stroke-width="1"/><circle cx="9" cy="9" r="2" stroke="#fff" fill="transparent"/>');
 

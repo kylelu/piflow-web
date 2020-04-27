@@ -1039,7 +1039,6 @@ Menus.prototype.createPopupMenu = function(menu, cell, evt)
 {
 	var graph = this.editorUi.editor.graph;
 	menu.smartSeparators = true;
-	console.log(graph.isSelectionEmpty(),"graph.isSelectionEmpty()graph.isSelectionEmpty()")
 	if (graph.isSelectionEmpty())
 	{
 		if("PROCESS"==Format.customizeType) {
@@ -1052,7 +1051,6 @@ Menus.prototype.createPopupMenu = function(menu, cell, evt)
 	else
 	{
 		if ('GROUP' === Format.customizeType) {
-			console.log(cell,"ffffffffff")
 			if (cell.style && (cell.style).indexOf("text\;") === 0){
 				this.addMenuItems(menu, ['delete', '-', ], null, evt);
 			}else{

@@ -234,7 +234,7 @@ function cancelRunProcessGroup() {
 function runProcessGroup(runMode) {
     fullScreen.show();
     var data = {
-        id: processGroupId,
+        id: 'ff80818171ba521e0171ba5307d10000',
     }
     if (runMode) {
         data.runMode = runMode;
@@ -256,7 +256,7 @@ function runProcessGroup(runMode) {
             var dataMap = JSON.parse(data);
             if (200 === dataMap.code) {
                 //alert(dataMap.errorMsg);
-                window.location.reload();
+                window.location.reload();  //   drawingBoardType=PROCESS&processType=PROCESS_GROUP        &processType=PROCESS
                 var tempWindow = window.open("/piflow-web/processGroup/getProcessGroupById?processGroupId=" + dataMap.processGroupId);
                 if (tempWindow == null || typeof (tempWindow) == 'undefined') {
                     alert('The window cannot be opened. Please check your browser settings.')
