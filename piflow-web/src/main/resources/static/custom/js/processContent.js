@@ -6,7 +6,7 @@ var processContent = $('#processContent');
 var checkpointShow = $('#checkpointShow');
 var isLoadProcessInfo = true;
 var isEnd = false;
-
+console.log(runFlow,"iiiiiiiihhhhhhhhhh")
 function selectedFormation(pageId, e) {
     if (isLoadProcessInfo) {
         isLoadProcessInfo = false;
@@ -200,6 +200,7 @@ function getCheckpoint(runMode) {
                 runProcess(runMode);
             } else {
                 checkpointShow.modal('show');
+                console.log(runFlow,"runFlowrunFlowrunFlowrunFlowrunFlow")
                 runFlow.show();
                 debugFlow.show();
                 fullScreen.hide();

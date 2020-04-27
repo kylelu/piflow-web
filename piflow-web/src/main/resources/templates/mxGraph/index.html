@@ -153,12 +153,10 @@
 
         a.customize_btn_css:hover {
             color: #ffffff;
-            text-decoration: none;
         }
 
         a.customize_btn_css:focus {
             color: #ffffff;
-            text-decoration: none;
         }
     </style>
 </head>
@@ -176,7 +174,7 @@
 <!--    </div>-->
 <!--</div>-->
 
-<div style="width: 75.2%;float: right">
+<div style="width: 76.2%;float: right">
     <div th:switch="${drawingBoardType?.value}"
          style="position: fixed;margin-top: 50px;z-index: 999;text-align: right;width: 76%">
         <div th:case="'TASK'" th:include="mxGraph/inc/graphEditor_menus_task :: graphEditor_menus_task"></div>
@@ -376,8 +374,129 @@
         </div>
     </form>
 </div>
-<!-- 'stop' custom attribute editing popup end -->
 
+<div id="precessrun" class="precessrun" style="position: fixed; z-index: 779;text-align: right;right: 10px;top: 50px;">
+    			<span>
+    				progress：<span id="progress" th:text="${percentage} + '%'"></span>
+    			</span>
+        <input id="runFlow" type="button" class="btn btn-default" onclick="getCheckpoint()" value="Run"/>
+        <input id="debugFlow" type="button" class="btn btn-default" onclick="getCheckpoint('DEBUG')" value="Debug"/>
+        <input id="stopFlow" type="button" class="btn btn-danger" onclick="stopProcess()" value="Stop"/>
+        <input type="button" class="btn btn-primary" onclick="getLogUrl()" value="Log"/>
+</div>
+
+<script th:src="@{/custom/js/processGroupContent.js}"></script>
+<script th:src="@{/custom/js/processContent.js}"></script>
+<!-- 'stop' custom attribute editing popup end -->
+<script th:inline="javascript">
+    var parentAccessPath = [[${parentAccessPath}]];
+    var xmlDate = [[${xmlDate}]];
+    var processId = [[${processId}]];
+    var parentProcessId = [[${parentProcessId}]];
+    var pID = [[${pID}]];
+    var appId = [[${appId}]];
+    var processState = [[${processState}]];
+    var stdoutLog = [[${stdoutLog}]];
+    var stderrLog = [[${stderrLog}]];
+    (function () {
+        if (processContent) {
+            if (xmlDate) {
+                processContent.append(xmlDate);
+            } else {
+                processContent.prepend('<div style="position: fixed;z-index: 779;"><h1>视图丢失</h1></div>');
+            }
+        }
+        if (runFlow) {
+            if ("STARTED" === processState) {
+                runFlow.hide();
+                debugFlow.hide();
+                stopFlow.show();
+                timer = window.setInterval(processMonitoring(appId), 5000);
+            } else {
+                runFlow.show();
+                debugFlow.show();
+                stopFlow.hide();
+            }
+        }
+        var processStopVoListInit = [[${processStopVoListInit}]];
+        if (processStopVoListInit && '' != processStopVoListInit) {
+            for (var i = 0; i < processStopVoListInit.length; i++) {
+                var processStopVoInit = processStopVoListInit[i];
+                monitor(processStopVoInit.pageId, processStopVoInit.state);
+            }
+        }
+        //queryProcess(processId);
+        $("#modalDialog").draggable();//Add drag and drop for modal dialogs
+        $("#myModal").css("overflow", "hidden");//Disable translucent background scrolling of modal dialogs
+        if (parentAccessPath) {
+            switch (parentAccessPath) {
+                case "grapheditor":
+                    $("#web_processList_navigation").hide();
+                    $("#web_flowList_navigation").show();
+                    $("#grapheditor_home_navigation").show();
+                    break;
+                case "flowProcess":
+                    $("#web_processList_navigation").hide();
+                    $("#web_groupTypeProcessList_navigation").show();
+                    break;
+                case "processGroupList":
+                    $("#web_processList_navigation").hide();
+                    $("#web_processGroupList_navigation").show();
+                    $("#web_getProcessGroupById_navigation").show();
+                    break;
+            }
+        }
+    })();
+
+    function openProcessMonitor(pageId, e) {
+        $.ajax({
+            cache: true,//Keep cached data
+            type: "POST",//Request type post
+            url: "/piflow-web/processGroup/getProcessIdByPageId",//This is the name of the file where I receive data in the background.
+            data: {
+                processGroupId: processGroupId,
+                pageId: pageId
+            },
+            async: true,//Setting it to true indicates that other code can still be executed after the request has started. If this option is set to false, it means that all requests are no longer asynchronous, which also causes the browser to be locked.
+            error: function (request) {//Operation after request failure
+                layer.msg(' failed', {icon: 2, shade: 0, time: 1000});
+                return;
+            },
+            success: function (data) {//Operation after request successful
+                if (data) {
+                    var dataMap = JSON.parse(data);
+                    if (200 === dataMap.code) {
+                        var urlPath = "";
+                        if ('flow' === dataMap.nodeType) {
+                            urlPath = "/piflow-web/process/getProcessById?parentAccessPath=processGroupList&processId=" + dataMap.processId;
+                        } else if ('flowGroup' === dataMap.nodeType) {
+                            urlPath = "/piflow-web/processGroup/getProcessGroupById?parentAccessPath=processGroupList&processGroupId=" + dataMap.processGroupId;
+                        }
+                        if (urlPath) {
+                            var tempWindow = window.location.href = urlPath;
+                            if (tempWindow == null || typeof (tempWindow) == 'undefined') {
+                                alert('The window cannot be opened. Please check your browser settings.')
+                            }
+                        }
+                    }
+                } else {
+                    layer.msg(' failed', {icon: 2, shade: 0, time: 1000});
+                }
+            }
+        });
+    }
+
+    //When the browser window size changes
+    $(window).resize(function () {
+        var window_width = $(window).width();//Get browser window width
+        var window_height = $(window).height();//Get browser window height
+        // $('#modalDialog').height(window_height - 124);
+        // $('#modalDialog').width(window_width - 124);
+        $('#textareaId').height(window_height - 300);
+        $('#divTextareaId').height(window_height - 300);
+    });
+    //@ sourceURL=processContent.js
+</script>
 <script th:include="Macro/csrfTokeHeadMacro :: csrfTokeHeadMacroScript"/>
 <script type="text/javascript" th:src="@{/components/mxGraph/initGraph.js}"></script>
 <script type="text/javascript">
@@ -451,9 +570,8 @@
 <div style="display: none;;padding:20px" id="changeimage">
     <br>
     <p>已有现存可选择更改的图片</p>
-    <br>
     <!--    <form class="layui-form" action="">-->
-    <div id="nowimage" style="width:100%;height:200px"></div>
+    <div id="nowimage" style="width:100%;height:220px;overflow-y:auto"></div>
     <div style="width:100%;height:1px;border-bottom:1px solid #000;margin:10px 0"></div>
     <button type="button" class="layui-btn" id="uploadimage">
         <i class="layui-icon">&#xe67c;</i>上传图片
@@ -519,5 +637,18 @@
     </form>
 </div>
 
+
+<div id="rightproupwrap" style="position:absolute;right:0;top:86px;width:25%;;height:544px;transition: 2s">
+        <div class="ExpandSidebar">
+            <div class="triggerSlider">
+                <i style="color: white" class="fa fa-angle-right fa-2x"></i>
+<!--                <span ></span>-->
+<!--                <span ></span>-->
+<!--                <span ></span>-->
+            </div>
+        </div>
+<!--    <div id="rightproup" style="overflow:auto;position:absolute;right:0;top:0px;width:260px;transition:2s;height:544px;border:1px solid #ccc;background:#fff;z-index:1000;"></div>-->
+        <div id="rightproup" class="rightproup"></div>
+</div>
 
 </html>

@@ -800,7 +800,7 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		{
 			var cells = this.getAllCells(rect.x, rect.y, rect.width, rect.height);
 			this.selectCellsForEvent(cells, evt);
-			
+
 			return cells;
 		};
 		
@@ -3371,162 +3371,168 @@ HoverIcons.prototype.tolerance = (mxClient.IS_TOUCH) ? 6 : 0;
  */
 HoverIcons.prototype.init = function()
 {
-	this.arrowUp = this.createArrow(this.triangleUp, mxResources.get('plusTooltip'));
-	this.arrowRight = this.createArrow(this.triangleRight, mxResources.get('plusTooltip'));
-	this.arrowDown = this.createArrow(this.triangleDown, mxResources.get('plusTooltip'));
-	this.arrowLeft = this.createArrow(this.triangleLeft, mxResources.get('plusTooltip'));
+	if("PROCESS"==Format.customizeType) {
 
-	this.elts = [this.arrowUp, this.arrowRight, this.arrowDown, this.arrowLeft];
+	}else{
 
-	this.resetHandler = mxUtils.bind(this, function()
-	{
-		this.reset();
-	});
-	
-	this.repaintHandler = mxUtils.bind(this, function()
-	{
-		this.repaint();
-	});
+		this.arrowUp = this.createArrow(this.triangleUp, mxResources.get('plusTooltip'));
+		this.arrowRight = this.createArrow(this.triangleRight, mxResources.get('plusTooltip'));
+		this.arrowDown = this.createArrow(this.triangleDown, mxResources.get('plusTooltip'));
+		this.arrowLeft = this.createArrow(this.triangleLeft, mxResources.get('plusTooltip'));
 
-	this.graph.selectionModel.addListener(mxEvent.CHANGE, this.resetHandler);
-	this.graph.model.addListener(mxEvent.CHANGE, this.repaintHandler);
-	this.graph.view.addListener(mxEvent.SCALE_AND_TRANSLATE, this.repaintHandler);
-	this.graph.view.addListener(mxEvent.TRANSLATE, this.repaintHandler);
-	this.graph.view.addListener(mxEvent.SCALE, this.repaintHandler);
-	this.graph.view.addListener(mxEvent.DOWN, this.repaintHandler);
-	this.graph.view.addListener(mxEvent.UP, this.repaintHandler);
-	this.graph.addListener(mxEvent.ROOT, this.repaintHandler);
-	this.graph.addListener(mxEvent.ESCAPE, this.resetHandler);
-	mxEvent.addListener(this.graph.container, 'scroll', this.resetHandler);
-	
-	// Resets the mouse point on escape
-	this.graph.addListener(mxEvent.ESCAPE, mxUtils.bind(this, function()
-	{
-		this.mouseDownPoint = null;
-	}));
+		this.elts = [this.arrowUp, this.arrowRight, this.arrowDown, this.arrowLeft];
 
-	// Removes hover icons if mouse leaves the container
-	mxEvent.addListener(this.graph.container, 'mouseleave',  mxUtils.bind(this, function(evt)
-	{
-		// Workaround for IE11 firing mouseleave for touch in diagram
-		if (evt.relatedTarget != null && mxEvent.getSource(evt) == this.graph.container)
-		{
-			this.setDisplay('none');
-		}
-	}));
-	
-	// Resets current state when in-place editor starts
-	this.graph.addListener(mxEvent.START_EDITING, mxUtils.bind(this, function(evt)
-	{
-		this.reset();
-	}));
-	
-	// Resets current state after update of selection state for touch events
-	var graphClick = this.graph.click;
-	this.graph.click = mxUtils.bind(this, function(me)
-	{
-		graphClick.apply(this.graph, arguments);
-		
-		if (this.currentState != null && !this.graph.isCellSelected(this.currentState.cell) &&
-			mxEvent.isTouchEvent(me.getEvent()) && !this.graph.model.isVertex(me.getCell()))
+		this.resetHandler = mxUtils.bind(this, function()
 		{
 			this.reset();
-		}
-	});
-	
-	// Checks if connection handler was active in mouse move
-	// as workaround for possible double connection inserted
-	var connectionHandlerActive = false;
-	
-	// Implements a listener for hover and click handling
-	this.graph.addMouseListener(
-	{
-	    mouseDown: mxUtils.bind(this, function(sender, me)
-	    {
-	    	connectionHandlerActive = false;
-	    	var evt = me.getEvent();
-	    	
-	    	if (this.isResetEvent(evt))
-	    	{
-	    		this.reset();
-	    	}
-	    	else if (!this.isActive())
-	    	{
-	    		var state = this.getState(me.getState());
-	    		
-	    		if (state != null || !mxEvent.isTouchEvent(evt))
-	    		{
-	    			this.update(state);
-	    		}
-	    	}
-	    	
-	    	this.setDisplay('none');
-	    }),
-	    mouseMove: mxUtils.bind(this, function(sender, me)
-	    {
-	    	var evt = me.getEvent();
-	    	
-	    	if (this.isResetEvent(evt))
-	    	{
-	    		this.reset();
-	    	}
-	    	else if (!this.graph.isMouseDown && !mxEvent.isTouchEvent(evt))
-	    	{
-	    		this.update(this.getState(me.getState()),
-	    			me.getGraphX(), me.getGraphY());
-	    	}
-	    	
-	    	if (this.graph.connectionHandler != null &&
-	    		this.graph.connectionHandler.shape != null)
-	    	{
-	    		connectionHandlerActive = true;
-	    	}
-	    }),
-	    mouseUp: mxUtils.bind(this, function(sender, me)
-	    {
-	    	var evt = me.getEvent();
-	    	var pt = mxUtils.convertPoint(this.graph.container,
-				mxEvent.getClientX(evt), mxEvent.getClientY(evt))
-	    	
-	    	if (this.isResetEvent(evt))
-	    	{
-	    		this.reset();
-	    	}
-	    	else if (this.isActive() && !connectionHandlerActive &&
-	    		this.mouseDownPoint != null)
-	    	{
-    			this.click(this.currentState, this.getDirection(), me);
-	    	}
-	    	else if (this.isActive())
-	    	{
-	    		// Selects target vertex after drag and clone if not only new edge was inserted
-	    		if (this.graph.getSelectionCount() != 1 || !this.graph.model.isEdge(
-	    			this.graph.getSelectionCell()))
-	    		{
-	    			this.update(this.getState(this.graph.view.getState(
-	    				this.graph.getCellAt(me.getGraphX(), me.getGraphY()))));
-	    		}
-	    		else
-	    		{
-	    			this.reset();
-	    		}
-	    	}
-	    	else if (mxEvent.isTouchEvent(evt) || (this.bbox != null &&
-	    		mxUtils.contains(this.bbox, me.getGraphX(), me.getGraphY())))
-	    	{
-	    		// Shows existing hover icons if inside bounding box
-	    		this.setDisplay('');
-	    		this.repaint();
-	    	}
-	    	else if (!mxEvent.isTouchEvent(evt))
-	    	{
-	    		this.reset();
-	    	}
-	    	
-	    	connectionHandlerActive = false;
-	    	this.resetActiveArrow();
-	    })
-	});
+		});
+
+		this.repaintHandler = mxUtils.bind(this, function()
+		{
+			this.repaint();
+		});
+
+		this.graph.selectionModel.addListener(mxEvent.CHANGE, this.resetHandler);
+		this.graph.model.addListener(mxEvent.CHANGE, this.repaintHandler);
+		this.graph.view.addListener(mxEvent.SCALE_AND_TRANSLATE, this.repaintHandler);
+		this.graph.view.addListener(mxEvent.TRANSLATE, this.repaintHandler);
+		this.graph.view.addListener(mxEvent.SCALE, this.repaintHandler);
+		this.graph.view.addListener(mxEvent.DOWN, this.repaintHandler);
+		this.graph.view.addListener(mxEvent.UP, this.repaintHandler);
+		this.graph.addListener(mxEvent.ROOT, this.repaintHandler);
+		this.graph.addListener(mxEvent.ESCAPE, this.resetHandler);
+		mxEvent.addListener(this.graph.container, 'scroll', this.resetHandler);
+
+		// Resets the mouse point on escape
+		this.graph.addListener(mxEvent.ESCAPE, mxUtils.bind(this, function()
+		{
+			this.mouseDownPoint = null;
+		}));
+
+		// Removes hover icons if mouse leaves the container
+		mxEvent.addListener(this.graph.container, 'mouseleave',  mxUtils.bind(this, function(evt)
+		{
+			// Workaround for IE11 firing mouseleave for touch in diagram
+			if (evt.relatedTarget != null && mxEvent.getSource(evt) == this.graph.container)
+			{
+				this.setDisplay('none');
+			}
+		}));
+
+		// Resets current state when in-place editor starts
+		this.graph.addListener(mxEvent.START_EDITING, mxUtils.bind(this, function(evt)
+		{
+			this.reset();
+		}));
+
+		// Resets current state after update of selection state for touch events
+		var graphClick = this.graph.click;
+		this.graph.click = mxUtils.bind(this, function(me)
+		{
+			graphClick.apply(this.graph, arguments);
+
+			if (this.currentState != null && !this.graph.isCellSelected(this.currentState.cell) &&
+				mxEvent.isTouchEvent(me.getEvent()) && !this.graph.model.isVertex(me.getCell()))
+			{
+				this.reset();
+			}
+		});
+
+		// Checks if connection handler was active in mouse move
+		// as workaround for possible double connection inserted
+		var connectionHandlerActive = false;
+
+		// Implements a listener for hover and click handling
+		this.graph.addMouseListener(
+			{
+				mouseDown: mxUtils.bind(this, function(sender, me)
+				{
+					connectionHandlerActive = false;
+					var evt = me.getEvent();
+
+					if (this.isResetEvent(evt))
+					{
+						this.reset();
+					}
+					else if (!this.isActive())
+					{
+						var state = this.getState(me.getState());
+
+						if (state != null || !mxEvent.isTouchEvent(evt))
+						{
+							this.update(state);
+						}
+					}
+
+					this.setDisplay('none');
+				}),
+				mouseMove: mxUtils.bind(this, function(sender, me)
+				{
+					var evt = me.getEvent();
+
+					if (this.isResetEvent(evt))
+					{
+						this.reset();
+					}
+					else if (!this.graph.isMouseDown && !mxEvent.isTouchEvent(evt))
+					{
+						this.update(this.getState(me.getState()),
+							me.getGraphX(), me.getGraphY());
+					}
+
+					if (this.graph.connectionHandler != null &&
+						this.graph.connectionHandler.shape != null)
+					{
+						connectionHandlerActive = true;
+					}
+				}),
+				mouseUp: mxUtils.bind(this, function(sender, me)
+				{
+					var evt = me.getEvent();
+					var pt = mxUtils.convertPoint(this.graph.container,
+						mxEvent.getClientX(evt), mxEvent.getClientY(evt))
+
+					if (this.isResetEvent(evt))
+					{
+						this.reset();
+					}
+					else if (this.isActive() && !connectionHandlerActive &&
+						this.mouseDownPoint != null)
+					{
+						this.click(this.currentState, this.getDirection(), me);
+					}
+					else if (this.isActive())
+					{
+						// Selects target vertex after drag and clone if not only new edge was inserted
+						if (this.graph.getSelectionCount() != 1 || !this.graph.model.isEdge(
+							this.graph.getSelectionCell()))
+						{
+							this.update(this.getState(this.graph.view.getState(
+								this.graph.getCellAt(me.getGraphX(), me.getGraphY()))));
+						}
+						else
+						{
+							this.reset();
+						}
+					}
+					else if (mxEvent.isTouchEvent(evt) || (this.bbox != null &&
+						mxUtils.contains(this.bbox, me.getGraphX(), me.getGraphY())))
+					{
+						// Shows existing hover icons if inside bounding box
+						this.setDisplay('');
+						this.repaint();
+					}
+					else if (!mxEvent.isTouchEvent(evt))
+					{
+						this.reset();
+					}
+
+					connectionHandlerActive = false;
+					this.resetActiveArrow();
+				})
+			});
+	}
+
 };
 
 /**
@@ -3607,7 +3613,6 @@ HoverIcons.prototype.createArrow = function(img, tooltip)
 	    	{
 	    		mxUtils.setOpacity(this.activeArrow, this.inactiveOpacity);
 	    	}
-
 			this.graph.connectionHandler.constraintHandler.reset();
 			mxUtils.setOpacity(arrow, 100);
 			this.activeArrow = arrow;
@@ -3657,7 +3662,6 @@ HoverIcons.prototype.getDirection = function()
 	{
 		dir = mxConstants.DIRECTION_WEST;
 	}
-		
 	return dir;
 };
 
@@ -4958,14 +4962,16 @@ if (typeof mxVertexHandler != 'undefined')
 		mxConnectionHandler.prototype.createEdgeState = function(me)
 		{
 			var style = this.graph.createCurrentEdgeStyle();
+
 			var edge = this.graph.createEdge(null, null, null, null, null, style);
+
 			var state = new mxCellState(this.graph.view, edge, this.graph.getCellStyle(edge));
-			
+
 			for (var key in this.graph.currentEdgeStyle)
 			{
 				state.style[key] = this.graph.currentEdgeStyle[key];
 			}
-			
+
 			return state;
 		};
 
@@ -7958,7 +7964,7 @@ if (typeof mxVertexHandler != 'undefined')
 			hint.className = 'geHint';
 			hint.style.whiteSpace = 'nowrap';
 			hint.style.position = 'absolute';
-			
+
 			return hint;
 		};
 		
@@ -8175,6 +8181,7 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		mxEdgeHandler.prototype.updateHint = function(me, point)
 		{
+			console.log("000000000000000000000")
 			if (this.hint == null)
 			{
 				this.hint = createHint();
@@ -8228,8 +8235,10 @@ if (typeof mxVertexHandler != 'undefined')
 			Graph.createSvgImage(16, 16, '<path d="m 8 3 L 13 8 L 8 13 L 3 8 z" stroke="#fff" fill="#fca000"/>');
 		HoverIcons.prototype.fixedHandle = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/handle-fixed.png', 17, 17) :
 			Graph.createSvgImage(18, 18, '<circle cx="9" cy="9" r="5" stroke="#fff" fill="' + HoverIcons.prototype.arrowFill + '" stroke-width="1"/><path d="m 7 7 L 11 11 M 7 11 L 11 7" stroke="#fff"/>');
+			console.log((!mxClient.IS_SVG),"(!mxClient.IS_SVG)(!mxClient.IS_SVG)")
 		HoverIcons.prototype.terminalHandle = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/handle-terminal.png', 17, 17) :
 			Graph.createSvgImage(18, 18, '<circle cx="9" cy="9" r="5" stroke="#fff" fill="' + HoverIcons.prototype.arrowFill + '" stroke-width="1"/><circle cx="9" cy="9" r="2" stroke="#fff" fill="transparent"/>');
+
 		/*HoverIcons.prototype.rotationHandle = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/handle-rotate.png', 16, 16) :
 			Graph.createSvgImage(16, 16, '<path stroke="' + HoverIcons.prototype.arrowFill +
 				'" fill="' + HoverIcons.prototype.arrowFill +
@@ -8667,11 +8676,11 @@ if (typeof mxVertexHandler != 'undefined')
 				var model = this.graph.getModel();
 				var parent = model.getParent(cells[0]);
 				var geo = this.graph.getCellGeometry(cells[0]);
-				
+
 				if (model.isEdge(parent) && geo != null && geo.relative)
 				{
 					var state = this.graph.view.getState(cells[0]);
-					
+
 					if (state != null && state.width < 2 && state.height < 2 && state.text != null &&
 						state.text.boundingBox != null)
 					{
@@ -8679,7 +8688,7 @@ if (typeof mxVertexHandler != 'undefined')
 					}
 				}
 			}
-			
+
 			return mxGraphHandlerGetBoundingBox.apply(this, arguments);
 		};
 
@@ -8731,10 +8740,10 @@ if (typeof mxVertexHandler != 'undefined')
 			var model = this.graph.getModel();
 			var parent = model.getParent(this.state.cell);
 			var geo = this.graph.getCellGeometry(this.state.cell);
-			
+
 			// Lets rotation events through
 			var handle = this.getHandleForEvent(me);
-			
+
 			if (handle == mxEvent.ROTATION_HANDLE || !model.isEdge(parent) || geo == null || !geo.relative ||
 				this.state == null || this.state.width >= 2 || this.state.height >= 2)
 			{

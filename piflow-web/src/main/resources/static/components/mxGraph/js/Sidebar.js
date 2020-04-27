@@ -1982,7 +1982,6 @@ Sidebar.prototype.createTitle = function(label)
 	elt.setAttribute('title', mxResources.get('sidebarTooltip'));
 	elt.className = 'geTitle';
 	mxUtils.write(elt, label);
-
 	return elt;
 };
 

@@ -2080,11 +2080,12 @@ PageSetupDialog.getFormats = function()
 			canvas.style.backgroundImage = 'none';
 			canvas.style.backgroundColor = '';
 			//group中设置画板左边距=============
-			if(groupdragclass==null){
 
-			}else{
+			if(groupdragclass==null || Format.customizeType=="PROCESS" ){
 				graph.container.style.left="0"
+				graph.container.style.right="0"
 			}
+
 //===================
 		}
 		else
