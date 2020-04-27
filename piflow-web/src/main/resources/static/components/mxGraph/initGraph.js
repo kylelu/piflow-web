@@ -950,7 +950,6 @@ function addCellsCustom(cells, operType) {
         }
         else if (cellfor.style && (cellfor.style).indexOf("text\;") === 0 && 'PROCESS' === Format.customizeType) {
             removePaths[removePaths.length] = cellfor;
-            console.log('11111111111111111,好了好了')
         }
         // else if (cellfor.style && (cellfor.style).indexOf("text\;") === 0) {
         //     removePaths[removePaths.length] = cellfor;
