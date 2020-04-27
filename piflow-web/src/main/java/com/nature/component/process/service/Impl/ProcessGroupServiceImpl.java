@@ -3,18 +3,20 @@ package com.nature.component.process.service.Impl;
 import com.github.pagehelper.PageHelper;
 import com.nature.base.util.*;
 import com.nature.base.vo.UserVo;
+import com.nature.common.Eunm.PortType;
 import com.nature.common.Eunm.ProcessParentType;
 import com.nature.common.Eunm.ProcessState;
 import com.nature.common.Eunm.RunModeType;
 import com.nature.component.process.model.ProcessGroup;
+import com.nature.component.process.model.ProcessGroupPath;
+import com.nature.component.process.model.ProcessStop;
 import com.nature.component.process.service.IProcessGroupService;
 import com.nature.component.process.utils.ProcessGroupUtils;
 import com.nature.component.process.utils.ProcessUtils;
-import com.nature.component.process.vo.DebugDataRequest;
-import com.nature.component.process.vo.DebugDataResponse;
-import com.nature.component.process.vo.ProcessGroupVo;
+import com.nature.component.process.vo.*;
 import com.nature.domain.process.ProcessDomain;
 import com.nature.domain.process.ProcessGroupDomain;
+import com.nature.domain.process.ProcessGroupPathDomain;
 import com.nature.mapper.process.ProcessGroupMapper;
 import com.nature.third.service.IFlow;
 import com.nature.third.service.IGroup;
@@ -38,6 +40,8 @@ public class ProcessGroupServiceImpl implements IProcessGroupService {
     @Resource
     private ProcessGroupDomain processGroupDomain;
 
+    @Resource
+    private ProcessGroupPathDomain processGroupPathDomain;
 
     @Resource
     private ProcessDomain processDomain;
@@ -450,6 +454,53 @@ public class ProcessGroupServiceImpl implements IProcessGroupService {
             // }
         }
         return processGroupVo;
+    }
+
+    /**
+     * getProcessGroupPathVoByPageId
+     *
+     * @param processGroupId ProcessGroup Id
+     * @param pageId         MxGraph PageId
+     * @return json
+     */
+    public ProcessGroupPathVo getProcessGroupPathVoByPageId(String processGroupId, String pageId) {
+        ProcessGroupPath processGroupPathByPageId = processGroupPathDomain.getProcessGroupPathByPageId(processGroupId, pageId);
+        if (null == processGroupPathByPageId) {
+            return null;
+        }
+        List<String> pageIds = new ArrayList<>();
+        String pathTo = processGroupPathByPageId.getTo();
+        String pathFrom = processGroupPathByPageId.getFrom();
+        if (StringUtils.isNotBlank(pathFrom)) {
+            pageIds.add(pathFrom);
+        }
+        if (StringUtils.isNotBlank(pathTo)) {
+            pageIds.add(pathTo);
+            ;
+        }
+        if (StringUtils.isBlank(processGroupId) || null == pageIds || pageIds.size() <= 0) {
+            return null;
+        }
+        List<Map<String, Object>> processGroupNamesAndPageIdsByPageIds = processGroupDomain.getProcessGroupNamesAndPageIdsByPageIds(processGroupId, pageIds);
+        if (null == processGroupNamesAndPageIdsByPageIds || processGroupNamesAndPageIdsByPageIds.size() <= 0) {
+            return null;
+        }
+        ProcessGroupPathVo processGroupPathVo = new ProcessGroupPathVo();
+        pathTo = (null == pathTo ? "" : pathTo);
+        pathFrom = (null == pathTo ? "" : pathFrom);
+        for (Map<String, Object> processGroupNameAndPageId : processGroupNamesAndPageIdsByPageIds) {
+            if (null != processGroupNameAndPageId) {
+                String currentpageId = (String) processGroupNameAndPageId.get("pageId");
+                if (pathTo.equals(currentpageId)) {
+                    processGroupPathVo.setTo((String) processGroupNameAndPageId.get("name"));
+                } else if (pathFrom.equals(currentpageId)) {
+                    processGroupPathVo.setFrom((String) processGroupNameAndPageId.get("name"));
+                }
+            }
+        }
+        processGroupPathVo.setInport(StringUtils.isNotBlank(processGroupPathByPageId.getInport()) ? processGroupPathByPageId.getInport() : PortType.DEFAULT.getText());
+        processGroupPathVo.setOutport(StringUtils.isNotBlank(processGroupPathByPageId.getOutport()) ? processGroupPathByPageId.getOutport() : PortType.DEFAULT.getText());
+        return processGroupPathVo;
     }
 
 }

@@ -1,8 +1,10 @@
 package com.nature.component.process.service;
 
 import com.nature.base.vo.UserVo;
+import com.nature.component.process.model.ProcessGroupPath;
 import com.nature.component.process.vo.DebugDataRequest;
 import com.nature.component.process.vo.DebugDataResponse;
+import com.nature.component.process.vo.ProcessGroupPathVo;
 import com.nature.component.process.vo.ProcessGroupVo;
 
 
@@ -126,5 +128,14 @@ public interface IProcessGroupService {
      * @return json
      */
     public ProcessGroupVo getProcessGroupVoByPageId(String processGroupId, String pageId);
+
+    /**
+     * getProcessGroupPathVoByPageId
+     *
+     * @param processGroupId ProcessGroup Id
+     * @param pageId MxGraph PageId
+     * @return json
+     */
+    public ProcessGroupPathVo getProcessGroupPathVoByPageId(String processGroupId, String pageId);
 
 }

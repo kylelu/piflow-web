@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 import javax.transaction.Transactional;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 public interface ProcessGroupJpaRepository extends JpaRepository<ProcessGroup, String>, JpaSpecificationExecutor<ProcessGroup>, Serializable {
@@ -47,6 +48,13 @@ public interface ProcessGroupJpaRepository extends JpaRepository<ProcessGroup, S
     @Query(value = "select s from ProcessGroup s where s.enableFlag=true and s.appId=:appId")
     ProcessGroup getProcessGroupByAppId(@Param("appId") String appId);
 
+    @Query(nativeQuery = true,
+            value = "SELECT re.name AS name,re.page_id AS pageId FROM ( " +
+                    "SELECT name,page_id FROM flow_process_group WHERE enable_flag=1 AND fk_flow_process_group_id=:fid AND page_id IN (:pageIds) " +
+                    "UNION ALL " +
+                    "SELECT name,page_id FROM flow_process WHERE enable_flag=1 AND fk_flow_process_group_id=:fid AND page_id IN (:pageIds) " +
+                    ") AS re ")
+    List<Map<String, Object>> getProcessGroupNamesAndPageIdsByPageIds(@Param("fid") String fid, @Param("pageIds") List<String> pageIds);
 
     /**
      * custom Paging query
@@ -62,12 +70,12 @@ public interface ProcessGroupJpaRepository extends JpaRepository<ProcessGroup, S
                     "WHERE enable_flag=1 AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
                     ") AS re"
             , countQuery = "SELECT COUNT(re.id) FROM " +
-                           "(" +
-                           "SELECT id FROM flow_process WHERE enable_flag=1 AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
-                           "UNION ALL " +
-                           "SELECT id FROM flow_process_group WHERE enable_flag=1 AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
-                           ") AS re")
-    Page<Map<String,Object>> getProcessAndProcessGroupListPage(@Param("param") String param, Pageable pageable);
+            "(" +
+            "SELECT id FROM flow_process WHERE enable_flag=1 AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
+            "UNION ALL " +
+            "SELECT id FROM flow_process_group WHERE enable_flag=1 AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
+            ") AS re")
+    Page<Map<String, Object>> getProcessAndProcessGroupListPage(@Param("param") String param, Pageable pageable);
 
     /**
      * custom Paging query
@@ -84,10 +92,10 @@ public interface ProcessGroupJpaRepository extends JpaRepository<ProcessGroup, S
                     "WHERE enable_flag=1 AND crt_user=:userName AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
                     ")"
             , countQuery = "SELECT COUNT(re.id) FROM " +
-                           "(" +
-                           "SELECT id FROM flow_process WHERE enable_flag=1 AND crt_user=:userName AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
-                           "UNION ALL " +
-                           "SELECT id FROM flow_process_group WHERE enable_flag=1 AND crt_user=:userName AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
-                           ") AS re")
-    Page<Map<String,Object>> getProcessAndProcessGroupListPageByUser(@Param("userName") String userName, @Param("param") String param, Pageable pageable);
+            "(" +
+            "SELECT id FROM flow_process WHERE enable_flag=1 AND crt_user=:userName AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
+            "UNION ALL " +
+            "SELECT id FROM flow_process_group WHERE enable_flag=1 AND crt_user=:userName AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
+            ") AS re")
+    Page<Map<String, Object>> getProcessAndProcessGroupListPageByUser(@Param("userName") String userName, @Param("param") String param, Pageable pageable);
 }

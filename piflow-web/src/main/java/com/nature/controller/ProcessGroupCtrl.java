@@ -8,7 +8,9 @@ import com.nature.base.vo.UserVo;
 import com.nature.common.Eunm.ProcessState;
 import com.nature.component.process.service.IProcessGroupService;
 import com.nature.component.process.service.IProcessService;
+import com.nature.component.process.vo.ProcessGroupPathVo;
 import com.nature.component.process.vo.ProcessGroupVo;
+import com.nature.component.process.vo.ProcessPathVo;
 import com.nature.component.process.vo.ProcessVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -172,6 +174,27 @@ public class ProcessGroupCtrl {
         }
         modelAndView.addObject("nodeType", nodeType);
         modelAndView.setViewName(viewName);
+        return modelAndView;
+    }
+
+    /**
+     * Query ProcessPath basic information
+     *
+     * @param request
+     * @param modelAndView
+     * @return
+     */
+    @RequestMapping("/queryProcessGroupPath")
+    public ModelAndView queryProcessGroupPath(HttpServletRequest request, ModelAndView modelAndView) {
+        String processGroupId = request.getParameter("processGroupId");
+        String pageId = request.getParameter("pageId");
+        modelAndView.setViewName("processGroup/inc/process_path_inc");
+        if (!StringUtils.isAnyEmpty(processGroupId, pageId)) {
+            ProcessGroupPathVo processGroupPathVo = processGroupServiceImpl.getProcessGroupPathVoByPageId(processGroupId, pageId);
+            modelAndView.addObject("processGroupPathVo", processGroupPathVo);
+        } else {
+            logger.info("Parameter passed in incorrectly");
+        }
         return modelAndView;
     }
 

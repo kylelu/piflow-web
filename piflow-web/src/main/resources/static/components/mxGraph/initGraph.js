@@ -70,7 +70,7 @@ function getrightinfo(cell){
         $.ajax({
             cache: true,
             type: "POST",
-            url: "/piflow-web/processGroup/queryProcessPath",
+            url: "/piflow-web/processGroup/queryProcessGroupPath",
             data: data,
             async: true,
             error: function (request) {
