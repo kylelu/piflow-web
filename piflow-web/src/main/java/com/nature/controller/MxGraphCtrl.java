@@ -31,7 +31,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * grapheditorctrl
@@ -136,7 +139,7 @@ public class MxGraphCtrl {
             }
             parentsProcessGroupVo = processVo.getProcessGroupVo();
             mxGraphModelVo = processVo.getMxGraphModelVo();
-            model.addAttribute("processType","TASK");
+            model.addAttribute("processType", "TASK");
         } else {
             ProcessGroupVo processGroupVo = processGroupServiceImpl.getProcessGroupVoAllById(load);
             if (null == processGroupVo) {
@@ -144,7 +147,38 @@ public class MxGraphCtrl {
             }
             parentsProcessGroupVo = processGroupVo.getProcessGroupVo();
             mxGraphModelVo = processGroupVo.getMxGraphModelVo();
-            model.addAttribute("processType","GROUP");
+            model.addAttribute("processType", "GROUP");
+
+            List<Map<String, String>> nodePageIdAndStates = new ArrayList<>();
+            // processGroupVoList
+            List<ProcessGroupVo> processGroupVoList = processGroupVo.getProcessGroupVoList();
+            if (null != processGroupVoList && processGroupVoList.size() > 0) {
+                Map<String, String> processGroupNode;
+                for (ProcessGroupVo processGroupVo_i : processGroupVoList) {
+                    if (null == processGroupVo_i) {
+                        continue;
+                    }
+                    processGroupNode = new HashMap<>();
+                    processGroupNode.put("pageId", processGroupVo_i.getPageId());
+                    processGroupNode.put("state", processGroupVo_i.getState().getText());
+                    nodePageIdAndStates.add(processGroupNode);
+                }
+            }
+            // processVoList
+            List<ProcessVo> processVoList = processGroupVo.getProcessVoList();
+            Map<String, String> processNode;
+            if (null != processVoList && processVoList.size() > 0) {
+                for (ProcessVo process_i : processVoList) {
+                    if (null == process_i) {
+                        continue;
+                    }
+                    processNode = new HashMap<>();
+                    processNode.put("pageId", process_i.getPageId());
+                    processNode.put("state", process_i.getState().getText());
+                    nodePageIdAndStates.add(processNode);
+                }
+            }
+            model.addAttribute("nodeArr", nodePageIdAndStates);
         }
         if (null != parentsProcessGroupVo) {
             model.addAttribute("parentsId", parentsProcessGroupVo.getId());
