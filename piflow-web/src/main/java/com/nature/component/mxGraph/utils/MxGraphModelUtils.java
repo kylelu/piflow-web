@@ -50,7 +50,7 @@ public class MxGraphModelUtils {
 
     public static MxGraphModel copyMxGraphModelAndNewNoIdAndUnlink(MxGraphModel mxGraphModel) {
         if (null == mxGraphModel) {
-            return mxGraphModel;
+            return null;
         }
         MxGraphModel mxGraphModelNew = new MxGraphModel();
         BeanUtils.copyProperties(mxGraphModel, mxGraphModelNew);
@@ -61,7 +61,7 @@ public class MxGraphModelUtils {
         mxGraphModelNew.setProcessGroup(null);
 
         List<MxCell> root = mxGraphModel.getRoot();
-        mxGraphModel.setRoot(null);
+        mxGraphModelNew.setRoot(null);
         if (null != root && root.size() > 0) {
             List<MxCell> rootNew = new ArrayList<>();
             for (MxCell mxCell : root) {
@@ -78,8 +78,9 @@ public class MxGraphModelUtils {
                     BeanUtils.copyProperties(mxGeometry, mxGeometryNew);
                     mxGeometryNew.setId(null);
                     mxGeometryNew.setMxCell(mxCellNew);
+                    mxCellNew.setMxGeometry(mxGeometryNew);
                 }
-                mxCellNew.setMxGeometry(mxGeometry);
+                rootNew.add(mxCellNew);
             }
             mxGraphModelNew.setRoot(rootNew);
         }

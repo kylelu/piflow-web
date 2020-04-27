@@ -52,9 +52,9 @@ public class ProcessGroupUtils {
     }
 
     public static ProcessGroup flowGroupToProcessGroup(FlowGroup flowGroup, String username, RunModeType runModeType) {
-        ProcessGroup processGroup = processGroupNewNoId(username);
+        ProcessGroup processGroupNew = processGroupNewNoId(username);
         // copy FlowGroup to ProcessGroup
-        BeanUtils.copyProperties(flowGroup, processGroup);
+        BeanUtils.copyProperties(flowGroup, processGroupNew);
 
         // Take out the sketchpad information of 'flowGroup'
         MxGraphModel flowGroupMxGraphModel = flowGroup.getMxGraphModel();
@@ -64,21 +64,21 @@ public class ProcessGroupUtils {
         // The 'flowGroup' palette information changes to 'viewXml'
         String viewXml = SvgUtils.mxGraphModelToViewXml(flowGroupMxGraphModel, true, false);
         // set viewXml
-        processGroup.setViewXml(viewXml);
+        processGroupNew.setViewXml(viewXml);
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
         MxGraphModel mxGraphModelProcessGroup = MxGraphModelUtils.copyMxGraphModelAndNewNoIdAndUnlink(flowGroupMxGraphModel);
         mxGraphModelProcessGroup = MxGraphModelUtils.initMxGraphModelBasicPropertiesNoId(mxGraphModelProcessGroup, username);
         // add link
-        mxGraphModelProcessGroup.setProcessGroup(processGroup);
-        processGroup.setMxGraphModel(mxGraphModelProcessGroup);
+        mxGraphModelProcessGroup.setProcessGroup(processGroupNew);
+        processGroupNew.setMxGraphModel(mxGraphModelProcessGroup);
 
         // set flowGroupId
-        processGroup.setFlowId(flowGroup.getId());
+        processGroupNew.setFlowId(flowGroup.getId());
 
-        processGroup.setRunModeType(runModeType);
-        processGroup.setProcessParentType(ProcessParentType.GROUP);
+        processGroupNew.setRunModeType(runModeType);
+        processGroupNew.setProcessParentType(ProcessParentType.GROUP);
 
         // Get the paths information of flow
         List<FlowGroupPaths> flowGroupPathsList = flowGroup.getFlowGroupPathsList();
@@ -99,11 +99,11 @@ public class ProcessGroupUtils {
                     processGroupPath.setLastUpdateUser(username);
                     processGroupPath.setEnableFlag(true);
                     // Associated foreign key
-                    processGroupPath.setProcessGroup(processGroup);
+                    processGroupPath.setProcessGroup(processGroupNew);
                     processGroupPathList.add(processGroupPath);
                 }
             }
-            processGroup.setProcessGroupPathList(processGroupPathList);
+            processGroupNew.setProcessGroupPathList(processGroupPathList);
         }
 
         // flow to remove flowGroup
@@ -118,14 +118,14 @@ public class ProcessGroupUtils {
                 if (null == flow) {
                     continue;
                 }
-                Process process = ProcessUtils.flowToProcess(flow, username);
-                if (null == process) {
+                Process processNew = ProcessUtils.flowToProcess(flow, username);
+                if (null == processNew) {
                     continue;
                 }
-                process.setProcessGroup(processGroup);
-                processList.add(process);
+                processNew.setProcessGroup(processGroupNew);
+                processList.add(processNew);
             }
-            processGroup.setProcessList(processList);
+            processGroupNew.setProcessList(processList);
         }
 
         List<FlowGroup> flowGroupList = flowGroup.getFlowGroupList();
@@ -134,16 +134,16 @@ public class ProcessGroupUtils {
             List<ProcessGroup> processGroupList = new ArrayList<>();
             // Loop flowGroupList
             for (FlowGroup flowGroupList_i : flowGroupList) {
-                ProcessGroup processGroupNew = flowGroupToProcessGroup(flowGroupList_i, username, runModeType);
-                if (null != processGroupNew) {
-                    processGroupNew.setProcessGroup(processGroup);
-                    processGroupList.add(processGroupNew);
+                ProcessGroup processGroupChildNew = flowGroupToProcessGroup(flowGroupList_i, username, runModeType);
+                if (null != processGroupChildNew) {
+                    processGroupChildNew.setProcessGroup(processGroupNew);
+                    processGroupList.add(processGroupChildNew);
                 }
             }
-            processGroup.setProcessGroupList(processGroupList);
+            processGroupNew.setProcessGroupList(processGroupList);
         }
 
-        return processGroup;
+        return processGroupNew;
     }
 
     public static List<ProcessGroup> copyProcessGroupList(List<ProcessGroup> processGroupList, ProcessGroup processGroup, UserVo currentUser, RunModeType runModeType) {
