@@ -205,18 +205,13 @@ Format.prototype.init = function()
 				this.container.innerHTML=""
 
 				this.container.appendChild(div)
-				// console.log(div,"jjjjjjjjjjjjjjjjj")
-				// console.log(this.container,"ggggggggggg")
 			}else{
-				// console.log("77777777777777")
 				this.refresh();
 				strtext=false
 			}
 		}else{
 			if(evt.properties.cell && evt.properties.cell.style.indexOf("text\;") === 0){
-				// console.log(evt,"ppppppppppppppppp")
 			}else{
-				// console.log(evt,"iiiiiii")
 				this.refresh();
 			}
 		}

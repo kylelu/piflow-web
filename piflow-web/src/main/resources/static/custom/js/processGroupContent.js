@@ -231,10 +231,17 @@ function cancelRunProcessGroup() {
 }
 
 //run
+function getQueryString(name){
+    var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+    var r = window.location.search.substr(1).match(reg);
+    if(r!=null)return  unescape(r[2]); return null;
+}
+
 function runProcessGroup(runMode) {
     fullScreen.show();
+    var id = getQueryString("load")
     var data = {
-        id: 'ff80818171ba521e0171ba5307d10000',
+        id: id,
     }
     if (runMode) {
         data.runMode = runMode;
@@ -257,7 +264,9 @@ function runProcessGroup(runMode) {
             if (200 === dataMap.code) {
                 //alert(dataMap.errorMsg);
                 window.location.reload();  //   drawingBoardType=PROCESS&processType=PROCESS_GROUP        &processType=PROCESS
-                var tempWindow = window.open("/piflow-web/processGroup/getProcessGroupById?processGroupId=" + dataMap.processGroupId);
+                // var tempWindow = window.open("/piflow-web/processGroup/getProcessGroupById?processGroupId=" + dataMap.processGroupId);
+                var tempWindow = window.open("/piflow-web/mxGraph/drawingBoard?drawingBoardType=PROCESS&processType=PROCESS_GROUP&load=" + dataMap.processGroupId);
+
                 if (tempWindow == null || typeof (tempWindow) == 'undefined') {
                     alert('The window cannot be opened. Please check your browser settings.')
                 }

@@ -119,6 +119,41 @@ function initGraph() {
         editorUiInit.apply(this, arguments);
         graphGlobal = this.editor.graph;
         thisEditor = this.editor;
+        console.log('----------------------')
+
+      setTimeout(()=>{
+          var arr=[]
+          var map=graphGlobal.view.states.map
+          for(var k in map){
+              if(map[k].cell.style && map[k].cell.style.indexOf("image\;") === 0){
+                  arr.push(map[k])
+              }
+          }
+          console.log(arr,'----------------------')
+          console.log(nodeArr,"nodeArr")
+
+          nodeArr.forEach(item=>{
+              for(var i=0;i<arr.length;i++){
+                  if(item.pageId==arr[i].cell.id){
+
+
+
+                  }
+              }
+          })
+
+
+          // console.log($("image[x=" + arr[i].cell.origin.x +"]").prevObject[0],"bbbbbbbaaaaaaaaaaaaaaaaaaaaabb")
+          console.log('11111111111111111111111111111111111111111')
+          // $("image[x=" + arr[i].cell.origin.x +",y="+arr[i].cell.origin.y+"]")
+           var div = document.getElementsByClassName("geBackgroundPage")
+            var div1=document.createElement("g")
+            div1.style="width:20px;height:20p;border:5px solid #000"
+            div.appendChild(div1)
+          // $("image[x=440]").append(div)
+
+
+      },300)
 
         this.actions.get('export').setEnabled(false);
         /*
@@ -145,13 +180,13 @@ function initGraph() {
             evtchan=evt
             processListener(evt, "REMOVED");
         });
+
         graphGlobal.addListener(mxEvent.CLICK, function (sender, evt) {
             findBasicInfo(evt);
-
+            console.log(evt)
             if(Format.customizeType=="PROCESS"){
                 getrightinfo(evt.properties.cell)
             }
-
         });
         if ('GROUP' === Format.customizeType || processType=="GROUP" ) {
             graphGlobal.addListener(mxEvent.DOUBLE_CLICK, function (sender, evt) {
@@ -976,8 +1011,8 @@ function saveXml(paths, operType) {
                 console.log(operType + " save success");
 
                 if(statusgroup == "group" && operType=="ADD"){
-                    $("#buttonFlowGroup").attr("onclick", "");
-                    $("#buttonFlowGroup").attr("onclick", "saveOrUpdateFlowGroup()");
+                    $("#buttonGroup").attr("onclick", "");
+                    $("#buttonGroup").attr("onclick", "saveOrUpdateFlowGroup()");
                     $("#flowGroupId").val("");
                     $("#flowGroupName").val("");
                     $("#description1").val("");
