@@ -158,7 +158,7 @@ public class ProcessServiceImpl implements IProcessService {
     @Override
     public ProcessVo getProcessById(String id) {
         ProcessVo processVo = null;
-        Process processById = processMapper.getProcessById(id);
+        Process processById = processDomain.getProcessById(id);
         if (null != processById) {
             processVo = ProcessUtils.processPoToVo(processById);
         }

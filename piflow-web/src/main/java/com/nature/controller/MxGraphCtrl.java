@@ -20,6 +20,7 @@ import com.nature.component.mxGraph.vo.MxGraphModelVo;
 import com.nature.component.process.service.IProcessGroupService;
 import com.nature.component.process.service.IProcessService;
 import com.nature.component.process.vo.ProcessGroupVo;
+import com.nature.component.process.vo.ProcessStopVo;
 import com.nature.component.process.vo.ProcessVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -133,14 +134,41 @@ public class MxGraphCtrl {
         }
         ProcessGroupVo parentsProcessGroupVo = null;
         MxGraphModelVo mxGraphModelVo = null;
+        List<Map<String, String>> nodePageIdAndStates = new ArrayList<>();
+        ProcessState processState = ProcessState.INIT;
         if ("PROCESS".equals(processType)) {
             ProcessVo processVo = processServiceImpl.getProcessById(load);
             if (null == processVo) {
                 return null;
             }
+            // processStopVoList
+            List<ProcessStopVo> processStopVoList = processVo.getProcessStopVoList();
+            if (null != processStopVoList && processStopVoList.size() > 0) {
+                Map<String, String> stopNode;
+                for (ProcessStopVo processStopVo_i : processStopVoList) {
+                    if (null == processStopVo_i) {
+                        continue;
+                    }
+                    stopNode = new HashMap<>();
+                    stopNode.put("pageId", processStopVo_i.getPageId());
+                    stopNode.put("state", processStopVo_i.getState());
+                    nodePageIdAndStates.add(stopNode);
+                }
+                model.addAttribute("processStopVoListInit", processStopVoList);
+                model.addAttribute("percentage", (null != processVo.getProgress() ? processVo.getProgress() : 0.00));
+                model.addAttribute("appId", processVo.getAppId());
+            }
             parentsProcessGroupVo = processVo.getProcessGroupVo();
+            if (null != parentsProcessGroupVo) {
+                model.addAttribute("processGroupId", parentsProcessGroupVo.getId());
+            }
             mxGraphModelVo = processVo.getMxGraphModelVo();
+            processState = processVo.getState();
             model.addAttribute("processType", "TASK");
+            model.addAttribute("processId", load);
+            model.addAttribute("parentProcessId", processVo.getParentProcessId());
+            model.addAttribute("pID", processVo.getProcessId());
+            model.addAttribute("processVo", processVo);
         } else {
             ProcessGroupVo processGroupVo = processGroupServiceImpl.getProcessGroupVoAllById(load);
             if (null == processGroupVo) {
@@ -150,7 +178,6 @@ public class MxGraphCtrl {
             mxGraphModelVo = processGroupVo.getMxGraphModelVo();
             model.addAttribute("processType", "GROUP");
 
-            List<Map<String, String>> nodePageIdAndStates = new ArrayList<>();
             // processGroupVoList
             List<ProcessGroupVo> processGroupVoList = processGroupVo.getProcessGroupVoList();
             if (null != processGroupVoList && processGroupVoList.size() > 0) {
@@ -164,6 +191,7 @@ public class MxGraphCtrl {
                     processGroupNode.put("state", processGroupVo_i.getState().getText());
                     nodePageIdAndStates.add(processGroupNode);
                 }
+                model.addAttribute("processGroupVoListInit", processGroupVoList);
             }
             // processVoList
             List<ProcessVo> processVoList = processGroupVo.getProcessVoList();
@@ -179,8 +207,18 @@ public class MxGraphCtrl {
                     processNode.put("state", process_i_stateStr);
                     nodePageIdAndStates.add(processNode);
                 }
+                model.addAttribute("processVoListInit", processVoList);
             }
-            model.addAttribute("nodeArr", nodePageIdAndStates);
+            processState = processGroupVo.getState();
+            model.addAttribute("parentProcessId", processGroupVo.getParentProcessId());
+            model.addAttribute("percentage", (null != processGroupVo.getProgress() ? processGroupVo.getProgress() : 0.00));
+            model.addAttribute("appId", processGroupVo.getAppId());
+            model.addAttribute("pID", processGroupVo.getProcessId());
+            model.addAttribute("processGroupVo", processGroupVo);
+            model.addAttribute("processGroupId", load);
+        }
+        if (null != processState) {
+            model.addAttribute("processState", processState.name());
         }
         if (null != parentsProcessGroupVo) {
             model.addAttribute("parentsId", parentsProcessGroupVo.getId());
@@ -188,6 +226,7 @@ public class MxGraphCtrl {
         String loadXml = FlowXmlUtils.mxGraphModelToXml(mxGraphModelVo);
         model.addAttribute("xmlDate", loadXml);
         model.addAttribute("load", load);
+        model.addAttribute("nodeArr", nodePageIdAndStates);
         return model;
     }
 
