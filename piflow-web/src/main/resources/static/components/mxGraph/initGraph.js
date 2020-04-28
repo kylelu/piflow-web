@@ -138,14 +138,15 @@ function initGraph() {
             nodeArr.forEach(item => {
                 var currentNode = arr[item.pageId];
                 if (currentNode) {
-                    var image_x = windowChangeCooVal.x + currentNode.cell.geometry.x + currentNode.cell.geometry.width;
-                    var image_y = windowChangeCooVal.y + currentNode.cell.geometry.y;
+                    var image_x = currentNode.cell.geometry.x + currentNode.cell.geometry.width;
+                    var image_y = currentNode.cell.geometry.y;
 
                     var img_element_init = document.createElementNS("http://www.w3.org/2000/svg", "image");
                     img_element_init.setAttribute("x", image_x);
                     img_element_init.setAttribute("y", image_y);
                     img_element_init.setAttribute("width", 30);
                     img_element_init.setAttribute("height", 30);
+                    img_element_init.setAttribute("transform", "translate(" + windowChangeCooVal.x + "," + windowChangeCooVal.y + ")");
                     img_element_init.setAttribute("PiFlow_IMG", "IMG");
                     img_element_init.href.baseVal = "/piflow-web/img/Loading.gif";
                     img_element_init.setAttribute("id", "stopLoadingShow" + item.pageId);
@@ -155,6 +156,7 @@ function initGraph() {
                     img_element_ok.setAttribute("y", image_y);
                     img_element_ok.setAttribute("width", 30);
                     img_element_ok.setAttribute("height", 30);
+                    img_element_init.setAttribute("transform", "translate(" + windowChangeCooVal.x + "," + windowChangeCooVal.y + ")");
                     img_element_ok.setAttribute("PiFlow_IMG", "IMG");
                     img_element_ok.href.baseVal = "/piflow-web/img/Ok.png";
                     img_element_ok.setAttribute("id", "stopOkShow" + item.pageId);
@@ -165,6 +167,7 @@ function initGraph() {
                     img_element_fail.setAttribute("y", image_y);
                     img_element_fail.setAttribute("width", 30);
                     img_element_fail.setAttribute("height", 30);
+                    img_element_init.setAttribute("transform", "translate(" + windowChangeCooVal.x + "," + windowChangeCooVal.y + ")");
                     img_element_fail.setAttribute("PiFlow_IMG", "IMG");
                     img_element_fail.href.baseVal = "/piflow-web/img/Fail.png";
                     img_element_fail.setAttribute("id", "stopFailShow" + item.pageId);
@@ -2568,12 +2571,9 @@ function getWindowChangeVale() {
 }
 
 window.onresize = function (e) {
-    var old_x = windowChangeCooVal.x;
-    var old_y = windowChangeCooVal.y;
     getWindowChangeVale();
     var imgsArr = document.querySelectorAll("image[PiFlow_IMG='IMG']");
     imgsArr.forEach(item => {
-        item.x = (item.x - old_x) + windowChangeCooVal.x;
-        item.y = (item.y - old_y) + windowChangeCooVal.y;
+        item.setAttribute("transform", "translate(" + windowChangeCooVal.x + "," + windowChangeCooVal.y + ")");
     });
 }
