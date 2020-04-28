@@ -104,18 +104,6 @@ function initGraph() {
         $("#rightproupwrap")[0].style.display = "none"
         $("#precessrun")[0].style.display = "none"
     }
-    $(".triggerSlider").click(function () {
-        var flag = ($(".triggerSlider i:first").hasClass("fa fa-angle-right fa-2x"));
-        if (flag === false)
-            $(".triggerSlider i").removeClass("fa fa-angle-left fa-2x").toggleClass("fa fa-angle-right fa-2x");
-        else
-            $(".triggerSlider i").removeClass("fa fa-angle-right fa-2x").toggleClass("fa fa-angle-left fa-2x");
-
-        $(".rightproup").toggleClass("openright");
-        $(".ExpandSidebar").toggleClass("ExpandSidebar-open");
-        $(this).toggleClass("triggerSlider-open");
-    });
-
 
     EditorUi.prototype.init = function () {
         editorUiInit.apply(this, arguments);
@@ -267,6 +255,7 @@ function initGraph() {
     EditorUi.prototype.menubarHeight = 48;
     EditorUi.prototype.menubarShow = false;
     EditorUi.prototype.customToobar = true;
+    ClickSlider();
 }
 
 //Double click event
@@ -2575,5 +2564,18 @@ window.onresize = function (e) {
     var imgsArr = document.querySelectorAll("image[PiFlow_IMG='IMG']");
     imgsArr.forEach(item => {
         item.setAttribute("transform", "translate(" + windowChangeCooVal.x + "," + windowChangeCooVal.y + ")");
+    });
+}
+function ClickSlider() {
+    $(".triggerSlider").click(function () {
+        var flag = ($(".triggerSlider i:first").hasClass("fa fa-angle-right fa-2x"));
+        if (flag === false)
+            $(".triggerSlider i").removeClass("fa fa-angle-left fa-2x").toggleClass("fa fa-angle-right fa-2x");
+        else
+            $(".triggerSlider i").removeClass("fa fa-angle-right fa-2x").toggleClass("fa fa-angle-left fa-2x");
+
+        $(".rightproup").toggleClass("openright");
+        $(".ExpandSidebar").toggleClass("ExpandSidebar-open");
+        $(this).toggleClass("triggerSlider-open");
     });
 }
