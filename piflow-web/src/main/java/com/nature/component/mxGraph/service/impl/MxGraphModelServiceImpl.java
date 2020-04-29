@@ -1,9 +1,12 @@
 package com.nature.component.mxGraph.service.impl;
 
+import ch.qos.logback.classic.gaffer.PropertyUtil;
 import com.nature.base.util.*;
 import com.nature.base.vo.UserVo;
 import com.nature.common.Eunm.PortType;
 import com.nature.component.flow.model.*;
+import com.nature.component.flow.utils.PropertyUtils;
+import com.nature.component.flow.utils.StopsUtils;
 import com.nature.component.group.model.PropertyTemplate;
 import com.nature.component.group.model.StopsTemplate;
 import com.nature.component.mxGraph.model.MxCell;
@@ -191,7 +194,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
             return ReturnMapUtils.setSucceededMsg("No data can be added, the addition failed");
         }
         // Convert MxCellVo map to MxCellVoList
-        List<MxCellVo> addMxCellVoList = new ArrayList<MxCellVo>(mxCellVoMap.values());
+        List<MxCellVo> addMxCellVoList = new ArrayList<>(mxCellVoMap.values());
         if (null == addMxCellVoList || addMxCellVoList.size() <= 0) {
             return ReturnMapUtils.setSucceededMsg("No data can be added, the addition failed");
         }
@@ -249,9 +252,9 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
         List<MxCellVo> objectStops = stopsPathsMap.get("elements");
 
         // stops list
-        List<Stops> addStopsList = new ArrayList<Stops>();
+
         // Generate a stopList based on the contents of the MxCellList
-        addStopsList = this.mxCellVoListToStopsList(objectStops, flow);
+        List<Stops> addStopsList = this.mxCellVoListToStopsList(objectStops, flow, username);
         // save addStopsList
         if (flag) {
             this.addStopList(addStopsList);
@@ -589,13 +592,13 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
      * @param flow
      * @return
      */
-    private List<Stops> mxCellVoListToStopsList(List<MxCellVo> objectStops, Flow flow) {
+    private List<Stops> mxCellVoListToStopsList(List<MxCellVo> objectStops, Flow flow, String username) {
         List<Stops> stopsList = null;
         if (null != objectStops && objectStops.size() > 0) {
-            stopsList = new ArrayList<Stops>();
+            stopsList = new ArrayList<>();
             // loop objectStops
             for (MxCellVo mxCellVo : objectStops) {
-                Stops stops = this.stopsTemplateToStops(mxCellVo);
+                Stops stops = this.stopsTemplateToStops(mxCellVo, username);
                 if (null != stops) {
                     String stopByNameAndFlowId = stopsMapper.getStopByNameAndFlowId(flow.getId(), stops.getName());
                     if (StringUtils.isNotBlank(stopByNameAndFlowId)) {
@@ -613,78 +616,73 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
      * mxCellVo to stops
      *
      * @param mxCellVo
+     * @param username
      * @return
      */
-    private Stops stopsTemplateToStops(MxCellVo mxCellVo) {
-        UserVo user = SessionUserUtil.getCurrentUser();
-        String username = (null != user) ? user.getUsername() : "-1";
+    private Stops stopsTemplateToStops(MxCellVo mxCellVo, String username) {
         Stops stops = null;
-        if (null != mxCellVo) {
-            // Take out the style attribute (the name of the stop in the attribute)
-            // Example of the style attribute of stops
-            // (image;html=1;labelBackgroundColor=#ffffff;image=/grapheditor/stencils/clipart/test_stops_1_128x128.png)
-            // What we need is "test_stops_1"
-            String style = mxCellVo.getStyle();
-            if (StringUtils.isNotBlank(style)) {
-                // Determine whether it is a stop by intercepting keywords
-                String[] split = style.split("_128x128.");
-                // Think of stops when there is one and only one keyword ("_128x128.")
-                if (null != split && split.length == 2) {
-                    // Take the first bit of the array and continue to intercept
-                    String string = split[0];
-                    String[] split2 = string.split("/");
-                    // Empty, take the last bit of the array (the name of the stops)
-                    if (null != split2 && split2.length > 0) {
-                        // Get the name of the stops
-                        String stopsName = split2[split2.length - 1];
-                        // Query the stops template according to the name of the stops
-                        StopsTemplate stopsTemplate = this.getStopsTemplate(stopsName);
-                        // Whether to judge whether the template is empty
-                        if (null != stopsTemplate) {
-                            stops = new Stops();
-                            BeanUtils.copyProperties(stopsTemplate, stops);
-                            stops.setCrtDttm(new Date());
-                            stops.setCrtUser(username);
-                            stops.setLastUpdateDttm(new Date());
-                            stops.setLastUpdateUser(username);
-                            stops.setEnableFlag(true);
-                            stops.setId(SqlUtils.getUUID32());
-                            stops.setPageId(mxCellVo.getPageId());
-                            List<Property> propertiesList = null;
-                            List<PropertyTemplate> propertiesTemplateList = stopsTemplate.getProperties();
-                            if (null != propertiesTemplateList && propertiesTemplateList.size() > 0) {
-                                propertiesList = new ArrayList<Property>();
-                                for (PropertyTemplate propertyTemplate : propertiesTemplateList) {
-                                    Property property = new Property();
-                                    BeanUtils.copyProperties(propertyTemplate, property);
-                                    property.setId(SqlUtils.getUUID32());
-                                    property.setCrtDttm(new Date());
-                                    property.setCrtUser(username);
-                                    property.setLastUpdateDttm(new Date());
-                                    property.setLastUpdateUser(username);
-                                    property.setEnableFlag(true);
-                                    property.setStops(stops);
-                                    property.setCustomValue(propertyTemplate.getDefaultValue());
-                                    //Indicates "select"
-                                    if (propertyTemplate.getAllowableValues().contains(",") && propertyTemplate.getAllowableValues().length() > 4) {
-                                        property.setIsSelect(true);
-                                        //Determine if there is a default value in "select"
-                                        if (!propertyTemplate.getAllowableValues().contains(propertyTemplate.getDefaultValue())) {
-                                            //Default value if not present
-                                            property.setCustomValue("");
-                                        }
-                                    } else {
-                                        property.setIsSelect(false);
-                                    }
-                                    propertiesList.add(property);
-                                }
-                            }
-                            stops.setProperties(propertiesList);
-                        }
+        if (null == mxCellVo) {
+            return null;
+        }
+        // Take out the style attribute (the name of the stop in the attribute)
+        // Example of the style attribute of stops
+        // (image;html=1;labelBackgroundColor=#ffffff;image=/grapheditor/stencils/clipart/test_stops_1_128x128.png)
+        // What we need is "test_stops_1"
+        String style = mxCellVo.getStyle();
+        if (StringUtils.isBlank(style)) {
+            return null;
+        }
+        // Determine whether it is a stop by intercepting keywords
+        String[] split = style.split("_128x128.");
+        // Think of stops when there is one and only one keyword ("_128x128.")
+        if (null == split || split.length != 2) {
+            return null;
+        }
+        // Take the first bit of the array and continue to intercept
+        String string = split[0];
+        String[] split2 = string.split("/");
+        // Empty, take the last bit of the array (the name of the stops)
+        if (null == split2 || split2.length <= 0) {
+            return null;
+        }
+        // Get the name of the stops
+        String stopsName = split2[split2.length - 1];
+        // Query the stops template according to the name of the stops
+        StopsTemplate stopsTemplate = this.getStopsTemplate(stopsName);
+        // Whether to judge whether the template is empty
+        if (null == stopsTemplate) {
+            return null;
+        }
+        stops = new Stops();
+        BeanUtils.copyProperties(stopsTemplate, stops);
+        StopsUtils.initStopsBasicPropertiesNoId(stops,username);
+        stops.setId(SqlUtils.getUUID32());
+        stops.setPageId(mxCellVo.getPageId());
+        List<Property> propertiesList = null;
+        List<PropertyTemplate> propertiesTemplateList = stopsTemplate.getProperties();
+        if (null != propertiesTemplateList && propertiesTemplateList.size() > 0) {
+            propertiesList = new ArrayList<Property>();
+            for (PropertyTemplate propertyTemplate : propertiesTemplateList) {
+                Property property = PropertyUtils.propertyNewNoId(username);
+                BeanUtils.copyProperties(propertyTemplate, property);
+                property.setId(SqlUtils.getUUID32());
+                property.setStops(stops);
+                property.setCustomValue(propertyTemplate.getDefaultValue());
+                //Indicates "select"
+                if (propertyTemplate.getAllowableValues().contains(",") && propertyTemplate.getAllowableValues().length() > 4) {
+                    property.setIsSelect(true);
+                    //Determine if there is a default value in "select"
+                    if (!propertyTemplate.getAllowableValues().contains(propertyTemplate.getDefaultValue())) {
+                        //Default value if not present
+                        property.setCustomValue("");
                     }
+                } else {
+                    property.setIsSelect(false);
                 }
+                propertiesList.add(property);
             }
         }
+        stops.setProperties(propertiesList);
         return stops;
     }
 
@@ -720,7 +718,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
             return ReturnMapUtils.setFailedMsg("The database mxCellList is empty and the modification failed.");
         }
         // Including modified and tombstoned
-        List<MxCell> updateMxCellList = new ArrayList<MxCell>();
+        List<MxCell> updateMxCellList = new ArrayList<>();
         // Convert the list passed to the page to map key for pageId
         Map<String, MxCellVo> mxCellVoMap = new HashMap<String, MxCellVo>();
         // Determine if it is empty
@@ -873,8 +871,8 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
      * @param flowGroupId
      * @return
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-	private Map<String, Object> addGroupFlows(MxGraphModelVo mxGraphModelVo, String flowGroupId, UserVo currentUser) {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Map<String, Object> addGroupFlows(MxGraphModelVo mxGraphModelVo, String flowGroupId, UserVo currentUser) {
         if (null == currentUser) {
             return ReturnMapUtils.setFailedMsg("Illegal operation");
         }

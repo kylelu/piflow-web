@@ -1039,6 +1039,11 @@ EditorUi.prototype.hsplitClickEnabled = false;
 EditorUi.prototype.customToobar = false;
 
 /**
+ * Open edit line style. Default is true.
+ */
+EditorUi.prototype.openEditLineStyle = true;
+
+/**
  * Installs the listeners to update the action states.
  */
 EditorUi.prototype.init = function()

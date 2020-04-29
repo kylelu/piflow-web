@@ -182,21 +182,22 @@ public class MxGraphModelUtils {
             List<MxCellVo> elementsList = new ArrayList<MxCellVo>();
             // Loop root
             for (MxCellVo mxCellVo : root) {
-                if (null != mxCellVo) {
-                    // Take out the style attribute
-                    String style = mxCellVo.getStyle();
-                    // Judge whether it is empty
-                    if (StringUtils.isNotBlank(style)) {
-                        // Take out the line-specific attributes to determine if it is empty.
-                        String edge = mxCellVo.getEdge();
-                        if (StringUtils.isNotBlank(edge)) {
-                            pathsList.add(mxCellVo);
-                        } else {
-                            elementsList.add(mxCellVo);
-                        }
-                    }
+                if (null == mxCellVo) {
+                    continue;
+                }
+                // Take out the style attribute
+                String style = mxCellVo.getStyle();
+                // Judge whether it is empty
+                if (StringUtils.isBlank(style)) {
+                    continue;
+                }
+                if (style.indexOf("image;") == 0) {
+                    elementsList.add(mxCellVo);
+                } else if (style.indexOf("edgeStyle;") == 0) {
+                    pathsList.add(mxCellVo);
                 }
             }
+
             map.put("elements", elementsList);
             map.put("paths", pathsList);
         }
@@ -241,17 +242,18 @@ public class MxGraphModelUtils {
      * @return
      */
     public static List<Paths> mxCellVoListToPathsList(List<MxCellVo> objectPaths, Flow flow) {
-        List<Paths> pathsList = null;
-        if (null != objectPaths && objectPaths.size() > 0) {
-            pathsList = new ArrayList<Paths>();
-            // Loop objectPaths
-            for (MxCellVo mxCellVo : objectPaths) {
-                Paths paths = mxCellToPaths(mxCellVo);
-                if (null != paths) {
-                    paths.setFlow(flow);
-                    pathsList.add(paths);
-                }
+        if (null == objectPaths || objectPaths.size() <= 0) {
+            return null;
+        }
+        List<Paths> pathsList = new ArrayList<>();
+        // Loop objectPaths
+        for (MxCellVo mxCellVo : objectPaths) {
+            Paths paths = mxCellToPaths(mxCellVo);
+            if (null == paths) {
+                continue;
             }
+            paths.setFlow(flow);
+            pathsList.add(paths);
         }
         return pathsList;
     }

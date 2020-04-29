@@ -9,12 +9,44 @@ import com.nature.component.flow.model.Stops;
 import com.nature.component.flow.vo.StopsCustomizedPropertyVo;
 import com.nature.component.flow.vo.StopsPropertyVo;
 import com.nature.component.flow.vo.StopsVo;
+import com.nature.component.mxGraph.model.MxCell;
+import com.nature.component.mxGraph.model.MxGraphModel;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.util.*;
 
 public class StopsUtils {
+
+    public static Stops stopsNewNoId(String username) {
+
+        Stops stops = new Stops();
+        // basic properties (required when creating)
+        stops.setCrtDttm(new Date());
+        stops.setCrtUser(username);
+        // basic properties
+        stops.setEnableFlag(true);
+        stops.setLastUpdateUser(username);
+        stops.setLastUpdateDttm(new Date());
+        stops.setVersion(0L);
+        return stops;
+    }
+
+    public static Stops initStopsBasicPropertiesNoId(Stops stops, String username) {
+        if (null == stops) {
+            return stopsNewNoId(username);
+        }
+        // basic properties (required when creating)
+        stops.setCrtDttm(new Date());
+        stops.setCrtUser(username);
+        // basic properties
+        stops.setEnableFlag(true);
+        stops.setLastUpdateUser(username);
+        stops.setLastUpdateDttm(new Date());
+        stops.setVersion(0L);
+        return stops;
+    }
+
     /**
      * stopsList Po To Vo
      *

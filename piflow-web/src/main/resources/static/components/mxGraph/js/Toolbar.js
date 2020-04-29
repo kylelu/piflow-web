@@ -141,7 +141,7 @@ Toolbar.prototype.init = function()
 
 	if (sw >= 400)
 	{
-		if(!EditorUi.prototype.customToobar){
+		if(EditorUi.prototype.openEditLineStyle){
 			this.addSeparator();
 
 			if (sw >= 440)
