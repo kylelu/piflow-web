@@ -70,9 +70,9 @@ public class ProcessDomainTest extends ApplicationTests {
     @Transactional
     @Rollback(value = false)
     public void testSave() {
-        ThirdFlowInfoVo flowInfo = flowImpl.getFlowInfo("application_1562293222869_0584");
+        ThirdFlowInfoVo flowInfo = flowImpl.getFlowInfo("application_1562293222869_0585");
         logger.info("===================================================================================");
-        Process process = processDomain.getProcessNoGroupByAppId("application_1562293222869_0584");
+        Process process = processDomain.getProcessNoGroupByAppId("application_1562293222869_0585");
         //processByAppId = ThirdFlowInfoVoUtils.setProcess(processByAppId, flowInfo);
         if (null != process) {
             process.setState(ProcessState.STARTED);

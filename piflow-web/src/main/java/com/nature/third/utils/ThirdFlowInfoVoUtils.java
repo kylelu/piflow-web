@@ -31,6 +31,8 @@ public class ThirdFlowInfoVoUtils {
                 ProcessState processState = null;
                 if ("NEW".equals(thirdFlowInfoVoState) || "NEW_SAVING".equals(thirdFlowInfoVoState)) {
                     processState = ProcessState.INIT;
+                } else if ("RUNNING".equals(thirdFlowInfoVoState)) {
+                    processState = ProcessState.SUBMITTED;
                 } else {
                     processState = ProcessState.selectGender(thirdFlowInfoVoState);
                 }

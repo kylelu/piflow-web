@@ -447,7 +447,7 @@ public class ProcessMapperProvider {
         sqlStrBuf.append("state!=" + SqlUtils.preventSQLInjection(ProcessState.KILLED.name()) + " ");
         sqlStrBuf.append(") ");
         sqlStrBuf.append("or ");
-        sqlStrBuf.append("state is not null ");
+        sqlStrBuf.append("state is null ");
         sqlStrBuf.append(") ");
         return sqlStrBuf.toString();
     }
