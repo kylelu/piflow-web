@@ -61,5 +61,10 @@ public class ProcessDomain {
         return processJpaRepository.getMaxStopPageIdByProcessGroupId(processGroupId);
     }
 
+    public Process getProcessNoGroupByAppId(String appId) {
+        return processJpaRepository.getProcessNoGroupByAppId(appId);
+    }
+
+
 
 }

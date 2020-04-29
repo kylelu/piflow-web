@@ -439,11 +439,15 @@ public class ProcessMapperProvider {
         sqlStrBuf.append("app_id is not null ");
         sqlStrBuf.append("and ");
         sqlStrBuf.append("( ");
+        sqlStrBuf.append("( ");
         sqlStrBuf.append("state!=" + SqlUtils.preventSQLInjection(ProcessState.COMPLETED.name()) + " ");
         sqlStrBuf.append("and ");
         sqlStrBuf.append("state!=" + SqlUtils.preventSQLInjection(ProcessState.FAILED.name()) + "  ");
         sqlStrBuf.append("and ");
         sqlStrBuf.append("state!=" + SqlUtils.preventSQLInjection(ProcessState.KILLED.name()) + " ");
+        sqlStrBuf.append(") ");
+        sqlStrBuf.append("or ");
+        sqlStrBuf.append("state is not null ");
         sqlStrBuf.append(") ");
         return sqlStrBuf.toString();
     }

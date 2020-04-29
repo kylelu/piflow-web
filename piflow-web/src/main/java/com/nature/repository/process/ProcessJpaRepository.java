@@ -41,4 +41,7 @@ public interface ProcessJpaRepository extends JpaRepository<Process, String>, Jp
     @Query(nativeQuery = true, value = "select MAX(s.page_id+0) from flow_process s where s.enable_flag = 1 and s.fk_flow_process_group_id = :processGroupId")
     String getMaxStopPageIdByProcessGroupId(@Param("processGroupId") String processGroupId);
 
+    @Query(value = "select s from Process s where s.enableFlag=true and s.processGroup is null and s.appId=:appId")
+    Process getProcessNoGroupByAppId(@Param("appId") String appId);
+
 }
