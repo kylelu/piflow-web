@@ -3317,6 +3317,11 @@ EditorUi.prototype.refresh = function(sizeDidChange)
 		//$('.geToolbar').html("");
 		//toolbarReset($('.geToolbar'));
 	}
+
+	if($(".geDiagramBackdrop")[0]){
+		$(".geDiagramBackdrop")[0].style.left="0px"
+	}
+
 };
 
 /**
@@ -3495,6 +3500,7 @@ EditorUi.prototype.createUi = function()
 
 		this.addSplitHandlers(this.hsplitRight, true, 0, mxUtils.bind(this, function(value)
 		{
+
 			this.hsplitRightPosition = value;
 			this.refresh();
 		}));

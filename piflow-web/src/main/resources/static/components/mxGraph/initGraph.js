@@ -11,10 +11,15 @@ var drawingBoardType = $("#drawingBoardType").val();
 var statusgroup, flowPageIdcha, flowGroupdata, cellprecess, flowdatas, removegroupPaths
 var windowChangeCooVal = {x: 1000, y: 200};
 getrightinfo()
-
+var index=true
 function getrightinfo(cell) {
     var processGroupId = getQueryString("load")
     var pageId, value, data
+    if(index){
+        $(".rightproup").toggleClass("openright");
+        $(".ExpandSidebar").toggleClass("ExpandSidebar-open");
+        index=false
+    }
     if (cell == undefined) {
         data = {processGroupId}
     } else {
@@ -24,7 +29,7 @@ function getrightinfo(cell) {
     }
     //group
     if (cell && cell.style && (cell.style).indexOf("image\;") === 0) {
-        $.ajax({
+          $.ajax({
             cache: true,
             type: "POST",
             url: "/piflow-web/processGroup/queryProcess",
@@ -39,19 +44,37 @@ function getrightinfo(cell) {
         })
         //info
     } else if (cell == undefined) {
-        $.ajax({
-            cache: true,
-            type: "POST",
-            url: " /piflow-web/processGroup/queryProcessGroup",
-            data: data,
-            async: true,
-            error: function (request) {
-                return;
-            },
-            success: function (data) {
-                $("#rightproup")[0].innerHTML = data
-            }
-        })
+        if(processType=="GROUP"){
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url: " /piflow-web/processGroup/queryProcessGroup",
+                data: data,
+                async: true,
+                error: function (request) {
+                    return;
+                },
+                success: function (data) {
+                    $("#rightproup")[0].innerHTML = data
+                }
+            })
+        }else if(processType=="TASK") {
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url: "/piflow-web/process/queryProcess",
+                data: {processId:processGroupId},
+                async: true,
+                error: function (request) {
+                    return;
+                },
+                success: function (data) {
+                    $("#rightproup")[0].innerHTML = data
+                }
+            })
+        }
+
+
         //task
     } else if (cell && cell.style && (cell.style).indexOf("text\;") === 0) {
         $.ajax({
@@ -109,76 +132,75 @@ function initGraph() {
         editorUiInit.apply(this, arguments);
         graphGlobal = this.editor.graph;
         thisEditor = this.editor;
-        console.log('----------------------')
-
-        setTimeout(() => {
-            var arr = {};
-            var map = graphGlobal.view.states.map
-            for (var k in map) {
-                if (map[k].cell.style && map[k].cell.style.indexOf("image\;") === 0) {
-                    arr[map[k].cell.id] = map[k];
-                }
-            }
-            getWindowChangeVale();
-            var svg_element = document.getElementsByClassName('geDiagramBackdrop geDiagramContainer')[0].getElementsByTagName("svg")[0];
-            console.log("arr-------", arr)
-            console.log("nodeArr---", nodeArr)
-            nodeArr.forEach(item => {
-                var currentNode = arr[item.pageId];
-                if (currentNode) {
-                    var image_x = currentNode.cell.geometry.x + currentNode.cell.geometry.width;
-                    var image_y = currentNode.cell.geometry.y;
-
-                    var img_element_init = document.createElementNS("http://www.w3.org/2000/svg", "image");
-                    img_element_init.setAttribute("x", image_x);
-                    img_element_init.setAttribute("y", image_y);
-                    img_element_init.setAttribute("width", 30);
-                    img_element_init.setAttribute("height", 30);
-                    img_element_init.setAttribute("transform", "translate(" + windowChangeCooVal.x + "," + windowChangeCooVal.y + ")");
-                    img_element_init.setAttribute("PiFlow_IMG", "IMG");
-                    img_element_init.href.baseVal = "/piflow-web/img/Loading.gif";
-                    img_element_init.setAttribute("id", "stopLoadingShow" + item.pageId);
-
-                    var img_element_ok = document.createElementNS("http://www.w3.org/2000/svg", "image");
-                    img_element_ok.setAttribute("x", image_x);
-                    img_element_ok.setAttribute("y", image_y);
-                    img_element_ok.setAttribute("width", 30);
-                    img_element_ok.setAttribute("height", 30);
-                    img_element_init.setAttribute("transform", "translate(" + windowChangeCooVal.x + "," + windowChangeCooVal.y + ")");
-                    img_element_ok.setAttribute("PiFlow_IMG", "IMG");
-                    img_element_ok.href.baseVal = "/piflow-web/img/Ok.png";
-                    img_element_ok.setAttribute("id", "stopOkShow" + item.pageId);
-                    img_element_ok.style.display = "none";
-
-                    var img_element_fail = document.createElementNS("http://www.w3.org/2000/svg", "image");
-                    img_element_fail.setAttribute("x", image_x);
-                    img_element_fail.setAttribute("y", image_y);
-                    img_element_fail.setAttribute("width", 30);
-                    img_element_fail.setAttribute("height", 30);
-                    img_element_init.setAttribute("transform", "translate(" + windowChangeCooVal.x + "," + windowChangeCooVal.y + ")");
-                    img_element_fail.setAttribute("PiFlow_IMG", "IMG");
-                    img_element_fail.href.baseVal = "/piflow-web/img/Fail.png";
-                    img_element_fail.setAttribute("id", "stopFailShow" + item.pageId);
-                    img_element_fail.style.display = "none";
-
-                    if (svg_element && img_element_init && img_element_ok && img_element_fail) {
-                        var g_element = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                        g_element.appendChild(img_element_init);
-                        g_element.appendChild(img_element_ok);
-                        g_element.appendChild(img_element_fail);
-                        svg_element.append(g_element);
+        if (Format.customizeType == "PROCESS") {
+            setTimeout(() => {
+                var arr = {};
+                var map = graphGlobal.view.states.map
+                for (var k in map) {
+                    if (map[k].cell.style && map[k].cell.style.indexOf("image\;") === 0) {
+                        arr[map[k].cell.id] = map[k];
                     }
                 }
-            });
+                getWindowChangeVale();
+                var svg_element = document.getElementsByClassName('geDiagramBackdrop geDiagramContainer')[0].getElementsByTagName("svg")[0];
+                console.log("arr-------", arr)
+                console.log("nodeArr---", nodeArr)
+                nodeArr.forEach(item => {
+                    var currentNode = arr[item.pageId];
+                    if (currentNode) {
+                        var image_x = currentNode.cell.geometry.x + currentNode.cell.geometry.width;
+                        var image_y = currentNode.cell.geometry.y;
 
-            // console.log($("image[x=" + arr[i].cell.origin.x +"]").prevObject[0],"bbbbbbbaaaaaaaaaaaaaaaaaaaaabb")
-            // $("image[x=" + arr[i].cell.origin.x +",y="+arr[i].cell.origin.y+"]")
+                        var img_element_init = document.createElementNS("http://www.w3.org/2000/svg", "image");
+                        img_element_init.setAttribute("x", image_x);
+                        img_element_init.setAttribute("y", image_y);
+                        img_element_init.setAttribute("width", 30);
+                        img_element_init.setAttribute("height", 30);
+                        img_element_init.setAttribute("transform", "translate(" + windowChangeCooVal.x + "," + windowChangeCooVal.y + ")");
+                        img_element_init.setAttribute("PiFlow_IMG", "IMG");
+                        img_element_init.href.baseVal = "/piflow-web/img/Loading.gif";
+                        img_element_init.setAttribute("id", "stopLoadingShow" + item.pageId);
 
-            // $("image[x=440]").append(div)
+                        var img_element_ok = document.createElementNS("http://www.w3.org/2000/svg", "image");
+                        img_element_ok.setAttribute("x", image_x);
+                        img_element_ok.setAttribute("y", image_y);
+                        img_element_ok.setAttribute("width", 30);
+                        img_element_ok.setAttribute("height", 30);
+                        img_element_init.setAttribute("transform", "translate(" + windowChangeCooVal.x + "," + windowChangeCooVal.y + ")");
+                        img_element_ok.setAttribute("PiFlow_IMG", "IMG");
+                        img_element_ok.href.baseVal = "/piflow-web/img/Ok.png";
+                        img_element_ok.setAttribute("id", "stopOkShow" + item.pageId);
+                        img_element_ok.style.display = "none";
+
+                        var img_element_fail = document.createElementNS("http://www.w3.org/2000/svg", "image");
+                        img_element_fail.setAttribute("x", image_x);
+                        img_element_fail.setAttribute("y", image_y);
+                        img_element_fail.setAttribute("width", 30);
+                        img_element_fail.setAttribute("height", 30);
+                        img_element_init.setAttribute("transform", "translate(" + windowChangeCooVal.x + "," + windowChangeCooVal.y + ")");
+                        img_element_fail.setAttribute("PiFlow_IMG", "IMG");
+                        img_element_fail.href.baseVal = "/piflow-web/img/Fail.png";
+                        img_element_fail.setAttribute("id", "stopFailShow" + item.pageId);
+                        img_element_fail.style.display = "none";
+
+                        if (svg_element && img_element_init && img_element_ok && img_element_fail) {
+                            var g_element = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                            g_element.appendChild(img_element_init);
+                            g_element.appendChild(img_element_ok);
+                            g_element.appendChild(img_element_fail);
+                            svg_element.append(g_element);
+                        }
+                    }
+                });
+
+                // console.log($("image[x=" + arr[i].cell.origin.x +"]").prevObject[0],"bbbbbbbaaaaaaaaaaaaaaaaaaaaabb")
+                // $("image[x=" + arr[i].cell.origin.x +",y="+arr[i].cell.origin.y+"]")
+
+                // $("image[x=440]").append(div)
 
 
-        }, 300)
-
+            }, 300)
+        }
         this.actions.get('export').setEnabled(false);
         /*
         // Updates action states which require a backend
@@ -220,7 +242,6 @@ function initGraph() {
         if (processType === "GROUP") {
             graphGlobal.addListener(mxEvent.DOUBLE_CLICK, function (sender, evt) {
                 OpenTheMonitorArtboard(evt);
-                console.log('22222222222222222222222222222')
             });
         }
         if (xmlDate) {
@@ -294,6 +315,7 @@ function openProcessMonitor(evt) {
 //Double-click monitoring time
 function OpenTheMonitorArtboard(evt) {
     var cellfor = evt.properties.cell;
+    var processGroupId = getQueryString("load")
     if (cellfor.style && (cellfor.style).indexOf("text\;") === 0) {
     } else {
         $.ajax({
@@ -301,8 +323,8 @@ function OpenTheMonitorArtboard(evt) {
             type: "POST",//Request type post
             url: "/piflow-web/processGroup/getProcessIdByPageId",//This is the name of the file where I receive data in the background.
             data: {
-                processGroupId: 'ff80818171ba521e0171ba5307d10000',
-                pageId: '3'
+                processGroupId: processGroupId,
+                pageId: cellfor.id
             },
             async: true,//Setting it to true indicates that other code can still be executed after the request has started. If this option is set to false, it means that all requests are no longer asynchronous, which also causes the browser to be locked.
             error: function (request) {//Operation after request failure
@@ -591,7 +613,8 @@ function queryPathInfo(id) {
             return;
         },
         success: function (data) {
-            var dataMap = JSON.parse(data);
+            // var dataMap = JSON.parse(data);
+            var dataMap = data;
             if (200 === dataMap.code) {
                 var queryInfo = dataMap.queryInfo;
                 if ("" != queryInfo) {
@@ -1080,9 +1103,9 @@ function saveXml(paths, operType) {
         },
         success: function (data) {//After the request is successful
             var dataMap = JSON.parse(data);
+            console.log(dataMap,"dataMapdataMap")
             if (200 === dataMap.code) {
                 console.log(operType + " save success");
-
                 if (statusgroup == "group" && operType == "ADD") {
                     $("#buttonGroup").attr("onclick", "");
                     $("#buttonGroup").attr("onclick", "saveOrUpdateFlowGroup()");
@@ -2570,12 +2593,13 @@ function ClickSlider() {
     $(".triggerSlider").click(function () {
         var flag = ($(".triggerSlider i:first").hasClass("fa fa-angle-right fa-2x"));
         if (flag === false)
-            $(".triggerSlider i").removeClass("fa fa-angle-left fa-2x").toggleClass("fa fa-angle-right fa-2x");
+            $(".triggerSlider i").removeClass("fa fa-angle-left fa-2x ").toggleClass("fa fa-angle-right fa-2x");
         else
             $(".triggerSlider i").removeClass("fa fa-angle-right fa-2x").toggleClass("fa fa-angle-left fa-2x");
 
         $(".rightproup").toggleClass("openright");
         $(".ExpandSidebar").toggleClass("ExpandSidebar-open");
         $(this).toggleClass("triggerSlider-open");
+        index=!index
     });
 }

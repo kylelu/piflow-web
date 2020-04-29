@@ -368,6 +368,7 @@
     var processState = [[${processState}]];
     var stdoutLog = [[${stdoutLog}]];
     var stderrLog = [[${stderrLog}]];
+    console.log(processType,"processTypeprocessTypeprocessTypeprocessTypeprocessTypeprocessTypeprocessType")
     if(processType=="GROUP"){
         (function () {
             // console.log(processType,"processStateprocessState")
@@ -426,9 +427,10 @@
         });
         //@ sourceURL=processContent.js
     }else{
+        $('#processflow')[0].style.display="block"
+        $('#processgroup')[0].style.display="none"
         (function () {
-            $('#processflow')[0].style.display="block"
-            $('#processgroup')[0].style.display="none"
+
             if (processContent) {
                 if (xmlDate) {
                     processContent.append(xmlDate);
