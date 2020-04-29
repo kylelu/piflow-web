@@ -92,19 +92,35 @@ function getrightinfo(cell) {
         })
         //    path
     } else {
-        $.ajax({
-            cache: true,
-            type: "POST",
-            url: "/piflow-web/processGroup/queryProcessGroupPath",
-            data: data,
-            async: true,
-            error: function (request) {
-                return;
-            },
-            success: function (data) {
-                $("#rightproup")[0].innerHTML = data
-            }
-        })
+        if(processType=="GROUP"){
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url: "/piflow-web/processGroup/queryProcessGroupPath",
+                data: data,
+                async: true,
+                error: function (request) {
+                    return;
+                },
+                success: function (data) {
+                    $("#rightproup")[0].innerHTML = data
+                }
+            })
+        }else if(processType=="TASK") {
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url: "/piflow-web/process/queryProcessPath",
+                data: data,
+                async: true,
+                error: function (request) {
+                    return;
+                },
+                success: function (data) {
+                    $("#rightproup")[0].innerHTML = data
+                }
+            })
+        }
     }
 
 }
