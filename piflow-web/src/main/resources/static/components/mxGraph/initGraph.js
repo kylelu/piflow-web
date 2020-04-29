@@ -159,8 +159,6 @@ function initGraph() {
                 }
                 getWindowChangeVale();
                 var svg_element = document.getElementsByClassName('geDiagramBackdrop geDiagramContainer')[0].getElementsByTagName("svg")[0];
-                console.log("arr-------", arr)
-                console.log("nodeArr---", nodeArr)
                 nodeArr.forEach(item => {
                     var currentNode = arr[item.pageId];
                     if (currentNode) {
@@ -186,7 +184,6 @@ function initGraph() {
                         img_element_ok.setAttribute("PiFlow_IMG", "IMG");
                         img_element_ok.href.baseVal = "/piflow-web/img/Ok.png";
                         img_element_ok.setAttribute("id", "stopOkShow" + item.pageId);
-                        img_element_ok.style.display = "none";
 
                         var img_element_fail = document.createElementNS("http://www.w3.org/2000/svg", "image");
                         img_element_fail.setAttribute("x", image_x);
@@ -197,7 +194,25 @@ function initGraph() {
                         img_element_fail.setAttribute("PiFlow_IMG", "IMG");
                         img_element_fail.href.baseVal = "/piflow-web/img/Fail.png";
                         img_element_fail.setAttribute("id", "stopFailShow" + item.pageId);
-                        img_element_fail.style.display = "none";
+                        console.log("==================================");
+                        if (item.state) {
+                            if (item.state !== "INIT") {
+                                //stopImgChange.attr('opacity', 1);
+                                if (item.state && (item.state === "STARTED")) {
+                                    img_element_init.style.display = "block";
+                                    img_element_fail.style.display = "none";
+                                    img_element_ok.style.display = "none";
+                                } else if (item.state && item.state === "COMPLETED") {
+                                    img_element_init.style.display = "none";
+                                    img_element_fail.style.display = "none";
+                                    img_element_ok.style.display = "block";
+                                } else if (item.state && item.state === "FAILED") {
+                                    img_element_init.style.display = "none";
+                                    img_element_fail.style.display = "block";
+                                    img_element_ok.style.display = "none";
+                                }
+                            }
+                        }
 
                         if (svg_element && img_element_init && img_element_ok && img_element_fail) {
                             var g_element = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -2595,7 +2610,6 @@ function getWindowChangeVale() {
         windowChangeCooVal.x = svgBackgroundObj.offsetLeft;
         windowChangeCooVal.y = svgBackgroundObj.offsetTop;
     }
-    console.log("==========================");
 }
 
 window.onresize = function (e) {

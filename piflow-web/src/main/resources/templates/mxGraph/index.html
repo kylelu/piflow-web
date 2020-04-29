@@ -130,6 +130,11 @@
     <div th:switch="${drawingBoardType?.value}">
         <div th:case="'TASK'" th:include="mxGraph/inc/graphEditor_crumbs_task :: graphEditor_crumbs_task"></div>
         <div th:case="'GROUP'" th:include="mxGraph/inc/graphEditor_crumbs_group :: graphEditor_crumbs_group"></div>
+        <div th:case="'PROCESS'">
+            <div th:switch="${processType}">
+                <div th:case="'TASK'" th:include="mxGraph/inc/proccess_crumbs_task :: proccess_crumbs_task"></div>
+                <div th:case="'GROUP'" th:include="mxGraph/inc/proccess_crumbs_group :: proccess_crumbs_group"></div>
+        </div>
     </div>
 </div>
 
