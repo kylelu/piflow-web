@@ -1,16 +1,13 @@
 package com.nature.component.template.service.impl;
 
 import com.nature.base.util.*;
-import com.nature.base.vo.UserVo;
 import com.nature.common.Eunm.TemplateType;
 import com.nature.common.constant.SysParamsCache;
 import com.nature.component.flow.model.*;
 import com.nature.component.mxGraph.model.MxCell;
-import com.nature.component.mxGraph.model.MxGeometry;
 import com.nature.component.mxGraph.model.MxGraphModel;
 import com.nature.component.mxGraph.utils.MxCellUtils;
 import com.nature.component.mxGraph.utils.MxGraphModelUtils;
-import com.nature.component.mxGraph.vo.MxGraphModelVo;
 import com.nature.component.template.model.FlowTemplate;
 import com.nature.component.template.service.IFlowTemplateService;
 import com.nature.component.template.utils.FlowTemplateUtils;
@@ -18,11 +15,7 @@ import com.nature.component.template.vo.FlowTemplateVo;
 import com.nature.domain.flow.FlowDomain;
 import com.nature.domain.flow.FlowGroupDomain;
 import com.nature.domain.flow.StopsDomain;
-import com.nature.domain.mxGraph.MxCellDomain;
-import com.nature.domain.mxGraph.MxGeometryDomain;
-import com.nature.domain.mxGraph.MxGraphModelDomain;
 import com.nature.domain.template.FlowTemplateDomain;
-import com.nature.mapper.flow.FlowMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
@@ -33,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -421,7 +413,6 @@ public class FlowTemplateServiceImpl implements IFlowTemplateService {
                 // Update basic information
                 mxGraphModel = MxGraphModelUtils.updateMxGraphModelBasicInformation(mxGraphModel, currentUsername);
             }
-            mxGraphModel.setFlow(flowById);
             // link flow
             mxGraphModel.setFlow(flowById);
 

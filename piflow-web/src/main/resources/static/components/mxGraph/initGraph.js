@@ -2589,13 +2589,13 @@ function getFlowList() {
 }
 
 function getWindowChangeVale() {
-    console.log("==========================");
     var svgDivElementArr = document.getElementsByClassName('geDiagramBackdrop geDiagramContainer');
     if (svgDivElementArr && svgDivElementArr[0].children.length == 2) {
         var svgBackgroundObj = svgDivElementArr[0].children[0];
         windowChangeCooVal.x = svgBackgroundObj.offsetLeft;
         windowChangeCooVal.y = svgBackgroundObj.offsetTop;
     }
+    console.log("==========================");
 }
 
 window.onresize = function (e) {

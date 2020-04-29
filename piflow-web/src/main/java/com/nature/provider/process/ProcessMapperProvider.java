@@ -432,7 +432,7 @@ public class ProcessMapperProvider {
      */
     public String getRunningProcess() {
         StringBuffer sqlStrBuf = new StringBuffer();
-        sqlStrBuf.append("select app_id form flow_process ");
+        sqlStrBuf.append("select app_id from flow_process ");
         sqlStrBuf.append("where ");
         sqlStrBuf.append("enable_flag=1 ");
         sqlStrBuf.append("and ");
