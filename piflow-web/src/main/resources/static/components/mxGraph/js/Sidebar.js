@@ -160,11 +160,11 @@ Sidebar.prototype.init = function()
 						var component_i_group_j = component_i_group[j];
 						if (component_i_group_j && '' !== component_i_group_j) {
 							if (!component_i_group_j.img_name) {
-								component_i_group_j.img_name = "_128x128.png";
+								component_i_group_j.img_name = "_128x128";
 							}
 							component_name_arrays.push(component_i_group_j.name);
 							component_desc_arrays.push(component_i_group_j.description);
-							component_img_arrays.push(component_i_group_j.name + component_i_group_j.img_name);
+							component_img_arrays.push(component_i_group_j.img_name + component_i_group_j.img_type);
 						}
 					}
 				}

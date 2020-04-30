@@ -349,22 +349,24 @@ public class MxGraphModelUtils {
                 if (null == mxCellVo) {
                     continue;
                 }
+                //image;html=1;labelBackgroundColor=#ffffff00;image=/piflow-web/img/group.png
                 String mxCellVoStyle = mxCellVo.getStyle();
-                String[] mxCellVoStyle_arrays = mxCellVoStyle.split("/");
-                if (mxCellVoStyle_arrays.length <= 0) {
+                // Judge whether it is empty
+                if (StringUtils.isBlank(mxCellVoStyle)) {
                     continue;
                 }
-                String imageName = mxCellVoStyle_arrays[mxCellVoStyle_arrays.length - 1];
-                String typeName = imageName.split("_")[0];
-                if ("flow".equals(typeName)) {
-                    Flow flowNew = mxCellVoToFlow(mxCellVo, flowGroup, username);
-                    if (null != flowNew) {
-                        flowList.add(flowNew);
-                    }
-                } else if ("group".equals(typeName)) {
+                if (mxCellVoStyle.indexOf("image;") != 0) {
+                    continue;
+                }
+                if (mxCellVoStyle.length() - "/group.png".length() == mxCellVoStyle.indexOf("/group.png")) {
                     FlowGroup flowGroupNew = mxCellVoToGroup(mxCellVo, flowGroup, username);
                     if (null != flowGroupNew) {
                         flowGroupList.add(flowGroupNew);
+                    }
+                } else if (mxCellVoStyle.length() - "/flow.png".length() == mxCellVoStyle.indexOf("/flow.png")) {
+                    Flow flowNew = mxCellVoToFlow(mxCellVo, flowGroup, username);
+                    if (null != flowNew) {
+                        flowList.add(flowNew);
                     }
                 }
             }
