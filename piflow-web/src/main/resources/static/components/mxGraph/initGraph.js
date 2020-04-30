@@ -2641,15 +2641,6 @@ function changIconTranslate(){
 
 window.onresize = function (e) {setTimeout(() => {changIconTranslate()}, 300);}
 
-window.addEventListener('resize', function () {
-    // 变化后需要做的事
-    // getWindowChangeVale();
-    // var imgsArr = document.querySelectorAll("image[PiFlow_IMG='IMG']");
-    // imgsArr.forEach(item => {
-    //     item.setAttribute("transform", "translate(" + windowChangeCooVal.x + "," + windowChangeCooVal.y + ")");
-    // });
-})
-
 function ClickSlider() {
     $(".triggerSlider").click(function () {
         var flag = ($(".triggerSlider i:first").hasClass("fa fa-angle-right fa-2x"));
