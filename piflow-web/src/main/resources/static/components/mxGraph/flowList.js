@@ -64,10 +64,13 @@ function importFlow(flowId) {
         success: function (data) {
             var dataMap = JSON.parse(data);
             if (200 === dataMap.code) {
-                loadXml(dataMap.xmlStr);
-                alert("cheng_gong cheng_gong cheng_gong cheng_gong cheng_gong cheng_gong cheng_gong cheng_gong");
+                layer.msg('Successfully loaded', {icon: 1, shade: 0, time: 2000}, function () {
+                    //loadXml(dataMap.xmlStr);
+                    window.location.reload();
+                });
             } else {
-                alert(dataMap.errorMsg);
+                layer.msg(dataMap.errorMsg, {icon: 2, shade: 0, time: 2000}, function () {
+                });
             }
         }
     });
