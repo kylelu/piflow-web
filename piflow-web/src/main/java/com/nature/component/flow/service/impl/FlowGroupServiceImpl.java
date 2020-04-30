@@ -176,7 +176,14 @@ public class FlowGroupServiceImpl implements IFlowGroupService {
     public String getFlowGroupListPage(Integer offset, Integer limit, String param) {
         Map<String, Object> rtnMap = new HashMap<>();
         if (null != offset && null != limit) {
-            Page<FlowGroup> flowGroupListPage = flowGroupDomain.getFlowGroupListPage(offset - 1, limit, param);
+            Page<FlowGroup> flowGroupListPage;
+            boolean isAdmin = SessionUserUtil.isAdmin();
+            String username = SessionUserUtil.getCurrentUsername();
+            if (isAdmin) {
+                flowGroupListPage = flowGroupDomain.adminGetFlowGroupListPage(offset - 1, limit, param);
+            } else {
+                flowGroupListPage = flowGroupDomain.userGetFlowGroupListPage(offset - 1, limit, param, username);
+            }
             List<FlowGroupVo> contentVo = new ArrayList<>();
             List<FlowGroup> content = flowGroupListPage.getContent();
             if (content.size() > 0) {
