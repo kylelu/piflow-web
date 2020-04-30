@@ -9,16 +9,16 @@ var timerPath;
 var currentStopPageId;
 var drawingBoardType = $("#drawingBoardType").val();
 var statusgroup, flowPageIdcha, flowGroupdata, cellprecess, flowdatas, removegroupPaths
-var windowChangeCooVal = {x: 1000, y: 200};
 getrightinfo()
-var index=true
+var index = true
+
 function getrightinfo(cell) {
     var processGroupId = getQueryString("load")
     var pageId, value, data
-    if(index){
+    if (index) {
         $(".rightproup").toggleClass("openright");
         $(".ExpandSidebar").toggleClass("ExpandSidebar-open");
-        index=false
+        index = false
     }
     if (cell == undefined) {
         data = {processGroupId}
@@ -28,8 +28,8 @@ function getrightinfo(cell) {
         data = {pageId, processGroupId}
     }
     //group
-    if (cell && cell.style && (cell.style).indexOf("image\;") === 0 && processType=="GROUP") {
-          $.ajax({
+    if (cell && cell.style && (cell.style).indexOf("image\;") === 0 && processType == "GROUP") {
+        $.ajax({
             cache: true,
             type: "POST",
             url: "/piflow-web/processGroup/queryProcess",
@@ -44,7 +44,7 @@ function getrightinfo(cell) {
         })
         //info
     } else if (cell == undefined) {
-        if(processType == "GROUP"){
+        if (processType == "GROUP") {
             $.ajax({
                 cache: true,
                 type: "POST",
@@ -58,12 +58,12 @@ function getrightinfo(cell) {
                     $("#rightproup")[0].innerHTML = data
                 }
             })
-        }else if(processType == "TASK") {
+        } else if (processType == "TASK") {
             $.ajax({
                 cache: true,
                 type: "POST",
                 url: "/piflow-web/process/queryProcess",
-                data: {processId:processGroupId},
+                data: {processId: processGroupId},
                 async: true,
                 error: function (request) {
                     return;
@@ -81,7 +81,7 @@ function getrightinfo(cell) {
             cache: true,
             type: "POST",
             url: "/piflow-web/process/queryProcessStop",
-            data: {processId:processGroupId,pageId:cell.id},
+            data: {processId: processGroupId, pageId: cell.id},
             async: true,
             error: function (request) {
                 return;
@@ -92,12 +92,12 @@ function getrightinfo(cell) {
         })
         //    path
     } else {
-        if(processType=="GROUP"){
+        if (processType == "GROUP") {
             $.ajax({
                 cache: true,
                 type: "POST",
                 url: "/piflow-web/processGroup/queryProcessGroupPath",
-                data:{processGroupId,pageId:cell.id},
+                data: {processGroupId, pageId: cell.id},
                 async: true,
                 error: function (request) {
                     return;
@@ -106,12 +106,12 @@ function getrightinfo(cell) {
                     $("#rightproup")[0].innerHTML = data
                 }
             })
-        }else if(processType=="TASK") {
+        } else if (processType == "TASK") {
             $.ajax({
                 cache: true,
                 type: "POST",
                 url: "/piflow-web/process/queryProcessPath",
-                data: {processId:processGroupId,pageId:cell.id},
+                data: {processId: processGroupId, pageId: cell.id},
                 async: true,
                 error: function (request) {
                     return;
@@ -157,7 +157,6 @@ function initGraph() {
                         arr[map[k].cell.id] = map[k];
                     }
                 }
-                getWindowChangeVale();
                 var svg_element = document.getElementsByClassName('geDiagramBackdrop geDiagramContainer')[0].getElementsByTagName("svg")[0];
                 nodeArr.forEach(item => {
                     var currentNode = arr[item.pageId];
@@ -168,9 +167,8 @@ function initGraph() {
                         var img_element_init = document.createElementNS("http://www.w3.org/2000/svg", "image");
                         img_element_init.setAttribute("x", image_x);
                         img_element_init.setAttribute("y", image_y);
-                        img_element_init.setAttribute("width", 30);
-                        img_element_init.setAttribute("height", 30);
-                        img_element_init.setAttribute("transform", "translate(" + windowChangeCooVal.x + "," + windowChangeCooVal.y + ")");
+                        img_element_init.setAttribute("width", 20);
+                        img_element_init.setAttribute("height", 20);
                         img_element_init.setAttribute("PiFlow_IMG", "IMG");
                         img_element_init.href.baseVal = "/piflow-web/img/Loading.gif";
                         img_element_init.setAttribute("id", "stopLoadingShow" + item.pageId);
@@ -178,9 +176,8 @@ function initGraph() {
                         var img_element_ok = document.createElementNS("http://www.w3.org/2000/svg", "image");
                         img_element_ok.setAttribute("x", image_x);
                         img_element_ok.setAttribute("y", image_y);
-                        img_element_ok.setAttribute("width", 30);
-                        img_element_ok.setAttribute("height", 30);
-                        img_element_init.setAttribute("transform", "translate(" + windowChangeCooVal.x + "," + windowChangeCooVal.y + ")");
+                        img_element_ok.setAttribute("width", 20);
+                        img_element_ok.setAttribute("height", 20);
                         img_element_ok.setAttribute("PiFlow_IMG", "IMG");
                         img_element_ok.href.baseVal = "/piflow-web/img/Ok.png";
                         img_element_ok.setAttribute("id", "stopOkShow" + item.pageId);
@@ -188,9 +185,8 @@ function initGraph() {
                         var img_element_fail = document.createElementNS("http://www.w3.org/2000/svg", "image");
                         img_element_fail.setAttribute("x", image_x);
                         img_element_fail.setAttribute("y", image_y);
-                        img_element_fail.setAttribute("width", 30);
-                        img_element_fail.setAttribute("height", 30);
-                        img_element_init.setAttribute("transform", "translate(" + windowChangeCooVal.x + "," + windowChangeCooVal.y + ")");
+                        img_element_fail.setAttribute("width", 20);
+                        img_element_fail.setAttribute("height", 20);
                         img_element_fail.setAttribute("PiFlow_IMG", "IMG");
                         img_element_fail.href.baseVal = "/piflow-web/img/Fail.png";
                         img_element_fail.setAttribute("id", "stopFailShow" + item.pageId);
@@ -221,6 +217,7 @@ function initGraph() {
                             g_element.appendChild(img_element_fail);
                             svg_element.append(g_element);
                         }
+                        changIconTranslate();
                     }
                 });
 
@@ -519,7 +516,7 @@ function queryFlowOrFlowGroupProperty(flowPageId) {
                 // console.log(flowGroupVoNodeData,"flowGroupVoNodeData")
                 if ("" != flowVoNodeData && "flow" === dataMap.nodeType) {
                     flowdatas = dataMap.flowVo
-                    flowGroupdata=""
+                    flowGroupdata = ""
                     var dataId = (null != flowVoNodeData.id ? flowVoNodeData.id : "");
                     var dataName = (null != flowVoNodeData.name ? flowVoNodeData.name : "");
                     var dataPageId = (null != flowVoNodeData.pageId ? flowVoNodeData.pageId : "");
@@ -1262,7 +1259,7 @@ function saveOrUpdateFlowGroup() {
         // layer.closeAll()
         // layer.msg('flowName Can not be empty', {icon: 2, shade: 0, time: 2000});
         alert("flowName Can not be empty")
-    }else{
+    } else {
         if (flowGroupdata == undefined) {
             layer.closeAll()
             layer.msg("Network Anomaly", {icon: 5})
@@ -1337,43 +1334,42 @@ function saveOrUpdateFlowGroup() {
         }
     }
 
-        // if (checkGroupInput(flowGroupName)){
-        //     $.ajax({
-        //         cache: true,//Keep cached data
-        //         type: "get",//Request type post
-        //         url: "/piflow-web/flowGroup/saveOrUpdateFlowGroup",//This is the name of the file where I receive data in the background.
-        //         data: {
-        //             id: id,
-        //             name: flowGroupName,
-        //             description: description
-        //         },
-        //         console.log()
-        //
-        //         // async: false,//Setting it to true indicates that other code can still be executed after the request has started. If this option is set to false, it means that all requests are no longer asynchronous, which also causes the browser to be locked.
-        //         // error: function (request) {//Operation after request failure
-        //         //     layer.closeAll('page');
-        //         //     layer.msg('creation failed ', {icon: 2, shade: 0, time: 2000}, function () {
-        //         //     });
-        //         //     return;
-        //         // },
-        //         // success: function (data) {//Operation after request successful
-        //         //     layer.closeAll('page');
-        //         //     var dataMap = JSON.parse(data);
-        //         //     if (200 === dataMap.code) {
-        //         //         layer.msg('success ', {icon: 1, shade: 0, time: 2000}, function () {
-        //         //             var windowOpen = window.open("/piflow-web/mxGraph/drawingBoard?drawingBoardType=GROUP&load=" + dataMap.flowGroupId);
-        //         //             if (windowOpen == null || typeof(windowOpen)=='undefined'){
-        //         //                 alert('The window cannot be opened. Please check your browser settings.')
-        //         //             }
-        //         //         });
-        //         //     } else {
-        //         //         layer.msg('failed', {icon: 2, shade: 0, time: 2000}, function () {
-        //         //         });
-        //         //     }
-        //         // }
-        //     });
-        // }
-
+    // if (checkGroupInput(flowGroupName)){
+    //     $.ajax({
+    //         cache: true,//Keep cached data
+    //         type: "get",//Request type post
+    //         url: "/piflow-web/flowGroup/saveOrUpdateFlowGroup",//This is the name of the file where I receive data in the background.
+    //         data: {
+    //             id: id,
+    //             name: flowGroupName,
+    //             description: description
+    //         },
+    //         console.log()
+    //
+    //         // async: false,//Setting it to true indicates that other code can still be executed after the request has started. If this option is set to false, it means that all requests are no longer asynchronous, which also causes the browser to be locked.
+    //         // error: function (request) {//Operation after request failure
+    //         //     layer.closeAll('page');
+    //         //     layer.msg('creation failed ', {icon: 2, shade: 0, time: 2000}, function () {
+    //         //     });
+    //         //     return;
+    //         // },
+    //         // success: function (data) {//Operation after request successful
+    //         //     layer.closeAll('page');
+    //         //     var dataMap = JSON.parse(data);
+    //         //     if (200 === dataMap.code) {
+    //         //         layer.msg('success ', {icon: 1, shade: 0, time: 2000}, function () {
+    //         //             var windowOpen = window.open("/piflow-web/mxGraph/drawingBoard?drawingBoardType=GROUP&load=" + dataMap.flowGroupId);
+    //         //             if (windowOpen == null || typeof(windowOpen)=='undefined'){
+    //         //                 alert('The window cannot be opened. Please check your browser settings.')
+    //         //             }
+    //         //         });
+    //         //     } else {
+    //         //         layer.msg('failed', {icon: 2, shade: 0, time: 2000}, function () {
+    //         //         });
+    //         //     }
+    //         // }
+    //     });
+    // }
 
 
 }
@@ -1388,11 +1384,11 @@ function saveFlow() {
     var executorNumber = $("#executorNumber").val();
     var executorMemory = $("#executorMemory").val();
     var executorCores = $("#executorCores").val();
-    if (!checkFlowInput(flowName, description, driverMemory, executorNumber, executorMemory, executorCores)){
+    if (!checkFlowInput(flowName, description, driverMemory, executorNumber, executorMemory, executorCores)) {
         // layer.closeAll()
         // layer.msg('flowName Can not be empty', {icon: 2, shade: 0, time: 2000});
         alert("flowName Can not be empty")
-    }else{
+    } else {
         if (flowdatas == undefined) {
             layer.closeAll()
             layer.msg("Network Anomaly", {icon: 5})
@@ -2631,24 +2627,21 @@ function getFlowList() {
     });
 }
 
-function getWindowChangeVale() {
+function changIconTranslate(){
     var svgDivElementArr = document.getElementsByClassName('geDiagramBackdrop geDiagramContainer');
     if (svgDivElementArr && svgDivElementArr[0].children.length == 2) {
         var svgBackgroundObj = svgDivElementArr[0].children[0];
-        windowChangeCooVal.x = svgBackgroundObj.offsetLeft;
-        windowChangeCooVal.y = svgBackgroundObj.offsetTop;
+        var imgsArr = document.querySelectorAll("image[PiFlow_IMG='IMG']");
+        imgsArr.forEach(item => {
+            console.log(svgBackgroundObj.offsetLeft, svgBackgroundObj.offsetTop)
+            item.setAttribute("transform", "translate(" + svgBackgroundObj.offsetLeft + "," + svgBackgroundObj.offsetTop + ")");
+        });
     }
 }
 
-window.onresize = function (e) {
-    getWindowChangeVale();
-    var imgsArr = document.querySelectorAll("image[PiFlow_IMG='IMG']");
-    imgsArr.forEach(item => {
-        // console.log(windowChangeCooVal.x,windowChangeCooVal.y)
-        item.setAttribute("transform", "translate(" + windowChangeCooVal.x + "," + windowChangeCooVal.y + ")");
-    });
-}
-window.addEventListener('resize', function() {
+window.onresize = function (e) {setTimeout(() => {changIconTranslate()}, 300);}
+
+window.addEventListener('resize', function () {
     // 变化后需要做的事
     // getWindowChangeVale();
     // var imgsArr = document.querySelectorAll("image[PiFlow_IMG='IMG']");
@@ -2656,6 +2649,7 @@ window.addEventListener('resize', function() {
     //     item.setAttribute("transform", "translate(" + windowChangeCooVal.x + "," + windowChangeCooVal.y + ")");
     // });
 })
+
 function ClickSlider() {
     $(".triggerSlider").click(function () {
         var flag = ($(".triggerSlider i:first").hasClass("fa fa-angle-right fa-2x"));
@@ -2667,6 +2661,6 @@ function ClickSlider() {
         $(".rightproup").toggleClass("openright");
         $(".ExpandSidebar").toggleClass("ExpandSidebar-open");
         $(this).toggleClass("triggerSlider-open");
-        index=!index
+        index = !index
     });
 }

@@ -63,15 +63,29 @@ public class MxNodeImageDomain {
         return mxNodeImage;
     }
 
-    public List<MxNodeImage> getMxNodeImageList() {
+    public List<MxNodeImage> userGetMxNodeImageList(String username) {
         Specification<MxNodeImage> where = Specification.where(addEnableFlagParam());
-        boolean admin = SessionUserUtil.isAdmin();
-        if (!admin) {
-            String currentUsername = SessionUserUtil.getCurrentUsername();
-            where.and(addParam("crtUser", currentUsername));
-        }
+        where.and(addParam("crtUser", username));
         return mxNodeImageJpaRepository.findAll(where, Sort.by(Sort.Direction.DESC, "lastUpdateDttm"));
 
+    }
+
+    public List<MxNodeImage> adminGetMxNodeImageList() {
+        Specification<MxNodeImage> where = Specification.where(addEnableFlagParam());
+        return mxNodeImageJpaRepository.findAll(where, Sort.by(Sort.Direction.DESC, "lastUpdateDttm"));
+
+    }
+
+    public List<MxNodeImage> userGetMxNodeImageListByImageType(String username,String imageType) {
+        Specification<MxNodeImage> where = Specification.where(addEnableFlagParam());
+        where.and(addParam("crtUser", username)).and(addParam("imageType", imageType));
+        return mxNodeImageJpaRepository.findAll(where, Sort.by(Sort.Direction.DESC, "lastUpdateDttm"));
+    }
+
+    public List<MxNodeImage> adminGetMxNodeImageListByImageType(String imageType) {
+        Specification<MxNodeImage> where = Specification.where(addEnableFlagParam());
+        where.and(addParam("imageType", imageType));
+        return mxNodeImageJpaRepository.findAll(where, Sort.by(Sort.Direction.DESC, "lastUpdateDttm"));
     }
 
 }

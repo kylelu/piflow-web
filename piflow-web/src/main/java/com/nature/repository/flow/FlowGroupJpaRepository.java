@@ -30,8 +30,8 @@ public interface FlowGroupJpaRepository extends JpaRepository<FlowGroup, String>
      *
      * @return
      */
-    @Query("select c from FlowGroup c where c.enableFlag=true and c.isExample<>true and  c.flowGroup is null and c.crtUser=:userName and (c.name like CONCAT('%',:param,'%') or c.description like CONCAT('%',:param,'%'))")
-    Page<FlowGroup> getFlowGroupListPage(@Param("userName") String userName, @Param("param") String param, Pageable pageable);
+    @Query("select c from FlowGroup c where c.enableFlag=true and c.isExample<>true and c.flowGroup is null and c.crtUser=:userName and (c.name like CONCAT('%',:param,'%') or c.description like CONCAT('%',:param,'%'))")
+    Page<FlowGroup> getFlowGroupListPageByCrtUser(@Param("userName") String userName, @Param("param") String param, Pageable pageable);
 
     @Transactional
     @Modifying

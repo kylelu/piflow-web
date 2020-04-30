@@ -19,7 +19,7 @@ public interface FlowJpaRepository extends JpaRepository<Flow, String>, JpaSpeci
      *
      * @return
      */
-    @Query("select c from Flow c where c.enableFlag=true and c.isExample<>true and (c.name like CONCAT('%',:param,'%') or c.description like CONCAT('%',:param,'%'))")
+    @Query("select c from Flow c where c.enableFlag=true and c.isExample<>true and c.flowGroup is null and (c.name like CONCAT('%',:param,'%') or c.description like CONCAT('%',:param,'%'))")
     Page<Flow> getFlowListPage(@Param("param") String param, Pageable pageable);
 
     /**
@@ -27,7 +27,7 @@ public interface FlowJpaRepository extends JpaRepository<Flow, String>, JpaSpeci
      *
      * @return
      */
-    @Query("select c from Flow c where c.enableFlag=true and c.isExample<>true and c.crtUser=:userName and (c.name like CONCAT('%',:param,'%') or c.description like CONCAT('%',:param,'%'))")
+    @Query("select c from Flow c where c.enableFlag=true and c.isExample<>true and c.flowGroup is null and c.crtUser=:userName and (c.name like CONCAT('%',:param,'%') or c.description like CONCAT('%',:param,'%'))")
     Page<Flow> getFlowListPage(@Param("userName") String userName, @Param("param") String param, Pageable pageable);
 
     @Transactional

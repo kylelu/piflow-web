@@ -326,14 +326,14 @@ public class MxGraphCtrl {
 
     @RequestMapping("/uploadNodeImage")
     @ResponseBody
-    public String uploadNodeImage(@RequestParam("file") MultipartFile file) {
-        return mxNodeImageServiceImpl.uploadNodeImage(file);
+    public String uploadNodeImage(@RequestParam("file") MultipartFile file, String imageType) {
+        return mxNodeImageServiceImpl.uploadNodeImage(file, imageType);
     }
 
     @RequestMapping("/nodeImageList")
     @ResponseBody
-    public String nodeImageList() {
-        return mxNodeImageServiceImpl.getMxNodeImageList();
+    public String nodeImageList(String imageType) {
+        return mxNodeImageServiceImpl.getMxNodeImageList(imageType);
     }
 
     @RequestMapping("/groupRightRun")
