@@ -413,6 +413,7 @@ function processGroupMonitoring(appId) {
                 var processGroupVo = dataMap.processGroupVo;
                 if (processGroupVo && '' != processGroupVo) {
                     $("#progress").html(dataMap.progress + "%");
+                    $("#progress").css({'width':dataMap.progress + "%"});
                     $("#processStartTimeShow").html(processGroupVo.startTime);
                     $("#processStopTimeShow").html(processGroupVo.endTime);
                     $("#processStateShow").html(dataMap.state);

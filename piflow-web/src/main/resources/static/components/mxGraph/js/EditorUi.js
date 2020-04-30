@@ -4,7 +4,13 @@
 /**
  * Constructs a new graph editor
  */
-var groupdragclass,imagsrc=null;
+var groupdragclass,imagsrc=null,ImagesType={};
+function getImagesType(flowGroupdata,type) {
+	if(flowGroupdata!=undefined){
+		flowGroupdata.type=type
+	}
+	ImagesType=flowGroupdata
+}
 EditorUi = function(editor, container, lightbox)
 {
 	groupdragclass=document.getElementById("group-drag-click")
@@ -4112,9 +4118,12 @@ EditorUi.prototype.executeLayout = function(exec, animate, post)
  */
 
 function imageajax(){
+	var data = {ImageType:ImagesType.type};
+	console.log(ImagesType.type,'----------------------------------------------------------------------');
 	$.ajax({
-		type: "get",//Request type post
+		type: "post",//Request type post
 		url: "/piflow-web/mxGraph/nodeImageList",
+		data: data,
 		async: true,//Synchronous Asynchronous
 		error: function (request) {//Operation after request failure
 			return;
@@ -4173,6 +4182,9 @@ EditorUi.prototype.showImageDialog = function(title, value, fn, ignoreExisting)
 		var uploadInst = upload.render({
 			elem: '#uploadimage' //绑定元素
 			,url: '/piflow-web/mxGraph/uploadNodeImage' //上传接口
+			, before: function(obj){
+				this.data={ImageType:ImagesType.type};
+			}
 			,done: function(res){
 				//上传完毕回调
 				console.log("upload success")

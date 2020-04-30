@@ -15,7 +15,7 @@
 }
 
 .geEditor input {
-    border-width: 2px;
+    /*border-width: 2px;*/
 }
 
 .geEditor select {
@@ -1210,8 +1210,8 @@ html div.mxRubberband {
 }
 
 td.mxPopupMenuIcon div {
-    width: 16px;
-    height: 16px;
+    width: 22px;
+    height: 24px;
 }
 
 .geEditor div.mxPopupMenu {
@@ -1401,4 +1401,9 @@ html td.mxWindowTitle {
     border-width: 1px;
     border: 1px solid #cccccc;
 }
-
+#SubmitPageflow .geEditor input {
+     border-width: 1px!important;
+}
+.btn-group + .btn-group {
+     margin-left: 0!important;
+}

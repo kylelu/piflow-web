@@ -54,7 +54,7 @@
                     {
                         name: "flow",
                         img_name: ".png",
-                        description: 'flow component'
+                        description: 'Task component'
                     }
                 ]
             },
@@ -63,7 +63,7 @@
                 dataList: [
                     {
                         name: "text",
-                        img_name: ".png",
+                        img_name: "",
                         description: 'Text'
                     }
                 ]
@@ -120,9 +120,9 @@
 <!--    </div>-->
 <!--</div>-->
 
-<div style="width: 76.2%;float: right">
+<div style="width: 30.2%;float: right">
     <div th:switch="${drawingBoardType?.value}"
-         style="position: fixed;margin-top: 50px;z-index: 999;text-align: right;width: 76%">
+         style="position: fixed;margin-top: 50px;z-index: 999;text-align: right;width: 30%">
         <div th:case="'TASK'" th:include="mxGraph/inc/graphEditor_menus_task :: graphEditor_menus_task"></div>
         <div th:case="'GROUP'" th:include="mxGraph/inc/graphEditor_menus_group :: graphEditor_menus_group"></div>
     </div>
@@ -552,7 +552,7 @@
 
 <div style="display: none;" id="SubmitPage">
     <br>
-    <form class="layui-form" action="">
+    <form class="layui-form" action="" style="position: relative">
         <div class="layui-form-item">
             <label class="layui-form-label">flowGroupName</label>
             <div class="layui-input-block">
@@ -568,7 +568,7 @@
                           style="width: 400px;margin-left: 20px;"></textarea>
             </div>
         </div>
-        <div class="layui-form-item" style="text-align: center;margin-right: 90px;">
+        <div class="layui-form-item" style="text-align: center;position: absolute;right: 36px">
             <button type="button" class="layui-btn layui-btn-primary" onclick="cancelGroup()"
                     style="color: #333333;border-color: #2f7600;" id="buttonGroupcancel">
                 cancel
@@ -594,7 +594,7 @@
 </div>
 
 <div style="display: none;" id="SubmitPageflow">
-    <form class="layui-form" action="">
+    <form class="layui-form" action="" style="position: relative">
         <div class="layui-form-item">
             <label class="layui-form-label">flowName</label>
             <div class="layui-input-block">
@@ -638,7 +638,7 @@
                        value="1">
             </div>
         </div>
-        <div class="layui-form-item" style="text-align: center;margin-right: 90px;">
+        <div class="layui-form-item" style="text-align: center;position: absolute;right: 36px">
             <button type="button" class="layui-btn layui-btn-primary" onclick="cancelFlow()"
                     style="color: #333333;border-color: #2f7600;" id="buttonFlowcancel">
                 cancel

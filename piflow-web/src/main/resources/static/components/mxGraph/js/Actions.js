@@ -13,11 +13,9 @@ function Actions(editorUi)
 	this.init();
 }
 function getNodeId(flowGroupdata,type) {
-	console.log(flowGroupdata,"flowGroupdata")
 	if(flowGroupdata!=undefined){
 		flowGroupdata.type=type
 	}
-
 	rundata=flowGroupdata
 
 	// return  flowGroupdata
@@ -250,9 +248,9 @@ Actions.prototype.init = function()
 	function RunCells(includeEdges) {
 		// console.log(rundata,"typetype")
 		var fullScreen = $('#fullScreen');
-		console.log(fullScreen,"fullScreenfullScreenfullScreenfullScreen")
+		// console.log(fullScreen,"fullScreenfullScreenfullScreenfullScreen")
 		var data = {pId: getQueryString("load"),nodeId:rundata.pageId};
-		console.log(data,"Data")
+		// console.log(data,"Data")
 		fullScreen.show();
 
 		$.ajax({
@@ -261,6 +259,7 @@ Actions.prototype.init = function()
 			data: data,
 			async: true,//Synchronous Asynchronous
 			error: function (request) {//Operation after request failure
+				fullScreen.hide();
 				return;
 			},
 			success: function (data) {//After the request is successful
@@ -288,7 +287,7 @@ Actions.prototype.init = function()
 				}
 			}
 		})
-		console.log('RUN……')
+		// console.log('RUN……')
 	}
 	
 	this.addAction('delete', function(evt)
@@ -303,7 +302,7 @@ Actions.prototype.init = function()
 
 	this.addAction('runAll', function() {
 		runFlowGroup();
-		console.log("Run All")
+		// console.log("Run All")
 	},null, null, '');
 	this.addAction('deleteAll', function()
 	{

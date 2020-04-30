@@ -77,7 +77,6 @@ function getrightinfo(cell) {
 
         //task
     } else if (cell && cell.style && (cell.style).indexOf("image\;") === 0 && processType=="TASK") {
-        console.log("999999999999999")
         $.ajax({
             cache: true,
             type: "POST",
@@ -516,8 +515,8 @@ function queryFlowOrFlowGroupProperty(flowPageId) {
             if (200 === dataMap.code) {
                 var flowVoNodeData = dataMap.flowVo;
                 var flowGroupVoNodeData = dataMap.flowGroupVo;
-                console.log(flowVoNodeData,"flowVoNodeDataflowVoNodeData")
-                console.log(flowGroupVoNodeData,"flowGroupVoNodeData")
+                // console.log(flowVoNodeData,"flowVoNodeDataflowVoNodeData")
+                // console.log(flowGroupVoNodeData,"flowGroupVoNodeData")
                 if ("" != flowVoNodeData && "flow" === dataMap.nodeType) {
                     flowdatas = dataMap.flowVo
                     flowGroupdata=""
@@ -559,7 +558,6 @@ function queryFlowOrFlowGroupProperty(flowPageId) {
                 } else if ("" != flowGroupVoNodeData && "flowGroup" === dataMap.nodeType) {
                     flowGroupdata = dataMap.flowGroupVo
                     flowdatas=""
-                    console.log(flowGroupdata,"flowGroupdataflowGroupdataflowGroupdataflowGroupdataflowGroupdataflowGroupdata")
                     // if(flowGroupdata==undefined){
                     //     queryFlowOrFlowGroupProperty(flowPageId)
                     // }
@@ -615,21 +613,14 @@ function queryFlowOrFlowGroupProperty(flowPageId) {
                 layer.msg("Load fail,Please click again to reload", {icon: 2, shade: 0, time: 2000}, function () {
                 });
             }
-            // var list={}
-            // list.GroupInfo = flowGroupdata
-            // list.TaskInfo = flowdatas
-            // console.log(list,'listlistlist');
-
-            // console.log(flowGroupdata,'GroupGroupGroupGroup');
-            //
-            // console.log(flowdatas,'flowflowflowflowflowflowflow');
-
             if(flowGroupdata==""){
                 getNodeId(flowdatas,"TASK")
-                // console.log("task")
+                getImagesType(flowdatas,"TASK")
+                // console.log("TASK")
             }else{
                 getNodeId(flowGroupdata,"GROUP")
-                // console.log("task")
+                getImagesType(flowGroupdata,"GROUP")
+                // console.log("GROUP")
             }
 
 
@@ -666,8 +657,7 @@ function queryPathInfo(id) {
             return;
         },
         success: function (data) {
-            // var dataMap = JSON.parse(data);
-            var dataMap = data;
+            var dataMap = JSON.parse(data);
             if (200 === dataMap.code) {
                 var queryInfo = dataMap.queryInfo;
                 if ("" != queryInfo) {
@@ -1156,7 +1146,7 @@ function saveXml(paths, operType) {
         },
         success: function (data) {//After the request is successful
             var dataMap = JSON.parse(data);
-            console.log(dataMap,"dataMapdataMap")
+            // console.log(dataMap,"dataMapdataMap")
             if (200 === dataMap.code) {
                 console.log(operType + " save success");
                 if (statusgroup == "group" && operType == "ADD") {
@@ -2654,7 +2644,7 @@ window.onresize = function (e) {
     getWindowChangeVale();
     var imgsArr = document.querySelectorAll("image[PiFlow_IMG='IMG']");
     imgsArr.forEach(item => {
-        console.log(windowChangeCooVal.x,windowChangeCooVal.y)
+        // console.log(windowChangeCooVal.x,windowChangeCooVal.y)
         item.setAttribute("transform", "translate(" + windowChangeCooVal.x + "," + windowChangeCooVal.y + ")");
     });
 }
