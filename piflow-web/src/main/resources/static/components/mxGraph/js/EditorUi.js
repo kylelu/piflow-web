@@ -4119,7 +4119,7 @@ EditorUi.prototype.executeLayout = function(exec, animate, post)
 
 function imageajax(){
 	var data = {ImageType:ImagesType.type};
-	console.log(ImagesType.type,'----------------------------------------------------------------------');
+	// console.log(ImagesType.type,'----------------------------------------------------------------------');
 	$.ajax({
 		type: "post",//Request type post
 		url: "/piflow-web/mxGraph/nodeImageList",
@@ -4213,7 +4213,7 @@ EditorUi.prototype.showImageDialog = function(title, value, fn, ignoreExisting)
 		//YES BUTTON
 		btn1: function(index, layero){
 			console.log("YES button")
-			console.log(imagsrc,"imagsrcimagsrcimagsrcimagsrcimagsrcimagsrc")
+			// console.log(imagsrc,"imagsrcimagsrcimagsrcimagsrcimagsrcimagsrc")
 			var newValue = imagsrc;
 
 			imagsrc=null
@@ -4253,7 +4253,6 @@ EditorUi.prototype.showImageDialog = function(title, value, fn, ignoreExisting)
 		},
 		//close function
 		cancel: function(index, layero){
-			console.log("gggggg")
 			layer.close(index)
 			return false;
 		}
