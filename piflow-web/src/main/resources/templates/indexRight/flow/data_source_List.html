@@ -8,22 +8,31 @@
         <div class="navbar">
             <div class="navbar-inner">
                 <h6 style="color: #1A7444">Data Source</h6>
-            </div>
+                <div class="btn-position" style="float: right;margin-right: 8px">
+                    <a class="btn" href="javascript:void(0);" onclick="dataSourceOpen()"
+                       style="background-color: #C0C0C0;border: 1px solid;color: #21794c;"
+                       title="create datasource">
+                        <i class="icon-plus-sign icon-white"></i>
+                    </a>
+                </div>
+                </div>
         </div>
         <div class="navbar">
-            <a class="btn" href="javascript:void(0);" onclick="dataSourceOpen()"
-               style="background-color: #C0C0C0;border: 1px solid;color: #21794c;"
-               title="create datasource">
-                <i class="icon-plus-sign icon-white"></i>
-            </a>
-        </div>
-        <div class="table-overflow">
+<!--            <a class="btn" href="javascript:void(0);" onclick="dataSourceOpen()"-->
+<!--               style="background-color: #C0C0C0;border: 1px solid;color: #21794c;"-->
+<!--               title="create datasource">-->
+<!--                <i class="icon-plus-sign icon-white"></i>-->
+<!--            </a>-->
             <div class="demoTable">
-                Search:
-                <div class="layui-inline">
-                    <input class="layui-input" name="param" id="search_input_id" autocomplete="off">
+                <div style="float: right;margin-top: 6px">
+                    Search:
+                    <div class="layui-inline">
+                        <input class="layui-input" name="param" id="search_input_id" autocomplete="off">
+                    </div>
                 </div>
             </div>
+        </div>
+        <div class="table-overflow table-float">
             <table class="layui-hide" id="testTableId" lay-filter="user"></table>
         </div>
     </div>

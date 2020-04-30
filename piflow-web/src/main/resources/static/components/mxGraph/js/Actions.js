@@ -4,14 +4,23 @@
  *
  * Constructs the actions object for the given UI.
  */
+var rundata={}
+
 function Actions(editorUi)
 {
 	this.editorUi = editorUi;
 	this.actions = new Object();
 	this.init();
 }
-function getNodeId(flowGroupdata) {
-	return  flowGroupdata
+function getNodeId(flowGroupdata,type) {
+	console.log(flowGroupdata,"flowGroupdata")
+	if(flowGroupdata!=undefined){
+		flowGroupdata.type=type
+	}
+
+	rundata=flowGroupdata
+
+	// return  flowGroupdata
 }
 
 /**
@@ -239,7 +248,13 @@ Actions.prototype.init = function()
 	}
 
 	function RunCells(includeEdges) {
-		var data = {pId: getQueryString("load"),nodeId:flowGroupdata.id};
+		// console.log(rundata,"typetype")
+		var fullScreen = $('#fullScreen');
+		console.log(fullScreen,"fullScreenfullScreenfullScreenfullScreen")
+		var data = {pId: getQueryString("load"),nodeId:rundata.pageId};
+		console.log(data,"Data")
+		fullScreen.show();
+
 		$.ajax({
 			type: "post",//Request type post
 			url: "/piflow-web/mxGraph/groupRightRun",
@@ -249,10 +264,30 @@ Actions.prototype.init = function()
 				return;
 			},
 			success: function (data) {//After the request is successful
-				// console.log(data)
+				fullScreen.hide();
+				var dataMap = JSON.parse(data);
+				if (200 === dataMap.code) {
+					layer.msg(dataMap.errorMsg, {icon: 1, shade: 0, time: 2000}, function () {
+						//Jump to the monitor page after starting successfully
+						var tempWindow = window.open('_blank');
+						if (tempWindow == null || typeof (tempWindow) == 'undefined') {
+							alert('The window cannot be opened. Please check your browser settings.')
+						} else {
+							if(flowGroupdata.type=="GROUP"){
+								tempWindow.location = "/piflow-web/mxGraph/drawingBoard?drawingBoardType=PROCESS&processType=PROCESS_GROUP&load=" + dataMap.processGroupId;
+							}else{
+								tempWindow.location = "/piflow-web/mxGraph/drawingBoard?drawingBoardType=PROCESS&processType=PROCESS&load=" + dataMap.processId;
+							}
 
+						}
+					});
+				} else {
+					//alert("Startup failure：" + dataMap.errorMsg);
+					layer.msg("Startup failure：" + dataMap.errorMsg, {icon: 2, shade: 0, time: 2000}, function () {
+					});
 				}
-			})
+			}
+		})
 		console.log('RUN……')
 	}
 	

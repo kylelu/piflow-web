@@ -1,7 +1,7 @@
 var fullScreen = $('#fullScreen');
-var runFlow = $('#runFlow');
-var debugFlow = $('#debugFlow');
-var stopFlow = $('#stopFlow');
+var  runFlowGroup= $('#runFlowGroup');
+var debugFlowGroup = $('#debugFlowGroup');
+var stopFlowGroup = $('#stopFlowGroup');
 var processContent = $('#processContent');
 var checkpointShow = $('#checkpointShow');
 var isLoadProcessInfo = true;
@@ -405,9 +405,9 @@ function processGroupMonitoring(appId) {
                 if (dataMap.state && "" !== dataMap.state) {
                     if ('STARTED' !== dataMap.state) {
                         window.clearInterval(timer);
-                        runFlow.show();
-                        debugFlow.show();
-                        stopFlow.hide();
+                        runFlowGroup.show();
+                        debugFlowGroup.show();
+                        stopFlowGroup.hide();
                     }
                 }
                 var processGroupVo = dataMap.processGroupVo;

@@ -3725,8 +3725,14 @@ Sidebar.prototype.addImagePalette = function(id, title, prefix, imgArray, items,
 				tmpTags = item.substring((slash >= 0) ? slash + 1 : 0, (dot >= 0) ? dot : item.length).replace(/[-_]/g, ' ');
 			}
 			if(item[i]=="t"){
-				fns.push(this.createVertexTemplateEntry('text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;',
+				if('TASK' === Format.customizeType){
+
+				}else{
+					fns.push(this.createVertexTemplateEntry('text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;',
 					40, 20, 'Label', 'Text', null, null, 'text textbox textarea label'));
+				}
+
+
 			}else{
 				fns.push(this.createVertexTemplateEntry('image;html=1;labelBackgroundColor=#ffffff00;image=' + prefix + imgArray[i],
 					this.defaultImageWidth, this.defaultImageHeight, value, title, title != null, null, this.filterTags(tmpTags)));

@@ -3322,8 +3322,7 @@ EditorUi.prototype.refresh = function(sizeDidChange)
 		//$('.geToolbar').html("");
 		//toolbarReset($('.geToolbar'));
 	}
-
-	if($(".geDiagramBackdrop")[0]){
+	if($(".geDiagramBackdrop")[0] && Format.customizeType === "GROUP"){
 		$(".geDiagramBackdrop")[0].style.left="0px"
 	}
 
@@ -3388,7 +3387,6 @@ EditorUi.prototype.createDivs = function()
 	{
 		this.diagramContainer.style.border = 'none';
 	}
-	console.log(groupdragclass,"oooooooooooooo")
 	//,==================================
 	if(groupdragclass!=null){
 		this.sidebarContainer.style.display="none"

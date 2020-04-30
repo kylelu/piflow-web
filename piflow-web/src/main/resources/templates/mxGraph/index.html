@@ -13,6 +13,10 @@
     <link rel="stylesheet" type="text/css" th:href="@{/custom/css/fullScreen.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/components/font-awesome-4.7.0/css/font-awesome.min.css}"/>
     <link rel="shortcut icon" th:href="@{/img/logo.ico}">
+    <style>
+        .btn-position{float: right;margin-right: 8px}
+        .btn-position .btn{margin: 6px 6px 2px 0!important;}
+    </style>
 
     <script th:inline="javascript">
         var parentAccessPath = [[${parentAccessPath}]];
@@ -40,7 +44,7 @@
                 dataList: [
                     {
                         name: "group",
-                        img_name: "_01_128x128.png",
+                        img_name: ".png",
                         description: 'group component'
                     }
                 ]
@@ -49,7 +53,7 @@
                 dataList: [
                     {
                         name: "flow",
-                        img_name: "_01_128x128.png",
+                        img_name: ".png",
                         description: 'flow component'
                     }
                 ]
@@ -59,7 +63,7 @@
                 dataList: [
                     {
                         name: "text",
-                        img_name: "text",
+                        img_name: ".png",
                         description: 'Text'
                     }
                 ]
@@ -137,7 +141,7 @@
         </div>
     </div>
 </div>
-
+</div>
 <div id="portShowDiv" class="modal-content" style="display:none;width: 100%;  top: 77px">
     <div class="modal-body">
         <from id="protInfo">
@@ -325,13 +329,18 @@
 <div id="precessrun" class="precessrun" style="position: fixed; z-index: 779;text-align: right;right: 10px;top: 50px;">
 
     <div id="processflow">
-        <!--    			<span>-->
-        <!--    				progress：<span id="progress" th:text="${percentage} + '%'"></span>-->
-        <!--    			</span>-->
-        <!--        <input id="runFlow" type="button" class="btn btn-default" onclick="getCheckpoint()" value="Run"/>-->
-        <!--        <input id="debugFlow" type="button" class="btn btn-default" onclick="getCheckpoint('DEBUG')" value="Debug"/>-->
-        <!--        <input id="stopFlow" type="button" class="btn btn-danger" onclick="stopProcess()" value="Stop"/>-->
-        <!--        <input type="button" class="btn btn-primary" onclick="getLogUrl()" value="Log"/>-->
+                <span>
+                    progress：<span id="progress" th:text="${percentage} + '%'"></span>
+                </span>
+<!--        <div class="progress">-->
+<!--            <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">-->
+<!--                <span id="progress" th:text="${percentage} + '%'"></span>-->
+<!--            </div>-->
+<!--        </div>-->
+        <input id="runFlow" type="button" class="btn btn-default" onclick="getCheckpoint()" value="Run"/>
+        <input id="debugFlow" type="button" class="btn btn-default" onclick="getCheckpoint('DEBUG')" value="Debug"/>
+        <input id="stopFlow" type="button" class="btn btn-danger" onclick="stopProcess()" value="Stop"/>
+        <input type="button" class="btn btn-primary" onclick="getLogUrl()" value="Log"/>
     </div>
 
 
@@ -340,8 +349,13 @@
          <span>
 				progress：<span id="progress" th:text="${percentage} + '%'"></span>
 			</span>
-        <input id="runFlow" type="button" class="btn btn-default" onclick="selectRunMode()" value="Run"/>
-        <input id="stopFlow" type="button" class="btn btn-danger" onclick="stopProcessGroup()" value="Stop"/>
+<!--        <div class="progress">-->
+<!--            <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">-->
+<!--                <span id="progress" th:text="${percentage} + '%'"></span>-->
+<!--            </div>-->
+<!--        </div>-->
+        <input id="runFlowGroup" type="button" class="btn btn-default" onclick="selectRunMode()" value="Run"/>
+        <input id="stopFlowGroup" type="button" class="btn btn-danger" onclick="stopProcessGroup()" value="Stop"/>
         <input type="button" class="btn btn-primary" onclick="openLogWindow()" value="Log"/>
     </div>
 
@@ -373,8 +387,9 @@
     var processState = [[${processState}]];
     var stdoutLog = [[${stdoutLog}]];
     var stderrLog = [[${stderrLog}]];
-    console.log(processType,"processTypeprocessTypeprocessTypeprocessTypeprocessTypeprocessTypeprocessType")
-    if(processType=="GROUP"){
+    var processId = [[${processId}]];
+    if(processType === "GROUP"){
+
         (function () {
             // console.log(processType,"processStateprocessState")
             $('#processflow')[0].style.display="none"
@@ -386,16 +401,16 @@
                     processContent.prepend('<div style="position: fixed;z-index: 779;"><h1>View missing</h1></div>');
                 }
             }
-            if (runFlow) {
+            if (runFlowGroup) {
                 if ("STARTED" === processState) {
-                    runFlow.hide();
-                    debugFlow.hide();
-                    stopFlow.show();
+                    runFlowGroup.hide();
+                    debugFlowGroup.hide();
+                    stopFlowGroup.show();
                     timer = window.setInterval("processGroupMonitoring(appId)", 5000);
                 } else {
-                    runFlow.show();
-                    debugFlow.show();
-                    stopFlow.hide();
+                    runFlowGroup.show();
+                    debugFlowGroup.show();
+                    stopFlowGroup.hide();
                 }
             }
             var processVoListInit = [[${processVoListInit}]];
@@ -431,11 +446,11 @@
             $('#divTextareaId').height(window_height - 300);
         });
         //@ sourceURL=processContent.js
-    }else{
-        $('#processflow')[0].style.display="block"
-        $('#processgroup')[0].style.display="none"
-        (function () {
+    } else if (processType === "TASK"){
 
+        (function () {
+            $('#processflow')[0].style.display="block"
+            $('#processgroup')[0].style.display="none"
             if (processContent) {
                 if (xmlDate) {
                     processContent.append(xmlDate);
@@ -484,52 +499,14 @@
                 }
             }
         })();
-
-        function openProcessMonitor(pageId, e) {
-            $.ajax({
-                cache: true,//Keep cached data
-                type: "POST",//Request type post
-                url: "/piflow-web/processGroup/getProcessIdByPageId",//This is the name of the file where I receive data in the background.
-                data: {
-                    processGroupId: processGroupId,
-                    pageId: pageId
-                },
-                async: true,//Setting it to true indicates that other code can still be executed after the request has started. If this option is set to false, it means that all requests are no longer asynchronous, which also causes the browser to be locked.
-                error: function (request) {//Operation after request failure
-                    layer.msg(' failed', {icon: 2, shade: 0, time: 1000});
-                    return;
-                },
-                success: function (data) {//Operation after request successful
-                    if (data) {
-                        var dataMap = JSON.parse(data);
-                        if (200 === dataMap.code) {
-                            var urlPath = "";
-                            if ('flow' === dataMap.nodeType) {
-                                urlPath = "/piflow-web/process/getProcessById?parentAccessPath=processGroupList&processId=" + dataMap.processId;
-                            } else if ('flowGroup' === dataMap.nodeType) {
-                                urlPath = "/piflow-web/processGroup/getProcessGroupById?parentAccessPath=processGroupList&processGroupId=" + dataMap.processGroupId;
-                            }
-                            if (urlPath) {
-                                var tempWindow = window.location.href = urlPath;
-                                if (tempWindow == null || typeof (tempWindow) == 'undefined') {
-                                    alert('The window cannot be opened. Please check your browser settings.')
-                                }
-                            }
-                        }
-                    } else {
-                        layer.msg(' failed', {icon: 2, shade: 0, time: 1000});
-                    }
-                }
-            });
-        }
-            $(window).resize(function () {
-                var window_width = $(window).width();//Get browser window width
-                var window_height = $(window).height();//Get browser window height
-                // $('#modalDialog').height(window_height - 124);
-                // $('#modalDialog').width(window_width - 124);
-                $('#textareaId').height(window_height - 300);
-                $('#divTextareaId').height(window_height - 300);
-            });
+        $(window).resize(function () {
+            var window_width = $(window).width();//Get browser window width
+            var window_height = $(window).height();//Get browser window height
+            // $('#modalDialog').height(window_height - 124);
+            // $('#modalDialog').width(window_width - 124);
+            $('#textareaId').height(window_height - 300);
+            $('#divTextareaId').height(window_height - 300);
+        });
     }
 
 
@@ -545,7 +522,6 @@
             $(this).addClass("open");
             var oDiv = document.getElementById("divloadingXml");
             oDiv.style.display = "none";
-
         });
         $(".btn-group").mouseleave(function () {
             $(this).removeClass("open");
@@ -573,7 +549,7 @@
     //window.onload = showSelect;
     //@ sourceURL=mxGraphIndex.js
 </script>
-</body>
+
 <div style="display: none;" id="SubmitPage">
     <br>
     <form class="layui-form" action="">
@@ -689,4 +665,5 @@
         <div id="rightproup" class="rightproup"></div>
 </div>
 
+</body>
 </html>
