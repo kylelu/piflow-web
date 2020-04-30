@@ -64,8 +64,7 @@ public class MxNodeImageDomain {
     }
 
     public List<MxNodeImage> userGetMxNodeImageList(String username) {
-        Specification<MxNodeImage> where = Specification.where(addEnableFlagParam());
-        where.and(addParam("crtUser", username));
+        Specification<MxNodeImage> where = Specification.where(addEnableFlagParam().and(addParam("crtUser", username)));
         return mxNodeImageJpaRepository.findAll(where, Sort.by(Sort.Direction.DESC, "lastUpdateDttm"));
 
     }
@@ -77,14 +76,12 @@ public class MxNodeImageDomain {
     }
 
     public List<MxNodeImage> userGetMxNodeImageListByImageType(String username,String imageType) {
-        Specification<MxNodeImage> where = Specification.where(addEnableFlagParam());
-        where.and(addParam("crtUser", username)).and(addParam("imageType", imageType));
+        Specification<MxNodeImage> where = Specification.where(addEnableFlagParam().and(addParam("crtUser", username)).and(addParam("imageType", imageType)));
         return mxNodeImageJpaRepository.findAll(where, Sort.by(Sort.Direction.DESC, "lastUpdateDttm"));
     }
 
     public List<MxNodeImage> adminGetMxNodeImageListByImageType(String imageType) {
-        Specification<MxNodeImage> where = Specification.where(addEnableFlagParam());
-        where.and(addParam("imageType", imageType));
+        Specification<MxNodeImage> where = Specification.where(addEnableFlagParam().and(addParam("imageType", imageType)));
         return mxNodeImageJpaRepository.findAll(where, Sort.by(Sort.Direction.DESC, "lastUpdateDttm"));
     }
 
