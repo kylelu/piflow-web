@@ -8,6 +8,7 @@ import com.nature.component.mxGraph.service.IMxNodeImageService;
 import com.nature.component.mxGraph.utils.MxNodeImageUtils;
 import com.nature.component.mxGraph.vo.MxNodeImageVo;
 import com.nature.domain.mxGraph.MxNodeImageDomain;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationContext;
@@ -30,9 +31,14 @@ public class MxNodeImageServiceImpl implements IMxNodeImageService {
     private MxNodeImageDomain mxNodeImageDomain;
 
     @Override
-    public String uploadNodeImage(MultipartFile file) {
-        UserVo user = SessionUserUtil.getCurrentUser();
-        String username = (null != user) ? user.getUsername() : "-1";
+    public String uploadNodeImage(MultipartFile file, String imageType) {
+        String username = SessionUserUtil.getCurrentUsername();
+        if (StringUtils.isBlank(username)) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("illegal user");
+        }
+        if (StringUtils.isBlank(imageType)) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("imageType is null");
+        }
         if (file.isEmpty()) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("Upload failed, please try again later");
         }
@@ -52,18 +58,25 @@ public class MxNodeImageServiceImpl implements IMxNodeImageService {
         mxNodeImage.setImageName(fileName);
         mxNodeImage.setImagePath(path);
         mxNodeImage.setImageUrl("/images/" + saveFileName);
+        mxNodeImage.setImageType(imageType);
         mxNodeImageDomain.saveOrUpdate(mxNodeImage);
         return ReturnMapUtils.setSucceededCustomParamRtnJsonStr("imgUrl", mxNodeImage.getImageUrl());
     }
 
     @Override
-    public String getMxNodeImageList() {
+    public String getMxNodeImageList(String imageType) {
+        String username = SessionUserUtil.getCurrentUsername();
+        if (StringUtils.isBlank(username)) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("illegal user");
+        }
+        if (StringUtils.isBlank(imageType)) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("imageType is null");
+        }
         List<MxNodeImageVo> mxNodeImageVoList = new ArrayList<>();
-        List<MxNodeImage> mxNodeImageList = mxNodeImageDomain.getMxNodeImageList();
+        List<MxNodeImage> mxNodeImageList = mxNodeImageDomain.userGetMxNodeImageListByImageType(username, imageType);
         if (null == mxNodeImageList && mxNodeImageList.size() <= 0) {
             return ReturnMapUtils.setSucceededCustomParamRtnJsonStr("nodeImageList", mxNodeImageList);
         }
-        ApplicationContext applicationContext = SpringContextUtil.getApplicationContext();
         MxNodeImageVo mxNodeImageVo;
         for (MxNodeImage mxNodeImage : mxNodeImageList) {
             if (null == mxNodeImage) {

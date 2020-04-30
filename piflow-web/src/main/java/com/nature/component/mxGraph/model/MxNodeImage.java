@@ -16,5 +16,6 @@ public class MxNodeImage extends BaseHibernateModelUUIDNoCorpAgentId {
     private String imageName;
     private String imagePath;
     private String imageUrl;
+    private String imageType;
 
 }
