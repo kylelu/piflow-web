@@ -342,8 +342,11 @@ public class ProcessGroupUtils {
 
         // Parents ProcessGroup Copy
         ProcessGroup parentsProcessGroup = processGroup.getProcessGroup();
-        ProcessGroupVo parentsProcessGroupVo = processGroupPoToVo(parentsProcessGroup);
-        processGroupVo.setProcessGroupVo(parentsProcessGroupVo);
+        if (null != parentsProcessGroup) {
+            ProcessGroupVo parentsProcessGroupVo = new ProcessGroupVo();
+            BeanUtils.copyProperties(parentsProcessGroup, parentsProcessGroupVo);
+            processGroupVo.setProcessGroupVo(parentsProcessGroupVo);
+        }
 
         // MxGraphModel Copy
         MxGraphModel mxGraphModel = processGroup.getMxGraphModel();

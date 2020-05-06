@@ -188,7 +188,7 @@ public class MxGraphCtrl {
                     }
                     processGroupNode = new HashMap<>();
                     processGroupNode.put("pageId", processGroupVo_i.getPageId());
-                    processGroupNode.put("state", processGroupVo_i.getState().getText());
+                    processGroupNode.put("state", (null != processGroupVo_i.getState()) ? processGroupVo_i.getState().getText() : ProcessState.INIT.name());
                     nodePageIdAndStates.add(processGroupNode);
                 }
                 model.addAttribute("processGroupVoListInit", processGroupVoList);
