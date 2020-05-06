@@ -452,7 +452,7 @@ Sidebar.prototype.showTooltip = function (elt, cells, w, h, title, showLabel) {
                     this.tooltip.style.top = top + 'px';
                 } else {
                     this.tooltip.style.left = '80' + 'px';
-                    this.tooltip.style.top = top + 'px';
+                    this.tooltip.style.top = "100" + 'px';
                 }
             });
 

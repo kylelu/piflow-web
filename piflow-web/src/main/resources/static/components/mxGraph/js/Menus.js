@@ -738,7 +738,6 @@ Menus.prototype.edgeStyleChange = function(menu, label, keys, values, sprite, pa
 	{
 		var graph = this.editorUi.editor.graph;
 		graph.stopEditing(false);
-
 		graph.getModel().beginUpdate();
 		try
 		{
@@ -780,6 +779,9 @@ Menus.prototype.edgeStyleChange = function(menu, label, keys, values, sprite, pa
 		{
 			graph.getModel().endUpdate();
 		}
+
+		saveXml(null,"MOVED")
+
 	}), parent, sprite);
 };
 

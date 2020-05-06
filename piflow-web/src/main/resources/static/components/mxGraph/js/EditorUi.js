@@ -4119,7 +4119,8 @@ EditorUi.prototype.executeLayout = function(exec, animate, post)
 
 function imageajax(){
 	var data = {imageType:ImagesType.type};
-	// console.log(ImagesType.type,'----------------------------------------------------------------------');
+	console.log(ImagesType,'------------------z----------------------------------------------------');
+	var loading
 	$.ajax({
 		type: "post",//Request type post
 		url: "/piflow-web/mxGraph/nodeImageList",
@@ -4128,7 +4129,22 @@ function imageajax(){
 		error: function (request) {//Operation after request failure
 			return;
 		},
+		beforeSend:function(){
+		loading = layer.load(0, {
+			shade: false,
+			success: function (layerContentStyle) {
+				layerContentStyle.find('.layui-layer-content').css({
+					'padding-top': '35px',
+					'text-align': 'left',
+					'width':'120px',
+				});
+			},
+			icon:2,
+			// time: 100*1000
+		});
+		},
 		success: function (data) {//After the request is successful
+			layer.close(loading)
 			var nowimage = $("#nowimage")[0];
 			nowimage.innerHTML="";
 			var nodeImageList=JSON.parse(data).nodeImageList;
@@ -4150,18 +4166,6 @@ function imageajax(){
 					e.toElement.style="background-color:#009688;width:100%;height:100%"
 					imagsrc=e.toElement.src
 				}
-
-
-				// var imgwrap=$('.imgwrap')
-				//
-				// imgwrap.forEach(item=>{
-				//
-				// })
-				//
-				// div.on("click",function(e){
-				// 	console.log($(this).attr("src"),"ddfffffddfdf")
-				// })
-
 			})
 			var imgwrap1=$(".imageimg")
 		}
@@ -4178,17 +4182,32 @@ EditorUi.prototype.showImageDialog = function(title, value, fn, ignoreExisting)
 	//   Change picture
 	layui.use('upload', function(){
 		var upload = layui.upload;
+		var loading
 		//执行实例
 		var uploadInst = upload.render({
 			elem: '#uploadimage' //绑定元素
 			,url: '/piflow-web/mxGraph/uploadNodeImage' //上传接口
 			, before: function(obj){
-				this.data={ImageType:ImagesType.type};
+				this.data={imageType:ImagesType.type};
+				loading = layer.load(0, {
+					shade: false,
+					success: function (layerContentStyle) {
+						layerContentStyle.find('.layui-layer-content').css({
+							'padding-top': '35px',
+							'text-align': 'left',
+							'width': '120px',
+						});
+					},
+					icon:2,
+					// time: 100*1000
+				});
+				// $(".layui-layer .layui-layer-loading").style.top="36%"
 			}
 			,done: function(res){
 				//上传完毕回调
 				console.log("upload success")
-				imageajax()
+				imageajax();
+				layer.close(loading);
 			}
 			,error: function(){
 				//请求异常回调

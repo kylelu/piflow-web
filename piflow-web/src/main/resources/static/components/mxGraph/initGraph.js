@@ -8,7 +8,7 @@ var flag = 0;
 var timerPath;
 var currentStopPageId;
 var drawingBoardType = $("#drawingBoardType").val();
-var statusgroup, flowPageIdcha, flowGroupdata, cellprecess, flowdatas, removegroupPaths
+var statusgroup, flowPageIdcha, flowGroupdata, cellprecess, flowdatas, removegroupPaths,flowsPagesId
 getrightinfo()
 var index = true
 
@@ -229,7 +229,6 @@ function initGraph() {
 
                 // $("image[x=440]").append(div)
 
-
             }, 300)
         }
         this.actions.get('export').setEnabled(false);
@@ -260,7 +259,7 @@ function initGraph() {
 
         graphGlobal.addListener(mxEvent.CLICK, function (sender, evt) {
             findBasicInfo(evt);
-            console.log(evt)
+            // console.log(evt)
             if (Format.customizeType == "PROCESS") {
                 getrightinfo(evt.properties.cell)
             }
@@ -268,11 +267,13 @@ function initGraph() {
         if ('GROUP' === Format.customizeType) {
             graphGlobal.addListener(mxEvent.DOUBLE_CLICK, function (sender, evt) {
                 openProcessMonitor(evt);
+                if (graphGlobal.isEnabled()) { graphGlobal.startEditingAtCell();}
             });
         }
         if (processType === "GROUP") {
             graphGlobal.addListener(mxEvent.DOUBLE_CLICK, function (sender, evt) {
                 OpenTheMonitorArtboard(evt);
+
             });
         }
         if (xmlDate) {
@@ -492,14 +493,12 @@ function queryStopsProperty(stopPageId) {
 }
 
 function queryFlowOrFlowGroupProperty(flowPageId) {
-    // var time=0
-    // setInterval(()=>{
-    //     time++;
-    // if(time<5){
+    flowsPagesId = flowPageId
+    flowdatas=undefined
+    flowGroupdata=undefined
     if (!flowPageId || !loadId) {
         return;
     }
-    flowPageIdcha = flowPageId
     $.ajax({
         cache: true,
         type: "POST",
@@ -507,7 +506,6 @@ function queryFlowOrFlowGroupProperty(flowPageId) {
         data: {"flowPageId": flowPageId, "fid": loadId},
         async: true,
         error: function (request) {
-            //alert("Jquery Ajax request error!!!");
             return;
         },
         success: function (data) {
@@ -517,9 +515,10 @@ function queryFlowOrFlowGroupProperty(flowPageId) {
                 var flowGroupVoNodeData = dataMap.flowGroupVo;
                 // console.log(flowVoNodeData,"flowVoNodeDataflowVoNodeData")
                 // console.log(flowGroupVoNodeData,"flowGroupVoNodeData")
-                if ("" != flowVoNodeData && "flow" === dataMap.nodeType) {
+                if ("flow" == dataMap.nodeType) {
                     flowdatas = dataMap.flowVo
                     flowGroupdata = ""
+                    console.log(flowdatas,"99999999999999999999")
                     var dataId = (null != flowVoNodeData.id ? flowVoNodeData.id : "");
                     var dataName = (null != flowVoNodeData.name ? flowVoNodeData.name : "");
                     var dataPageId = (null != flowVoNodeData.pageId ? flowVoNodeData.pageId : "");
@@ -555,7 +554,7 @@ function queryFlowOrFlowGroupProperty(flowPageId) {
 
                     //Remove the timer if successful
                     window.clearTimeout(timerPath);
-                } else if ("" != flowGroupVoNodeData && "flowGroup" === dataMap.nodeType) {
+                } else if ("flowGroup" === dataMap.nodeType) {
                     flowGroupdata = dataMap.flowGroupVo
                     flowdatas = ""
                     // if(flowGroupdata==undefined){
@@ -630,7 +629,6 @@ function queryFlowOrFlowGroupProperty(flowPageId) {
     // }
     // },500)
 }
-
 function queryPathInfo(id) {
     var param_values = {};
     param_values.customizeBasic_td_1_1_span_children = 'pageId：';
@@ -1106,6 +1104,7 @@ function addCellsCustom(cells, operType) {
         } else if (cellfor.style && (cellfor.style).indexOf("image\;") === 0) {
             removegroupPaths[removegroupPaths.length] = cellfor;
         } else if (cellfor.style && (cellfor.style).indexOf("text\;") === 0 && Format.customizeType == "PROCESS") {
+            graphGlobal.removeCells(removePaths);
             removePaths[removePaths.length] = cellfor;
         }
         // else if (cellfor.style && (cellfor.style).indexOf("text\;") === 0) {
@@ -1158,7 +1157,7 @@ function saveXml(paths, operType) {
                     layer.open({
                         type: 1,
                         title: '<span style="color: #269252;">create flow group</span>',
-                        shadeClose: true,
+                        shadeClose: false,
                         shade: 0.3,
                         closeBtn: 1,
                         shift: 7,
@@ -1167,10 +1166,31 @@ function saveXml(paths, operType) {
                         content: $("#SubmitPage"),
                         success: function () {
                             $(".layui-layer-page").css("z-index", "1998910151");
+
+                            queryFlowOrFlowGroupProperty(flowsPagesId)
+                            var index1=0
+                            if(flowGroupdata==undefined || "") {
+                                var time=  setInterval(() => {
+                                    if (index1 < 4 && flowGroupdata==undefined) {
+                                        queryFlowOrFlowGroupProperty(flowsPagesId)
+                                        index1++
+                                        console.log(flowGroupdata,"flowdatasflowdatasflowdatasflowdatas")
+                                    }
+                                    else if(index1 >= 4 && flowGroupdata==undefined){
+                                        // layer.closeAll()
+                                        // layer.msg("Network Anomaly", {icon: 5})
+                                        // alert("Network Anomaly")
+                                        clearInterval(time)
+                                        index1=0
+                                    }
+                                }, 300)
+                            }
+
                         },
                         cancel: function (index, layero) {
                             graphGlobal.removeCells(removegroupPaths);
                             layer.close(index)
+
                             return false;
                         }
                     });
@@ -1189,13 +1209,33 @@ function saveXml(paths, operType) {
                     layer.open({
                         type: 1,
                         title: '<span style="color: #269252;">create flow</span>',
-                        shadeClose: true,
+                        shadeClose: false,
                         shade: 0.3,
                         closeBtn: 1,
                         shift: 7,
                         area: ['580px', '520px'], //Width height
                         skin: 'layui-layer-rim', //Add borders
                         content: $("#SubmitPageflow"),
+                        success:function(){
+                            queryFlowOrFlowGroupProperty(flowsPagesId)
+                            var index1=0
+                            if(flowdatas==undefined || "") {
+                                var time=  setInterval(() => {
+                                    if (index1 < 4 && flowdatas == undefined) {
+                                        queryFlowOrFlowGroupProperty(flowsPagesId)
+                                        index1++
+                                    }
+                                    else if(index1 >= 4 &&  flowdatas==undefined){
+                                        // layer.closeAll()
+                                        // layer.msg("Network Anomaly", {icon: 5})
+                                        // alert("Network Anomaly")
+                                        clearInterval(time)
+                                        index1=0
+                                    }
+                                }, 300)
+                            }
+
+                        },
 
                         cancel: function (index, layero) {
                             graphGlobal.removeCells(removegroupPaths);
@@ -1205,11 +1245,12 @@ function saveXml(paths, operType) {
                         }
                     });
 
-                } else {
+                } else if(statusgroup == null || statusgroup=="" ) {
 
+
+                }else{
+                    if (graphGlobal.isEnabled()) { graphGlobal.startEditingAtCell();}
                 }
-
-
                 thisEditor.setModified(false);
                 if (operType && '' !== operType) {
                     //获取port
@@ -1225,7 +1266,9 @@ function saveXml(paths, operType) {
                 console.log(operType + " save fail");
                 fullScreen.hide();
             }
+
         }
+
     });
 }
 
@@ -1257,13 +1300,13 @@ function checkGroupInput(flowName) {
 function saveOrUpdateFlowGroup() {
     var id = $("#flowGroupId").val();
     var flowGroupName = $("#flowGroupName").val();
-    var description = $("#description").val();
+    var description = $("#description1").val();
     if (!checkGroupInput(flowGroupName)) {
         // layer.closeAll()
         // layer.msg('flowName Can not be empty', {icon: 2, shade: 0, time: 2000});
         alert("flowName Can not be empty")
     } else {
-        if (flowGroupdata == undefined) {
+        if (flowGroupdata == undefined || "") {
             layer.closeAll()
             layer.msg("Network Anomaly", {icon: 5})
         } else {
@@ -1381,6 +1424,7 @@ function saveOrUpdateFlowGroup() {
 
 //flow Information popup-----
 function saveFlow() {
+    // queryFlowOrFlowGroupProperty(flowsPagesId)
     var flowName = $("#flowName").val();
     var description = $("#description").val();
     var driverMemory = $("#driverMemory").val();
@@ -1392,10 +1436,11 @@ function saveFlow() {
         // layer.msg('flowName Can not be empty', {icon: 2, shade: 0, time: 2000});
         alert("flowName Can not be empty")
     } else {
-        if (flowdatas == undefined) {
+        if (flowdatas == undefined || "") {
             layer.closeAll()
             layer.msg("Network Anomaly", {icon: 5})
         } else {
+
             var requestDataParam = {
                 flowGroupId: loadId,
                 flowId: flowdatas.id,
@@ -1431,8 +1476,47 @@ function saveFlow() {
                         });
                     }
                     layer.closeAll()
+                        $.ajax({
+                            cache: true,
+                            type: "POST",
+                            url: "/piflow-web/flow/updateFlowBaseInfo",
+                            data: {
+                                id: flowdatas.id,
+                                driverMemory: driverMemory,
+                                executorCores: executorCores,
+                                executorMemory: executorMemory,
+                                executorNumber: executorNumber,
+                                description: description
+                            },
+                            async: true,
+                            traditional: true,
+                            error: function (request) {
+                                console.log("attribute update error");
+                                return;
+                            },
+                            success: function (data) {
+                                var dataMap = JSON.parse(data);
+                                if (200 === dataMap.code) {
+                                    var flowVo = dataMap.flowVo;
+                                    //baseInfo
+                                    $('#customizeBasic_td_2_2_span_id').text(flowVo.description);
+                                    $('#customizeBasic_td_3_2_label_id').text(flowVo.driverMemory);
+                                    $('#customizeBasic_td_4_2_label_id').text(flowVo.executorCores);
+                                    $('#customizeBasic_td_5_2_label_id').text(flowVo.executorMemory);
+                                    $('#customizeBasic_td_6_2_label_id').text(flowVo.executorNumber);
+                                } else {
+                                    layer.msg('', {icon: 2, shade: 0, time: 2000}, function () {
+                                    });
+                                }
+                                layer.closeAll('page');
+                                console.log("attribute update success");
+                            }
+                        });
+
                 }
             });
+
+
             // if (checkFlowInput(flowName, description, driverMemory, executorNumber, executorMemory, executorCores)){
             //     $.ajax({
             //         cache: true,
@@ -2349,16 +2433,20 @@ function loadTemplateFun() {
 }
 
 function processListener(evt, operType) {
+
     if (!isExample) {
         if ('ADD' === operType) {
             var cells = evt.properties.cells;
             statusgroup = cells[0].value
+            // console.log(statusgroup,"statusgroup")
             addCellsCustom(cells, 'ADD');
             if ('cellsAdded' == evt.name) {
                 findBasicInfo(evt);
             }
         } else if ('MOVED' === operType) {
+            statusgroup=""
             if (evt.properties.disconnect) {
+                console.log(operType,"c")
                 saveXml(null, operType);   // 自动布局调用方法
             }
             findBasicInfo(evt);
@@ -2379,7 +2467,6 @@ function processListener(evt, operType) {
         }
         prohibitEditing(isExample, operType);
     }
-
 }
 
 function prohibitEditing(isExample, operType) {

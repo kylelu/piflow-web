@@ -2330,6 +2330,7 @@ PageSetupDialog.getFormats = function()
 	var mxPopupMenuAddItem = mxPopupMenu.prototype.addItem;
 	mxPopupMenu.prototype.addItem = function(title, image, funct, parent, iconCls, enabled)
 	{
+
 		var result = mxPopupMenuAddItem.apply(this, arguments);
 		
 		if (enabled != null && !enabled)

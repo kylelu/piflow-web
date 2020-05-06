@@ -1326,7 +1326,7 @@ html td.mxWindowTitle {
 }
 .ExpandSidebar{
     /*width:30px;*/
-    height:544px;
+    height:87%;
     position: absolute;
 }
 .triggerSlider{
@@ -1406,4 +1406,7 @@ html td.mxWindowTitle {
 }
 .btn-group + .btn-group {
      margin-left: 0!important;
+}
+.layui-layer-loading{
+    z-index: 29891015!important;
 }
