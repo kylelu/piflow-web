@@ -46,7 +46,7 @@ public class MxCellUtils {
         MxCell defaultFlowMxCell = mxCellNewNoId(username);
         defaultFlowMxCell.setPageId(pageId);
         defaultFlowMxCell.setParent("1");
-        defaultFlowMxCell.setStyle("image;html=1;labelBackgroundColor=#ffffff00;image=/piflow-web/img/flow_01_128x128.png");
+        defaultFlowMxCell.setStyle("image;html=1;labelBackgroundColor=#ffffff00;image=/piflow-web/img/flow.png");
         defaultFlowMxCell.setValue(name);
         defaultFlowMxCell.setVertex("1");
         MxGeometry defaultFlowMxCellMxGeometry = MxGeometryUtils.mxGeometryNewNoId(username);

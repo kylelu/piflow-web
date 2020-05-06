@@ -403,7 +403,7 @@ function findBasicInfo(evt) {
             value = cells.cell.value;
             id = cells.cell.id;
         } else {
-            //When you add a stop to the artboard for the first time, the drag process does not get the id.
+            //When you add a stop to the drawing board for the first time, the drag process does not get the id.
             if ('TASK' === Format.customizeType) {
                 queryStopsProperty(maxStopPageId);
             } else if ('GROUP' === Format.customizeType) {
@@ -2182,7 +2182,7 @@ function uploadTemplate() {
 }
 
 function uploadFlowGroupTemplateBtn() {
-    document.getElementById("flowGroupTemplateFile").click();
+    document.getElementById("flowTemplateFile").click();
 }
 
 function uploadTemplateFile(element) {
@@ -2419,7 +2419,7 @@ function getRunningProcessList() {
     });
 }
 
-//Erase artboard records
+//Erase drawing board records
 function eraseRecord() {
     thisEditor.lastSnapshot = new Date().getTime();
     thisEditor.undoManager.clear();

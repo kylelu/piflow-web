@@ -160,8 +160,8 @@ public class TestServiceImpl implements ITestService {
         if (null == flowTemplateXmlToFlow) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("Conversion failure");
         }
-        // Added processing artboard data
-        // Fetch the artboard data to be added
+        // Added processing drawing board data
+        // Fetch the drawing board data to be added
         MxGraphModel mxGraphModelXml = flowTemplateXmlToFlow.getMxGraphModel();
         if (null != mxGraphModelXml) {
             MxGraphModel mxGraphModel = flowById.getMxGraphModel();

@@ -255,8 +255,8 @@ public class FlowGroupTemplateServiceImpl implements IFlowGroupTemplateService {
         if (null == flowGroupXml) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("Conversion failure");
         }
-        // Added processing artboard data
-        // Fetch the artboard data to be added
+        // Added processing drawing board data
+        // Fetch the drawing board data to be added
         MxGraphModel mxGraphModelXml = flowGroupXml.getMxGraphModel();
         if (null != mxGraphModelXml) {
             MxGraphModel mxGraphModel = flowGroupById.getMxGraphModel();

@@ -112,7 +112,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
     }
 
     /**
-     * Add stops and artboard mxCell
+     * Add stops and drawing board mxCell
      *
      * @param mxGraphModelVo
      * @param flowId
@@ -145,11 +145,11 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
         }
         //Take out the drawing board of the data inventory
         MxGraphModel mxGraphModelDb = flow.getMxGraphModel();
-        //Determine if the artboard of the data inventory exists
+        //Determine if the drawing board of the data inventory exists
         if (null == mxGraphModelDb) {
-            return ReturnMapUtils.setFailedMsg("Database without artboard, adding failed");
+            return ReturnMapUtils.setFailedMsg("Database without drawing board, adding failed");
         }
-        // Put the page's artboard information into the database canvas
+        // Put the page's drawing board information into the database canvas
         //Copy the value from 'mxGraphModelVo' to 'mxGraphModelDb'
         BeanUtils.copyProperties(mxGraphModelVo, mxGraphModelDb);
         mxGraphModelDb.setEnableFlag(true);
@@ -285,7 +285,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
     }
 
     /**
-     * Modification of the artboard
+     * Modification of the drawing board
      *
      * @param mxGraphModelVo
      * @param flowId
@@ -356,7 +356,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
             return ReturnMapUtils.setFailedMsg("Modify save failed flow");
         }
 
-        // Save and modify the artboard information
+        // Save and modify the drawing board information
         Map<String, Object> updateMxGraphRtnMap = this.updateFlowMxGraph(mxGraphModelVo, flowId);
         // Determine if mxGraphModel is saved successfully
         if (null == updateMxGraphRtnMap || 200 != (int) updateMxGraphRtnMap.get(ReturnMapUtils.KEY_CODE)) {
@@ -383,7 +383,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
         if (null != pathsList && pathsList.size() > 0) {
             // Take the line of mxCellVoList
             List<MxCellVo> objectPaths = stopsPathsMap.get("paths");
-            // Key is the PageId of PathsVo (the id in the artboard), and the value is Paths
+            // Key is the PageId of PathsVo (the id in the drawing board), and the value is Paths
             Map<String, MxCellVo> objectPathsMap = new HashMap<String, MxCellVo>();
 
             // The pathsList to be modified
@@ -405,7 +405,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
                     MxCellVo mxCellVo = objectPathsMap.get(pageId);
                     // If you get it, you need to modify it. Otherwise, it is to be deleted.
                     if (null != mxCellVo) {
-                        //There is no operation to modify the stop information when you operate the artboard. You can modify the properties, but save it immediately. No operation is required here.
+                        //There is no operation to modify the stop information when you operate the drawing board. You can modify the properties, but save it immediately. No operation is required here.
                     } else {
                         paths.setEnableFlag(false);
                         paths.setLastUpdateUser(username);
@@ -437,7 +437,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
         if (null != stopsList && stopsList.size() > 0) {
             // Take the mxCellVoList of stops
             List<MxCellVo> objectStops = stopsPathsMap.get("elements");
-            // Key is the PageId of mxCellVo (the id in the artboard), and the value is mxCellVo
+            // Key is the PageId of mxCellVo (the id in the drawing board), and the value is mxCellVo
             Map<String, MxCellVo> objectStopsMap = new HashMap<String, MxCellVo>();
 
             // Stopslist to be modified
@@ -459,7 +459,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
                     MxCellVo mxCellVo = objectStopsMap.get(pageId);
                     // If you get it, you need to modify it. Otherwise, it is to be deleted.
                     if (null != mxCellVo) {
-                        //When you operate the artboard, when you delete the line, you need to determine whether there is an Any type stop at both ends of the line. If there is any corresponding port information in the attribute, delete the corresponding port information.
+                        //When you operate the drawing board, when you delete the line, you need to determine whether there is an Any type stop at both ends of the line. If there is any corresponding port information in the attribute, delete the corresponding port information.
                         // Determine if the stops have an Any port
                         if (stops.getInPortType() == PortType.ANY || stops.getOutPortType() == PortType.ANY) {
                             // Value in the pathsDelInfoMap according to the pageId
@@ -730,7 +730,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
         // Loop page data for classification (requires modification and tombstone)
         for (MxCell mxCell : mxCellList) {
             if (null != mxCell) {
-                // Graphic ID (pageId) on the artboard
+                // Graphic ID (pageId) on the drawing board
                 String pageId = mxCell.getPageId();
                 // According to the pageId to go to map,
                 // Get the description database has a page, do the modification operation,
@@ -892,11 +892,11 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
 
         // Take out the drawing board of the data inventory
         MxGraphModel mxGraphModel = flowGroup.getMxGraphModel();
-        // Determine if the artboard of the data inventory exists
+        // Determine if the drawing board of the data inventory exists
         if (null == mxGraphModel) {
-            return ReturnMapUtils.setFailedMsg("Database without artboard, adding failed");
+            return ReturnMapUtils.setFailedMsg("Database without drawing board, adding failed");
         }
-        // Put the page's artboard information into the database canvas
+        // Put the page's drawing board information into the database canvas
         // Copy the value from 'mxGraphModelVo' to 'mxGraphModelDb'
         BeanUtils.copyProperties(mxGraphModelVo, mxGraphModel);
         mxGraphModel.setEnableFlag(true);
@@ -1015,7 +1015,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
     }
 
     /**
-     * Modification of the artboard
+     * Modification of the drawing board
      *
      * @param mxGraphModelVo
      * @param flowGroupId
@@ -1076,7 +1076,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
 
         // save flowGroup
         flowGroup = flowGroupDomain.saveOrUpdate(flowGroup);
-        // Save and modify the artboard information
+        // Save and modify the drawing board information
         Map<String, Object> map = this.updateGroupMxGraph(mxGraphModelVo, flowGroupId, user);
         // Determine if mxGraphModel is saved successfully
         if (null != map) {
@@ -1101,7 +1101,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
             if (null != flowGroupPathsList && flowGroupPathsList.size() > 0) {
                 // Take the line of mxCellVoList
                 List<MxCellVo> objectPaths = stopsPathsMap.get("paths");
-                // Key is the PageId of PathsVo (the id in the artboard), and the value is Paths
+                // Key is the PageId of PathsVo (the id in the drawing board), and the value is Paths
                 Map<String, MxCellVo> objectPathsMap = new HashMap<>();
 
                 // The pathsList to be modified
@@ -1147,7 +1147,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
             if (null != flowList && flowList.size() > 0) {
                 //Take the flow of mxCellVoList
                 List<MxCellVo> objectStops = stopsPathsMap.get("elements");
-                // Key is the PageId of mxCellVo (the id in the artboard), and the value is mxCellVo
+                // Key is the PageId of mxCellVo (the id in the drawing board), and the value is mxCellVo
                 Map<String, MxCellVo> objectStopsMap = new HashMap<>();
 
                 // FlowList to be modified
@@ -1213,7 +1213,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
         // Loop page data for classification (requires modification and tombstone)
         for (MxCell mxCell : mxCellList) {
             if (null != mxCell) {
-                // Graphic ID (pageId) on the artboard
+                // Graphic ID (pageId) on the drawing board
                 String pageId = mxCell.getPageId();
                 // According to the pageId to go to map,
                 // Get the description database has a page, do the modification operation,

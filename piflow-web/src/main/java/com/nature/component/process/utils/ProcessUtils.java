@@ -172,7 +172,7 @@ public class ProcessUtils {
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
-            // Flow artBoard information is converted to ViewXml
+            // Flow drawing board information is converted to ViewXml
             String viewXml = SvgUtils.mxGraphModelToViewXml(mxGraphModel, false, false);
             // set viewXml
             process.setViewXml(viewXml);

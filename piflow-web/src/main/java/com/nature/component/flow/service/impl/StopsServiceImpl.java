@@ -138,7 +138,7 @@ public class StopsServiceImpl implements IStopsService {
         }
         if (null == root || root.size() == 0) {
             statefulRtnBase = StatefulRtnBaseUtils.setFailedMsg("No flow information,update failed ");
-            logger.info(flowById.getId() + "The artboard information is empty and the update failed.");
+            logger.info(flowById.getId() + "The drawing board information is empty and the update failed.");
             return statefulRtnBase;
         }
         //Check if name is the same name

@@ -50,4 +50,11 @@ public interface FlowJpaRepository extends JpaRepository<Flow, String>, JpaSpeci
     @Query(nativeQuery = true, value = "select f.name from flow f WHERE f.enable_flag=1 and f.fk_flow_group_id=:flowGroupId")
     String[] getFlowNamesByFlowGroupId(@Param("flowGroupId") String flowGroupId);
 
+    @Query(nativeQuery = true, value = "select name from ( " +
+            "select f.name from flow f WHERE f.enable_flag=1 and f.fk_flow_group_id=:flowGroupId " +
+            "UNION ALL " +
+            "select fg.name from flow_group fg where fg.enable_flag and fg.fk_flow_group_id=:flowGroupId " +
+            ") as re ")
+    String[] getFlowAndGroupNamesByFlowGroupId(@Param("flowGroupId") String flowGroupId);
+
 }

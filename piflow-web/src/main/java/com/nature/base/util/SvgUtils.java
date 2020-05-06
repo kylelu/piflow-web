@@ -19,7 +19,7 @@ public class SvgUtils {
 
 
     /**
-     * Convert the artboard to svg
+     * Convert the drawing board to svg
      *
      * @param mxGraphModel
      * @return

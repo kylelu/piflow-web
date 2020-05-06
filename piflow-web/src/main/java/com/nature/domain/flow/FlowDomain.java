@@ -60,10 +60,6 @@ public class FlowDomain {
         return flowJpaRepository.getMaxFlowPageIdByFlowGroupId(flowGroupId);
     }
 
-    public String[] getFlowNamesByFlowGroupId(String flowGroupId){
-        return flowJpaRepository.getFlowNamesByFlowGroupId(flowGroupId);
-    }
-
     public Page<Flow> getFlowListPage(int page, int size, String param) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "crtDttm"));
         return flowJpaRepository.getFlowListPage(null == param ? "" : param, pageRequest);
@@ -72,6 +68,14 @@ public class FlowDomain {
     public Page<Flow> getFlowListPageByUser(int page, int size, String param,String username) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "crtDttm"));
         return flowJpaRepository.getFlowListPage(username, null == param ? "" : param, pageRequest);
+    }
+
+    public String[] getFlowNamesByFlowGroupId(String flowGroupId){
+        return flowJpaRepository.getFlowNamesByFlowGroupId(flowGroupId);
+    }
+
+    public String[] getFlowAndGroupNamesByFlowGroupId(String flowGroupId){
+        return flowJpaRepository.getFlowAndGroupNamesByFlowGroupId(flowGroupId);
     }
 
 }

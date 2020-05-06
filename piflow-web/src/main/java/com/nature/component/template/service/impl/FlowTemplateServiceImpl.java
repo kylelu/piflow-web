@@ -15,6 +15,7 @@ import com.nature.component.template.vo.FlowTemplateVo;
 import com.nature.domain.flow.FlowDomain;
 import com.nature.domain.flow.FlowGroupDomain;
 import com.nature.domain.flow.StopsDomain;
+import com.nature.domain.mxGraph.MxCellDomain;
 import com.nature.domain.template.FlowTemplateDomain;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -44,6 +45,9 @@ public class FlowTemplateServiceImpl implements IFlowTemplateService {
 
     @Resource
     private StopsDomain stopsDomain;
+
+    @Resource
+    private MxCellDomain mxCellDomain;
 
 
     /**
@@ -239,13 +243,15 @@ public class FlowTemplateServiceImpl implements IFlowTemplateService {
         if (StringUtils.isBlank(xmlFileToStr)) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("XML file read failed, loading template failed");
         }
-        // Get the maximum value of pageid in stop
-        //String maxStopPageIdByFlowGroupId = flowMapper.getMaxFlowPageIdByFlowGroupId(loadId);
-        Integer maxPageId = flowDomain.getMaxFlowPageIdByFlowGroupId(loadId);
+        // Get the maximum value of pageId in drawing board node
+        MxGraphModel mxGraphModelDb = flowGroupById.getMxGraphModel();
+        Integer maxPageId = 2;
+        if (null != mxGraphModelDb && StringUtils.isNotBlank(mxGraphModelDb.getId())) {
+            maxPageId = mxCellDomain.getMaxPageIdByMxGraphModelId(mxGraphModelDb.getId());
+        }
         maxPageId = (null != maxPageId ? maxPageId : 1);
         // Get the current flowGroup containing all flow names
-        //String[] flowNamesByFlowGroupId = flowMapper.getFlowNamesByFlowGroupId(loadId);
-        String[] flowNamesByFlowGroupId = flowDomain.getFlowNamesByFlowGroupId(loadId);
+        String[] flowNamesByFlowGroupId = flowDomain.getFlowAndGroupNamesByFlowGroupId(loadId);
 
         if (TemplateType.TASK == flowTemplate.getTemplateType()) {
             Flow flowXml = FlowXmlUtils.xmlToFlow(xmlFileToStr, maxPageId, username, false);
@@ -257,7 +263,6 @@ public class FlowTemplateServiceImpl implements IFlowTemplateService {
             flowList.add(flowXml);
             flowGroupById.setFlowList(flowList);
 
-            MxGraphModel mxGraphModelDb = flowGroupById.getMxGraphModel();
             if (null == mxGraphModelDb) {
                 mxGraphModelDb = MxGraphModelUtils.mxGraphModelNewNoId(username);
                 mxGraphModelDb.setFlowGroup(flowGroupById);
@@ -287,9 +292,9 @@ public class FlowTemplateServiceImpl implements IFlowTemplateService {
             if (null == flowGroupXml) {
                 return ReturnMapUtils.setFailedMsgRtnJsonStr("Conversion failure");
             }
-            // Added processing artboard data
+            // Added processing drawing board data
 
-            // Fetch the artboard data to be added
+            // Fetch the drawing board data to be added
             MxGraphModel mxGraphModelXml = flowGroupXml.getMxGraphModel();
             if (null != mxGraphModelXml) {
                 MxGraphModel mxGraphModel = flowGroupById.getMxGraphModel();
@@ -402,8 +407,8 @@ public class FlowTemplateServiceImpl implements IFlowTemplateService {
         if (null == flowTemplateXmlToFlow) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("Conversion failure");
         }
-        // Added processing artboard data
-        // Fetch the artboard data to be added
+        // Added processing drawing board data
+        // Fetch the drawing board data to be added
         MxGraphModel mxGraphModelXml = flowTemplateXmlToFlow.getMxGraphModel();
         if (null != mxGraphModelXml) {
             MxGraphModel mxGraphModel = flowById.getMxGraphModel();

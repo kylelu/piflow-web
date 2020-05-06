@@ -4118,7 +4118,7 @@ EditorUi.prototype.executeLayout = function(exec, animate, post)
  */
 
 function imageajax(){
-	var data = {ImageType:ImagesType.type};
+	var data = {imageType:ImagesType.type};
 	// console.log(ImagesType.type,'----------------------------------------------------------------------');
 	$.ajax({
 		type: "post",//Request type post

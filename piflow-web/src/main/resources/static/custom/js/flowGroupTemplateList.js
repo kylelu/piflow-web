@@ -112,7 +112,7 @@ function initAll(url) {
 }
 
 function listUploadFlowGroupTemplateBtn() {
-    document.getElementById("flowGroupTemplateFile").click();
+    document.getElementById("flowTemplateFile").click();
 }
 
 function listUploadFlowGroupTemplate() {
@@ -144,7 +144,7 @@ function listUploadFlowGroupTemplate() {
 }
 
 function listFileTypeCheck() {
-    var obj = document.getElementById('flowGroupTemplateFile');
+    var obj = document.getElementById('flowTemplateFile');
     if (obj.value == null || obj.value == '') {
         layer.msg('please upload the XML file', {icon: 2, shade: 0, time: 2000}, function () {
         });
