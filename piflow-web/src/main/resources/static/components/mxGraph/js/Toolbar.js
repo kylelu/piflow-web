@@ -182,13 +182,13 @@ Toolbar.prototype.init = function()
 	this.addSeparator();
 	var insertMenu = this.addMenu('', mxResources.get('layout') + ' (' + mxResources.get('doubleClickTooltip') + ')', true, 'layout', null, true);
 	this.addDropDownArrow(insertMenu, 'geSprite-plus', 38, 48, -4, -3, 36, -8);
-	/*
-	mxResources.get('verticalFlow');
-	mxResources.get('horizontalFlow');
-	this.addSeparator();
-	var elts = this.addItems(['-', 'verticalFlow']);
-	elts[1].setAttribute('title', mxResources.get('verticalFlow') + ' (' + this.editorUi.actions.get('verticalFlow').shortcut + ')');
-	*/
+
+	// mxResources.get('verticalFlow');
+	// mxResources.get('horizontalFlow');
+	// this.addSeparator();
+	// var elts = this.addItems(['-', 'verticalFlow']);
+	// elts[1].setAttribute('title', mxResources.get('verticalFlow') + ' (' + this.editorUi.actions.get('verticalFlow').shortcut + ')');
+
 };
 
 /**

@@ -187,7 +187,7 @@ Format.prototype.init = function()
 				drawingBoardDescription_tr_4.appendChild(drawingBoardDescription_td_4_2);
 				drawingBoardDescription_tr_5.appendChild(drawingBoardDescription_td_5_1);
 				drawingBoardDescription_tr_5.appendChild(drawingBoardDescription_td_5_2);
-				drawingBoardDescription_td_1_1.style.width = "105px";
+				drawingBoardDescription_td_1_1.style.width = "110px";
 				drawingBoardDescription_tr_1.vAlign = 'top';
 				drawingBoardDescription_tr_2.vAlign = 'top';
 				drawingBoardDescription_tr_3.vAlign = 'top';
@@ -5940,7 +5940,7 @@ DiagramFormatPanel.prototype.addView = function(div)
 	drawingBoardDescription_tr_4.appendChild(drawingBoardDescription_td_4_2);
 	drawingBoardDescription_tr_5.appendChild(drawingBoardDescription_td_5_1);
 	drawingBoardDescription_tr_5.appendChild(drawingBoardDescription_td_5_2);
-	drawingBoardDescription_td_1_1.style.width = "105px";
+	drawingBoardDescription_td_1_1.style.width = "110px";
 	drawingBoardDescription_tr_1.vAlign = 'top';
 	drawingBoardDescription_tr_2.vAlign = 'top';
 	drawingBoardDescription_tr_3.vAlign = 'top';

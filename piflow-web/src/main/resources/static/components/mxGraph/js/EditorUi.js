@@ -4110,6 +4110,7 @@ EditorUi.prototype.executeLayout = function(exec, animate, post)
 			}
 		}
 	}
+	saveXml(null, "MOVED");
 };
 
 /**
@@ -4117,6 +4118,7 @@ EditorUi.prototype.executeLayout = function(exec, animate, post)
  */
 
 function imageajax(){
+	console.log(ImagesType,"ImagesTypeImagesTypeImagesType")
 	var data = {imageType:ImagesType.type};
 	var loading
 	$.ajax({
@@ -4166,6 +4168,7 @@ function imageajax(){
 				}
 			})
 			var imgwrap1=$(".imageimg")
+
 		}
 	});
 }
@@ -4250,12 +4253,17 @@ EditorUi.prototype.showImageDialog = function(title, value, fn, ignoreExisting)
 				};
 
 				img.src = newValue;
+
 			}
 			else
 			{
 				fn(null);
 			}
 			layer.close(index)
+			setTimeout(()=>{
+				saveXml(null, "MOVED")
+			},300)
+
 		},
 		//NO BUTTON
 		btn2: function(index, layero){
