@@ -361,10 +361,15 @@ function OpenTheMonitorArtboard(evt) {
                     var dataMap = JSON.parse(data);
                     if (200 === dataMap.code) {
                         var urlPath = "";
+                        // if ('flow' === dataMap.nodeType) {
+                        //     urlPath = "/piflow-web/mxGraph/drawingBoard?drawingBoardType=PROCESS&processType=PROCESS&load=" + dataMap.processId;
+                        // } else if ('flowGroup' === dataMap.nodeType) {
+                        //     urlPath = "/piflow-web/mxGraph/drawingBoard?drawingBoardType=PROCESS&processType=PROCESS_GROUP&load=" + dataMap.processGroupId;
+                        // }
                         if ('flow' === dataMap.nodeType) {
-                            urlPath = "/piflow-web/mxGraph/drawingBoard?drawingBoardType=PROCESS&processType=PROCESS&load=" + dataMap.processId;
+                            urlPath = "/piflow-web/mxGraph/drawingBoard?drawingBoardType=PROCESS&parentAccessPath=processGroupList&processType=PROCESS&load=" + dataMap.processId;
                         } else if ('flowGroup' === dataMap.nodeType) {
-                            urlPath = "/piflow-web/mxGraph/drawingBoard?drawingBoardType=PROCESS&processType=PROCESS_GROUP&load=" + dataMap.processGroupId;
+                            urlPath = "/piflow-web/mxGraph/drawingBoard?drawingBoardType=PROCESS&parentAccessPath=processGroupList&processType=PROCESS_GROUP&load=" + dataMap.processGroupId;
                         }
                         if (urlPath) {
                             var tempWindow = window.location.href = urlPath;
