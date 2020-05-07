@@ -55,9 +55,10 @@ public class ProcessGroupUtils {
     }
 
     public static ProcessGroup flowGroupToProcessGroup(FlowGroup flowGroup, String username, RunModeType runModeType) {
-        ProcessGroup processGroupNew = processGroupNewNoId(username);
+        ProcessGroup processGroupNew = new ProcessGroup();
         // copy FlowGroup to ProcessGroup
         BeanUtils.copyProperties(flowGroup, processGroupNew);
+        processGroupNew = initProcessGroupBasicPropertiesNoId(processGroupNew, username);
 
         // Take out the sketchpad information of 'flowGroup'
         MxGraphModel flowGroupMxGraphModel = flowGroup.getMxGraphModel();
