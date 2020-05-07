@@ -71,8 +71,8 @@ public class MxCellUtils {
         iconMxCellVo.setStyle("text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontFamily=PiFlow;fontColor=#FFFFFF;fontSize=1;");
         MxGeometryVo iconMxGeometryVo = new MxGeometryVo();
         BeanUtils.copyProperties(mxCellVo.getMxGeometryVo(), iconMxGeometryVo);
-        int load_x = Integer.parseInt(iconMxGeometryVo.getX());
-        int load_width = Integer.parseInt(iconMxGeometryVo.getWidth());
+        double load_x = Double.parseDouble(iconMxGeometryVo.getX());
+        double load_width = Double.parseDouble(iconMxGeometryVo.getWidth());
         iconMxGeometryVo.setHeight("0");
         iconMxGeometryVo.setWidth("0");
         iconMxGeometryVo.setX((load_x + load_width) + "");
