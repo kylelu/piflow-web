@@ -72,7 +72,7 @@ public class ProcessUtils {
         ProcessGroup processGroup = process.getProcessGroup();
         if (null != processGroup) {
             ProcessGroupVo processGroupVo = new ProcessGroupVo();
-            BeanUtils.copyProperties(processGroup, processGroupVo);
+            processGroupVo.setId(processGroup.getId());
             processVo.setProcessGroupVo(processGroupVo);
         }
         MxGraphModel mxGraphModel = process.getMxGraphModel();
