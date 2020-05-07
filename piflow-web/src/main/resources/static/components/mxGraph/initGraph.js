@@ -150,79 +150,66 @@ function initGraph() {
         thisEditor = this.editor;
         if (Format.customizeType == "PROCESS") {
             setTimeout(() => {
-                var arr = {};
-                var map = graphGlobal.view.states.map
-                for (var k in map) {
-                    if (map[k].cell.style && map[k].cell.style.indexOf("image\;") === 0) {
-                        arr[map[k].cell.id] = map[k];
-                    }
-                }
+                console.log("svg_element")
                 var svg_element = document.getElementsByClassName('geDiagramBackdrop geDiagramContainer')[0].getElementsByTagName("svg")[0];
                 nodeArr.forEach(item => {
-                    var currentNode = arr[item.pageId];
-                    if (currentNode) {
-                        var image_x = currentNode.cell.geometry.x + currentNode.cell.geometry.width;
-                        var image_y = currentNode.cell.geometry.y;
+                    var img_element_init = document.createElementNS("http://www.w3.org/2000/svg", "image");
+                    img_element_init.setAttribute("x", 0);
+                    img_element_init.setAttribute("y", 0);
+                    img_element_init.setAttribute("width", 20);
+                    img_element_init.setAttribute("height", 20);
+                    img_element_init.setAttribute("PiFlow_IMG", "IMG");
+                    img_element_init.href.baseVal = "/piflow-web/img/Loading.gif";
+                    img_element_init.setAttribute("id", "stopLoadingShow" + item.pageId);
 
-                        var img_element_init = document.createElementNS("http://www.w3.org/2000/svg", "image");
-                        img_element_init.setAttribute("x", image_x);
-                        img_element_init.setAttribute("y", image_y);
-                        img_element_init.setAttribute("width", 20);
-                        img_element_init.setAttribute("height", 20);
-                        img_element_init.setAttribute("PiFlow_IMG", "IMG");
-                        img_element_init.href.baseVal = "/piflow-web/img/Loading.gif";
-                        img_element_init.setAttribute("id", "stopLoadingShow" + item.pageId);
+                    var img_element_ok = document.createElementNS("http://www.w3.org/2000/svg", "image");
+                    img_element_ok.setAttribute("x", 0);
+                    img_element_ok.setAttribute("y", 0);
+                    img_element_ok.setAttribute("width", 20);
+                    img_element_ok.setAttribute("height", 20);
+                    img_element_ok.setAttribute("PiFlow_IMG", "IMG");
+                    img_element_ok.href.baseVal = "/piflow-web/img/Ok.png";
+                    img_element_ok.setAttribute("id", "stopOkShow" + item.pageId);
 
-                        var img_element_ok = document.createElementNS("http://www.w3.org/2000/svg", "image");
-                        img_element_ok.setAttribute("x", image_x);
-                        img_element_ok.setAttribute("y", image_y);
-                        img_element_ok.setAttribute("width", 20);
-                        img_element_ok.setAttribute("height", 20);
-                        img_element_ok.setAttribute("PiFlow_IMG", "IMG");
-                        img_element_ok.href.baseVal = "/piflow-web/img/Ok.png";
-                        img_element_ok.setAttribute("id", "stopOkShow" + item.pageId);
-
-                        var img_element_fail = document.createElementNS("http://www.w3.org/2000/svg", "image");
-                        img_element_fail.setAttribute("x", image_x);
-                        img_element_fail.setAttribute("y", image_y);
-                        img_element_fail.setAttribute("width", 20);
-                        img_element_fail.setAttribute("height", 20);
-                        img_element_fail.setAttribute("PiFlow_IMG", "IMG");
-                        img_element_fail.href.baseVal = "/piflow-web/img/Fail.png";
-                        img_element_fail.setAttribute("id", "stopFailShow" + item.pageId);
-                        console.log("==================================");
-                        img_element_init.style.display = "none";
-                        img_element_fail.style.display = "none";
-                        img_element_ok.style.display = "none";
-                        if (item.state) {
-                            if (item.state !== "INIT") {
-                                //stopImgChange.attr('opacity', 1);
-                                if (item.state && (item.state === "STARTED")) {
-                                    img_element_init.style.display = "block";
-                                    img_element_fail.style.display = "none";
-                                    img_element_ok.style.display = "none";
-                                } else if (item.state && item.state === "COMPLETED") {
-                                    img_element_init.style.display = "none";
-                                    img_element_fail.style.display = "none";
-                                    img_element_ok.style.display = "block";
-                                } else if (item.state && item.state === "FAILED") {
-                                    img_element_init.style.display = "none";
-                                    img_element_fail.style.display = "block";
-                                    img_element_ok.style.display = "none";
-                                }
+                    var img_element_fail = document.createElementNS("http://www.w3.org/2000/svg", "image");
+                    img_element_fail.setAttribute("x", 0);
+                    img_element_fail.setAttribute("y", 0);
+                    img_element_fail.setAttribute("width", 20);
+                    img_element_fail.setAttribute("height", 20);
+                    img_element_fail.setAttribute("PiFlow_IMG", "IMG");
+                    img_element_fail.href.baseVal = "/piflow-web/img/Fail.png";
+                    img_element_fail.setAttribute("id", "stopFailShow" + item.pageId);
+                    img_element_init.style.display = "none";
+                    img_element_fail.style.display = "none";
+                    img_element_ok.style.display = "none";
+                    if (item.state) {
+                        if (item.state !== "INIT") {
+                            //stopImgChange.attr('opacity', 1);
+                            if (item.state && (item.state === "STARTED")) {
+                                img_element_init.style.display = "block";
+                                img_element_fail.style.display = "none";
+                                img_element_ok.style.display = "none";
+                            } else if (item.state && item.state === "COMPLETED") {
+                                img_element_init.style.display = "none";
+                                img_element_fail.style.display = "none";
+                                img_element_ok.style.display = "block";
+                            } else if (item.state && item.state === "FAILED") {
+                                img_element_init.style.display = "none";
+                                img_element_fail.style.display = "block";
+                                img_element_ok.style.display = "none";
                             }
                         }
+                    }
 
-                        if (svg_element && img_element_init && img_element_ok && img_element_fail) {
-                            var g_element = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                            g_element.appendChild(img_element_init);
-                            g_element.appendChild(img_element_ok);
-                            g_element.appendChild(img_element_fail);
-                            svg_element.append(g_element);
-                        }
-                        changIconTranslate();
+                    if (svg_element && img_element_init && img_element_ok && img_element_fail) {
+                        var g_element = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                        g_element.appendChild(img_element_init);
+                        g_element.appendChild(img_element_ok);
+                        g_element.appendChild(img_element_fail);
+                        svg_element.append(g_element);
                     }
                 });
+                changIconTranslate();
             }, 300)
         }
         this.actions.get('export').setEnabled(false);
@@ -501,8 +488,8 @@ function queryStopsProperty(stopPageId) {
 
 function queryFlowOrFlowGroupProperty(flowPageId) {
     flowsPagesId = flowPageId
-    flowdatas=undefined
-    flowGroupdata=undefined
+    flowdatas = undefined
+    flowGroupdata = undefined
     if (!flowPageId || !loadId) {
         return;
     }
@@ -1226,7 +1213,7 @@ function saveXml(paths, operType) {
                         area: ['580px', '520px'], //Width height
                         skin: 'layui-layer-rim', //Add borders
                         content: $("#SubmitPageflow"),
-                        success:function(){
+                        success: function () {
                             queryFlowOrFlowGroupProperty(flowsPagesId)
                             if(flowdatas==undefined || "") {
                                 var index1=0
@@ -2474,9 +2461,9 @@ function processListener(evt, operType) {
                 findBasicInfo(evt);
             }
         } else if ('MOVED' === operType) {
-            statusgroup=""
+            statusgroup = ""
             if (evt.properties.disconnect) {
-                console.log(operType,"c")
+                console.log(operType, "c")
                 saveXml(null, operType);   // 自动布局调用方法
             }
             findBasicInfo(evt);
@@ -2748,13 +2735,23 @@ function getFlowList() {
 }
 
 function changIconTranslate() {
-    var svgDivElementArr = document.getElementsByClassName('geDiagramBackdrop geDiagramContainer');
-    if (svgDivElementArr && svgDivElementArr[0].children.length == 2) {
-        var svgBackgroundObj = svgDivElementArr[0].children[0];
+    var iconPositionElementArr = document.querySelectorAll("div[style='display: inline-block; font-size: 1px; font-family: PiFlow; color: #FFFFFF; line-height: 1.2; pointer-events: all; white-space: nowrap; ']");
+    if (iconPositionElementArr && iconPositionElementArr.length > 0) {
+        var iconPositionArr = {};
+        iconPositionElementArr.forEach(item => {
+            var x_y_div = item.parentElement.parentElement.style;
+            var x_Position = x_y_div['margin-left'].replace("px", "");
+            var y_Position = x_y_div['padding-top'].replace("px", "");
+            iconPositionArr['stopLoadingShow' + item.textContent] = {x: x_Position, y: y_Position};
+            iconPositionArr['stopFailShow' + item.textContent] = {x: x_Position, y: y_Position};
+            iconPositionArr['stopOkShow' + item.textContent] = {x: x_Position, y: y_Position};
+        });
         var imgsArr = document.querySelectorAll("image[PiFlow_IMG='IMG']");
         imgsArr.forEach(item => {
-            console.log(svgBackgroundObj.offsetLeft, svgBackgroundObj.offsetTop)
-            item.setAttribute("transform", "translate(" + svgBackgroundObj.offsetLeft + "," + svgBackgroundObj.offsetTop + ")");
+            var iconPosition = iconPositionArr[item.id]
+            if (iconPosition) {
+                item.setAttribute("transform", "translate(" + iconPosition.x + "," + iconPosition.y + ")");
+            }
         });
     }
 }

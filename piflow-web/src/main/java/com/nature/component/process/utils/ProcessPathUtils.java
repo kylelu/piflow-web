@@ -1,6 +1,7 @@
 package com.nature.component.process.utils;
 
 import com.nature.component.process.model.ProcessPath;
+import org.springframework.beans.BeanUtils;
 
 import java.util.Date;
 
@@ -32,6 +33,18 @@ public class ProcessPathUtils {
         processPath.setLastUpdateDttm(new Date());
         processPath.setVersion(0L);
         return processPath;
+    }
+
+    public static ProcessPath copyProcessPathBasicPropertiesNoIdAndUnlink(ProcessPath processPath, String username) {
+        if (null == processPath) {
+            return null;
+        }
+        // ProcessPath
+        ProcessPath copyProcessPath = new ProcessPath();
+        BeanUtils.copyProperties(processPath, copyProcessPath);
+        copyProcessPath = initProcessPathBasicPropertiesNoId(copyProcessPath,username);
+        copyProcessPath.setProcess(null);
+        return copyProcessPath;
     }
 
 }

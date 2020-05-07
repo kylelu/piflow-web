@@ -22,10 +22,9 @@ public class ProcessAndProcessGroupDomain {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "crt_dttm"));
         return processGroupJpaRepository.getProcessAndProcessGroupListPage(null == param ? "" : param, pageRequest);
     }
-    public Page<Map<String,Object>> getProcessAndProcessGroupListPageByUser(int page, int size, String param) {
+    public Page<Map<String,Object>> getProcessAndProcessGroupListPageByUser(String username,int page, int size, String param) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "crt_dttm"));
-        String currentUser = SessionUserUtil.getCurrentUsername();
-        return processGroupJpaRepository.getProcessAndProcessGroupListPageByUser(currentUser, null == param ? "" : param, pageRequest);
+        return processGroupJpaRepository.getProcessAndProcessGroupListPageByUser(username, null == param ? "" : param, pageRequest);
     }
 
 }

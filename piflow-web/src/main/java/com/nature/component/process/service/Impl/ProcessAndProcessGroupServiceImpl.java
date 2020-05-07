@@ -53,7 +53,13 @@ public class ProcessAndProcessGroupServiceImpl implements IProcessAndProcessGrou
         if (null == offset || null == limit) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr(ReturnMapUtils.ERROR_MSG);
         }
-        Page<Map<String,Object>> processGroupListPage = processAndProcessGroupDomain.getProcessAndProcessGroupListPage(offset - 1, limit, param);
+        Page<Map<String, Object>> processGroupListPage;
+        if (SessionUserUtil.isAdmin()) {
+            processGroupListPage = processAndProcessGroupDomain.getProcessAndProcessGroupListPage(offset - 1, limit, param);
+        } else {
+            String currentUsername = SessionUserUtil.getCurrentUsername();
+            processGroupListPage = processAndProcessGroupDomain.getProcessAndProcessGroupListPageByUser(currentUsername, offset - 1, limit, param);
+        }
         Map<String, Object> rtnMap = ReturnMapUtils.setSucceededMsg(ReturnMapUtils.SUCCEEDED_MSG);
         rtnMap.put("msg", "");
         rtnMap.put("count", processGroupListPage.getTotalElements());

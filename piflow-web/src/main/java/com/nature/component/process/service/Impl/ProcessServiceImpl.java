@@ -443,7 +443,7 @@ public class ProcessServiceImpl implements IProcessService {
      */
     @Override
     public Process processCopyProcessAndAdd(String processId, UserVo currentUser, RunModeType runModeType) {
-        if (StringUtils.isNotBlank(processId)) {
+        if (StringUtils.isBlank(processId)) {
             return null;
         }
         Process process = processDomain.getProcessById(processId);
@@ -601,7 +601,7 @@ public class ProcessServiceImpl implements IProcessService {
         // Query Process by 'ProcessId' and copy new
         Process process = this.processCopyProcessAndAdd(processId, currentUser, runModeType);
         if (null == process) {
-            return ReturnMapUtils.setFailedMsgRtnJsonStr("No process Id'" + processId + "'");
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("No process Id:'" + processId + "'");
         }
         Map<String, Object> stringObjectMap = flowImpl.startFlow(process, checkpoint, runModeType);
         process.setLastUpdateUser(currentUser.getUsername());

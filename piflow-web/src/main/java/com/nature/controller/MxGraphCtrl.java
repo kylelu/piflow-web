@@ -13,9 +13,13 @@ import com.nature.component.flow.service.IFlowGroupService;
 import com.nature.component.flow.service.IFlowService;
 import com.nature.component.flow.vo.StopGroupVo;
 import com.nature.component.group.service.IStopGroupService;
+import com.nature.component.mxGraph.model.MxCell;
 import com.nature.component.mxGraph.model.MxGraphModel;
 import com.nature.component.mxGraph.service.IMxGraphModelService;
 import com.nature.component.mxGraph.service.IMxNodeImageService;
+import com.nature.component.mxGraph.utils.MxCellUtils;
+import com.nature.component.mxGraph.vo.MxCellVo;
+import com.nature.component.mxGraph.vo.MxGeometryVo;
 import com.nature.component.mxGraph.vo.MxGraphModelVo;
 import com.nature.component.process.service.IProcessGroupService;
 import com.nature.component.process.service.IProcessService;
@@ -222,6 +226,32 @@ public class MxGraphCtrl {
         }
         if (null != parentsProcessGroupVo) {
             model.addAttribute("parentsId", parentsProcessGroupVo.getId());
+        }
+        if (null != mxGraphModelVo) {
+            List<MxCellVo> rootVo = mxGraphModelVo.getRootVo();
+            if (null != rootVo && rootVo.size() > 0) {
+                List<MxCellVo> iconTranslate = new ArrayList<>();
+                MxCellVo iconMxCellVo;
+                for (MxCellVo mxCellVo : rootVo) {
+                    if (null == mxCellVo) {
+                        continue;
+                    }
+                    String style = mxCellVo.getStyle();
+                    if (StringUtils.isBlank(style) || style.indexOf("image;") != 0) {
+                        continue;
+                    }
+                    if (null == mxCellVo.getMxGeometryVo()) {
+                        continue;
+                    }
+                    iconMxCellVo = MxCellUtils.initIconMxCellVo(mxCellVo);
+                    if (null == iconMxCellVo) {
+                        continue;
+                    }
+                    iconTranslate.add(iconMxCellVo);
+                }
+                rootVo.addAll(iconTranslate);
+            }
+            mxGraphModelVo.setRootVo(rootVo);
         }
         String loadXml = FlowXmlUtils.mxGraphModelToXml(mxGraphModelVo);
         model.addAttribute("xmlDate", loadXml);
