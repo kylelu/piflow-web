@@ -1410,3 +1410,6 @@ html td.mxWindowTitle {
 .layui-layer-loading{
     z-index: 29891015!important;
 }
+.glyphicon {
+    top: 3px!important;
+}

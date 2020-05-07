@@ -3187,6 +3187,7 @@ Sidebar.prototype.addPalette = function (id, title, expanded, onInit) {
     // Disables built-in pan and zoom in IE10 and later
     if (mxClient.IS_POINTER) {
         div.style.touchAction = 'none';
+        div.style.cursor = 'default';
     }
 
     if (expanded) {

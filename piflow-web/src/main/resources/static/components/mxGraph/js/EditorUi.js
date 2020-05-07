@@ -1374,7 +1374,6 @@ EditorUi.prototype.initClipboard = function()
 
 	// var mxClipboardRun = mxClipboard.run;
 	// mxClipboard.run = function(graph)
-	// {console.log('run暂时ok')};
 
 
 	var mxClipboardPaste = mxClipboard.paste;
@@ -4119,7 +4118,6 @@ EditorUi.prototype.executeLayout = function(exec, animate, post)
 
 function imageajax(){
 	var data = {imageType:ImagesType.type};
-	console.log(ImagesType,'------------------z----------------------------------------------------');
 	var loading
 	$.ajax({
 		type: "post",//Request type post
@@ -4231,12 +4229,8 @@ EditorUi.prototype.showImageDialog = function(title, value, fn, ignoreExisting)
 		},
 		//YES BUTTON
 		btn1: function(index, layero){
-			console.log("YES button")
-			// console.log(imagsrc,"imagsrcimagsrcimagsrcimagsrcimagsrcimagsrc")
 			var newValue = imagsrc;
-
 			imagsrc=null
-			// console.log(newValue,"newValuenewValuenewValuenewValuenewValue") ///piflow-web/img/group_01_128x128.png
 			// var newValue = mxUtils.prompt(title, value);
 			cellEditor.restoreSelection(selState);
 
@@ -4246,7 +4240,6 @@ EditorUi.prototype.showImageDialog = function(title, value, fn, ignoreExisting)
 
 				img.onload = function()
 				{
-					// console.log(img.width, img.height,"kkkkkkkkk")
 					// fn(newValue, img.width, img.height);
 					fn(newValue, 66, 66);
 				};
@@ -4266,7 +4259,6 @@ EditorUi.prototype.showImageDialog = function(title, value, fn, ignoreExisting)
 		},
 		//NO BUTTON
 		btn2: function(index, layero){
-			console.log("NO button")
 			imagsrc=null
 			layer.close(index)
 		},
