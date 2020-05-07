@@ -73,32 +73,6 @@ public class ProcessGroupUtils {
 //----------------------------------------------------------------------------------------------------
         MxGraphModel mxGraphModelProcessGroup = MxGraphModelUtils.copyMxGraphModelAndNewNoIdAndUnlink(flowGroupMxGraphModel);
         mxGraphModelProcessGroup = MxGraphModelUtils.initMxGraphModelBasicPropertiesNoId(mxGraphModelProcessGroup, username);
-        if (null != mxGraphModelProcessGroup) {
-            List<MxCell> rootProcessGroup = mxGraphModelProcessGroup.getRoot();
-            if (null != rootProcessGroup && rootProcessGroup.size() > 0) {
-                List<MxCell> iconTranslate = new ArrayList<>();
-                MxCell iconMxCell;
-                for (MxCell mxCellProcessGroup : rootProcessGroup) {
-                    if (null == mxCellProcessGroup) {
-                        continue;
-                    }
-                    String style = mxCellProcessGroup.getStyle();
-                    if (StringUtils.isBlank(style) || style.indexOf("image;") != 0) {
-                        continue;
-                    }
-                    if (null == mxCellProcessGroup.getMxGeometry()) {
-                        continue;
-                    }
-                    iconMxCell = MxCellUtils.initIconMxCell(mxCellProcessGroup,username);
-                    if (null == iconMxCell) {
-                        continue;
-                    }
-                    iconTranslate.add(iconMxCell);
-                }
-                rootProcessGroup.addAll(iconTranslate);
-            }
-            mxGraphModelProcessGroup.setRoot(rootProcessGroup);
-        }
         // add link
         mxGraphModelProcessGroup.setProcessGroup(processGroupNew);
         processGroupNew.setMxGraphModel(mxGraphModelProcessGroup);

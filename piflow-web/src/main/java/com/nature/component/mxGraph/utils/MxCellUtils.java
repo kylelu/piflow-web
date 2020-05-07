@@ -60,28 +60,6 @@ public class MxCellUtils {
         return pMxCellList;
     }
 
-    public static MxCell initIconMxCell(MxCell mxCell, String username) {
-        if (null == mxCell) {
-            return new MxCell();
-        }
-        MxCell iconMxCell = new MxCell();
-        BeanUtils.copyProperties(mxCell, iconMxCell);
-        iconMxCell.setPageId(mxCell.getPageId() + ".1");
-        iconMxCell.setValue(mxCell.getPageId());
-        iconMxCell.setStyle("text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontFamily=PiFlow;fontColor=#FFFFFF;fontSize=1;");
-        iconMxCell = initMxCellBasicPropertiesNoId(iconMxCell, username);
-        MxGeometry iconMxGeometry = new MxGeometry();
-        BeanUtils.copyProperties(mxCell.getMxGeometry(), iconMxGeometry);
-        int load_x = Integer.parseInt(iconMxGeometry.getX());
-        int load_width = Integer.parseInt(iconMxGeometry.getWidth());
-        iconMxGeometry.setHeight("0");
-        iconMxGeometry.setWidth("0");
-        iconMxGeometry.setX((load_x + load_width) + "");
-        iconMxGeometry = MxGeometryUtils.initMxGeometryBasicPropertiesNoId(iconMxGeometry, username);
-        iconMxCell.setMxGeometry(iconMxGeometry);
-        return iconMxCell;
-    }
-
     public static MxCellVo initIconMxCellVo(MxCellVo mxCellVo) {
         if (null == mxCellVo) {
             return new MxCellVo();
