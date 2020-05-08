@@ -5,17 +5,17 @@ import com.nature.base.vo.UserVo;
 import com.nature.common.Eunm.ProcessParentType;
 import com.nature.common.Eunm.ProcessState;
 import com.nature.common.Eunm.RunModeType;
-import com.nature.component.flow.model.*;
-import com.nature.component.flow.utils.FlowUtil;
-import com.nature.component.mxGraph.model.MxCell;
+import com.nature.component.flow.model.Flow;
+import com.nature.component.flow.model.FlowGroup;
+import com.nature.component.flow.model.FlowGroupPaths;
 import com.nature.component.mxGraph.model.MxGraphModel;
-import com.nature.component.mxGraph.utils.MxCellUtils;
 import com.nature.component.mxGraph.utils.MxGraphModelUtils;
-import com.nature.component.mxGraph.vo.MxCellVo;
 import com.nature.component.mxGraph.vo.MxGraphModelVo;
 import com.nature.component.process.model.Process;
 import com.nature.component.process.model.*;
-import com.nature.component.process.vo.*;
+import com.nature.component.process.vo.ProcessGroupPathVo;
+import com.nature.component.process.vo.ProcessGroupVo;
+import com.nature.component.process.vo.ProcessVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 
@@ -139,10 +139,8 @@ public class ProcessGroupUtils {
             // Loop flowGroupList
             for (FlowGroup flowGroupList_i : flowGroupList) {
                 ProcessGroup processGroupChildNew = flowGroupToProcessGroup(flowGroupList_i, username, runModeType);
-                if (null != processGroupChildNew) {
-                    processGroupChildNew.setProcessGroup(processGroupNew);
-                    processGroupList.add(processGroupChildNew);
-                }
+                processGroupChildNew.setProcessGroup(processGroupNew);
+                processGroupList.add(processGroupChildNew);
             }
             processGroupNew.setProcessGroupList(processGroupList);
         }
@@ -151,18 +149,18 @@ public class ProcessGroupUtils {
     }
 
     public static List<ProcessGroup> copyProcessGroupList(List<ProcessGroup> processGroupList, ProcessGroup processGroup, UserVo currentUser, RunModeType runModeType) {
-        List<ProcessGroup> processGroupListCopy = null;
+        List<ProcessGroup> copyProcessGroupList = null;
         if (null != processGroupList && processGroupList.size() > 0) {
-            processGroupListCopy = new ArrayList<>();
+            copyProcessGroupList = new ArrayList<>();
             for (ProcessGroup processGroup_new : processGroupList) {
-                ProcessGroup processGroupCopy = copyProcessGroup(processGroup_new, currentUser, runModeType);
-                if (null != processGroupCopy) {
-                    processGroupCopy.setProcessGroup(processGroup);
-                    processGroupListCopy.add(processGroupCopy);
+                ProcessGroup copyProcessGroup = copyProcessGroup(processGroup_new, currentUser, runModeType);
+                if (null != copyProcessGroup) {
+                    copyProcessGroup.setProcessGroup(processGroup);
+                    copyProcessGroupList.add(copyProcessGroup);
                 }
             }
         }
-        return processGroupListCopy;
+        return copyProcessGroupList;
     }
 
     public static ProcessGroup copyProcessGroup(ProcessGroup processGroup, UserVo currentUser, RunModeType runModeType) {
@@ -173,166 +171,74 @@ public class ProcessGroupUtils {
         if (null == processGroup) {
             return null;
         }
-        ProcessGroup processGroupCopy = new ProcessGroup();
-        BeanUtils.copyProperties(processGroup, processGroupCopy);
-        processGroupCopy = ProcessGroupUtils.initProcessGroupBasicPropertiesNoId(processGroupCopy, username);
-        processGroupCopy.setId(null);
-        processGroupCopy.setParentProcessId(StringUtils.isNotBlank(processGroup.getParentProcessId()) ? processGroup.getParentProcessId() : processGroup.getProcessId());
-        processGroupCopy.setState(ProcessState.STARTED);
-        processGroupCopy.setRunModeType(null != runModeType ? runModeType : RunModeType.RUN);
-        processGroupCopy.setProcessParentType(ProcessParentType.GROUP);
+        ProcessGroup copyProcessGroup = new ProcessGroup();
+        BeanUtils.copyProperties(processGroup, copyProcessGroup);
+        copyProcessGroup = ProcessGroupUtils.initProcessGroupBasicPropertiesNoId(copyProcessGroup, username);
+        copyProcessGroup.setId(null);
+        copyProcessGroup.setParentProcessId(StringUtils.isNotBlank(processGroup.getParentProcessId()) ? processGroup.getParentProcessId() : processGroup.getProcessId());
+        copyProcessGroup.setState(ProcessState.INIT);
+        copyProcessGroup.setRunModeType(null != runModeType ? runModeType : RunModeType.RUN);
+        copyProcessGroup.setProcessParentType(ProcessParentType.GROUP);
+        copyProcessGroup.setStartTime(null);
+        copyProcessGroup.setEndTime(null);
+        copyProcessGroup.setProgress("0.00");
 
-        // mxGraphModelCopy remove Id
-        MxGraphModel mxGraphModelCopy = processGroupCopy.getMxGraphModel();
-        if (null != mxGraphModelCopy) {
-            mxGraphModelCopy = MxGraphModelUtils.copyMxGraphModelAndNewNoIdAndUnlink(mxGraphModelCopy);
-            mxGraphModelCopy = MxGraphModelUtils.initMxGraphModelBasicPropertiesNoId(mxGraphModelCopy, username);
+        // copyMxGraphModel remove Id
+        MxGraphModel copyMxGraphModel = copyProcessGroup.getMxGraphModel();
+        if (null != copyMxGraphModel) {
+            copyMxGraphModel = MxGraphModelUtils.copyMxGraphModelAndNewNoIdAndUnlink(copyMxGraphModel);
+            copyMxGraphModel = MxGraphModelUtils.initMxGraphModelBasicPropertiesNoId(copyMxGraphModel, username);
             // add link
-            mxGraphModelCopy.setProcessGroup(processGroupCopy);
-            processGroupCopy.setMxGraphModel(mxGraphModelCopy);
+            copyMxGraphModel.setProcessGroup(copyProcessGroup);
+            copyProcessGroup.setMxGraphModel(copyMxGraphModel);
         }
 
         // processGroupPathList
         List<ProcessGroupPath> processGroupPathList = processGroup.getProcessGroupPathList();
-        processGroupCopy.setProcessGroupPathList(copyProcessGroupPathList(processGroupPathList, processGroupCopy, username));
+        copyProcessGroup.setProcessGroupPathList(copyProcessGroupPathList(processGroupPathList, copyProcessGroup, username));
         // processList
         List<Process> processList = processGroup.getProcessList();
-        processGroupCopy.setProcessList(copyProcessList(processList, currentUser, runModeType, processGroupCopy));
+        List<Process> copyProcessList = ProcessUtils.copyProcessList(processList, currentUser, runModeType, copyProcessGroup);
+        copyProcessGroup.setProcessList(copyProcessList);
         // processGroupList
         List<ProcessGroup> processGroupList = processGroup.getProcessGroupList();
-        processGroup.setProcessGroupList(copyProcessGroupList(processGroupList, processGroupCopy, currentUser, runModeType));
-        return processGroupCopy;
+        List<ProcessGroup> copyProcessGroupList = copyProcessGroupList(processGroupList, copyProcessGroup, currentUser, runModeType);
+        copyProcessGroup.setProcessGroupList(copyProcessGroupList);
+        return copyProcessGroup;
     }
 
-    public static List<Process> copyProcessList(List<Process> processList, UserVo currentUser, RunModeType runModeType, ProcessGroup processGroup) {
-        List<Process> processListCopy = null;
-        if (null != processList && processList.size() > 0) {
-            processListCopy = new ArrayList<>();
-            for (Process process : processList) {
-                Process processCopy = copyProcess(process, currentUser, runModeType, processGroup);
-                processListCopy.add(processCopy);
-            }
-        }
-        return processListCopy;
-    }
-
-    public static Process copyProcess(Process process, UserVo currentUser, RunModeType runModeType, ProcessGroup processGroup) {
-        if (null == currentUser) {
-            return null;
-        }
-        String username = currentUser.getUsername();
-        if (StringUtils.isBlank(username) || null == process) {
-            return null;
-        }
-        // process
-        Process processNew = new Process();
-        BeanUtils.copyProperties(process, processNew);
-        processNew = ProcessUtils.initProcessBasicPropertiesNoId(processNew, username);
-        processNew.setId(null);
-        processNew.setState(ProcessState.INIT);
-        processNew.setRunModeType(null != runModeType ? runModeType : RunModeType.RUN);
-        processNew.setParentProcessId(StringUtils.isNotBlank(process.getParentProcessId()) ? process.getParentProcessId() : process.getProcessId());
-        processNew.setProcessParentType(ProcessParentType.GROUP);
-
-        //unlink processGroup
-        processNew.setProcessGroup(null);
-        //link processGroup
-        processNew.setProcessGroup(processGroup);
-
-        // copy processMxGraphModel
-        MxGraphModel processMxGraphModel = process.getMxGraphModel();
-        MxGraphModel mxGraphModelNew = MxGraphModelUtils.copyMxGraphModelAndNewNoIdAndUnlink(processMxGraphModel);
-        mxGraphModelNew = MxGraphModelUtils.initMxGraphModelBasicPropertiesNoId(mxGraphModelNew, username);
-        // add link
-        mxGraphModelNew.setProcess(processNew);
-        processNew.setMxGraphModel(mxGraphModelNew);
-
-        //processPathList
-        List<ProcessPath> processPathList = process.getProcessPathList();
-        if (null != processPathList && processPathList.size() > 0) {
-            List<ProcessPath> processPathListNew = new ArrayList<ProcessPath>();
-            for (ProcessPath processPath : processPathList) {
-                if (null != processPath) {
-                    ProcessPath processPathNew = new ProcessPath();
-                    BeanUtils.copyProperties(processPath, processPathNew);
-                    processPathNew = ProcessPathUtils.initProcessPathBasicPropertiesNoId(processPathNew, username);
-                    processPathNew.setId(null);
-                    processPathNew.setProcess(processNew);
-                    processPathListNew.add(processPathNew);
-                }
-            }
-            processNew.setProcessPathList(processPathListNew);
-        }
-
-        //processStopList
-        List<ProcessStop> processStopList = process.getProcessStopList();
-        if (null != processStopList && processStopList.size() > 0) {
-            List<ProcessStop> processStopListNew = new ArrayList<ProcessStop>();
-            for (ProcessStop processStop : processStopList) {
-                if (null == processStop) {
-                    continue;
-                }
-                ProcessStop processStopNew = new ProcessStop();
-                BeanUtils.copyProperties(processStop, processStopNew);
-                processStopNew = ProcessStopUtils.initProcessStopBasicPropertiesNoId(processStopNew, username);
-                processStopNew.setId(null);
-                processStopNew.setProcess(processNew);
-                List<ProcessStopProperty> processStopPropertyList = processStop.getProcessStopPropertyList();
-                if (null != processStopPropertyList && processStopPropertyList.size() > 0) {
-                    List<ProcessStopProperty> processStopPropertyListNew = new ArrayList<>();
-                    for (ProcessStopProperty processStopProperty : processStopPropertyList) {
-                        if (null == processStopProperty) {
-                            continue;
-                        }
-                        ProcessStopProperty processStopPropertyNew = new ProcessStopProperty();
-                        BeanUtils.copyProperties(processStopProperty, processStopPropertyNew);
-                        processStopPropertyNew = ProcessStopPropertyUtils.initProcessStopPropertyBasicPropertiesNoId(processStopPropertyNew, username);
-                        processStopPropertyNew.setId(null);
-                        processStopPropertyNew.setSensitive(processStopPropertyNew.getSensitive());
-                        processStopPropertyNew.setProcessStop(processStopNew);
-                        processStopPropertyListNew.add(processStopPropertyNew);
-                    }
-                    processStopNew.setProcessStopPropertyList(processStopPropertyListNew);
-                }
-                processStopListNew.add(processStopNew);
-            }
-            processNew.setProcessStopList(processStopListNew);
-        }
-        return processNew;
-    }
-
-    public static List<ProcessGroupPath> copyProcessGroupPathList(List<ProcessGroupPath> processGroupPathList, ProcessGroup processGroupCopy, String username) {
-        List<ProcessGroupPath> processGroupPathListCopy = null;
+    public static List<ProcessGroupPath> copyProcessGroupPathList(List<ProcessGroupPath> processGroupPathList, ProcessGroup copyProcessGroup, String username) {
+        List<ProcessGroupPath> copyProcessGroupPathList = null;
         if (null != processGroupPathList && processGroupPathList.size() > 0) {
-            processGroupPathListCopy = new ArrayList<>();
+            copyProcessGroupPathList = new ArrayList<>();
             for (ProcessGroupPath processGroupPath : processGroupPathList) {
-                ProcessGroupPath processGroupPathCopy = copyProcessGroupPath(processGroupPath, processGroupCopy, username);
-                if (null != processGroupPathCopy) {
-                    processGroupPathListCopy.add(processGroupPathCopy);
+                ProcessGroupPath copyProcessGroupPath = copyProcessGroupPath(processGroupPath, username);
+                if (null != copyProcessGroupPath) {
+                    copyProcessGroupPath.setProcessGroup(copyProcessGroup);
+                    copyProcessGroupPathList.add(copyProcessGroupPath);
                 }
             }
-            processGroupCopy.setProcessGroupPathList(processGroupPathListCopy);
+            //copyProcessGroup.setProcessGroupPathList(copyProcessGroupPathList);
         }
-        return processGroupPathListCopy;
+        return copyProcessGroupPathList;
     }
 
-    public static ProcessGroupPath copyProcessGroupPath(ProcessGroupPath processGroupPath, ProcessGroup processGroupCopy, String username) {
-        ProcessGroupPath processGroupPathCopy = null;
-        if (null != processGroupPath) {
-            processGroupPathCopy = new ProcessGroupPath();
-            processGroupPathCopy.setCrtDttm(new Date());
-            processGroupPathCopy.setCrtUser(username);
-            processGroupPathCopy.setLastUpdateDttm(new Date());
-            processGroupPathCopy.setLastUpdateUser(username);
-            processGroupPathCopy.setEnableFlag(true);
-            processGroupPathCopy.setFrom(processGroupPath.getFrom());
-            processGroupPathCopy.setTo(processGroupPath.getTo());
-            processGroupPathCopy.setInport(processGroupPath.getInport());
-            processGroupPathCopy.setOutport(processGroupPath.getOutport());
-            processGroupPathCopy.setPageId(processGroupPath.getPageId());
-            processGroupPathCopy.setProcessGroup(processGroupCopy);
+    public static ProcessGroupPath copyProcessGroupPath(ProcessGroupPath processGroupPath, String username) {
+        if (null == processGroupPath) {
+            return null;
         }
-        return processGroupPathCopy;
+        ProcessGroupPath copyProcessGroupPath = new ProcessGroupPath();
+        copyProcessGroupPath.setCrtDttm(new Date());
+        copyProcessGroupPath.setCrtUser(username);
+        copyProcessGroupPath.setLastUpdateDttm(new Date());
+        copyProcessGroupPath.setLastUpdateUser(username);
+        copyProcessGroupPath.setEnableFlag(true);
+        copyProcessGroupPath.setFrom(processGroupPath.getFrom());
+        copyProcessGroupPath.setTo(processGroupPath.getTo());
+        copyProcessGroupPath.setInport(processGroupPath.getInport());
+        copyProcessGroupPath.setOutport(processGroupPath.getOutport());
+        copyProcessGroupPath.setPageId(processGroupPath.getPageId());
+        return copyProcessGroupPath;
     }
 
     public static ProcessGroupVo processGroupPoToVo(ProcessGroup processGroup) {
@@ -392,12 +298,13 @@ public class ProcessGroupUtils {
         List<ProcessGroup> processGroupList = processGroup.getProcessGroupList();
         if (null != processGroupList && processGroupList.size() > 0) {
             List<ProcessGroupVo> processGroupVoList = new ArrayList<>();
+            ProcessGroupVo copy_ProcessGroupVo_I;
             for (ProcessGroup processGroup_i : processGroupList) {
-                ProcessGroupVo processGroupVo_I_Copy = processGroupPoToVo(processGroup_i);
-                if (null == processGroupVo_I_Copy) {
+                copy_ProcessGroupVo_I = processGroupPoToVo(processGroup_i);
+                if (null == copy_ProcessGroupVo_I) {
                     continue;
                 }
-                processGroupVoList.add(processGroupVo_I_Copy);
+                processGroupVoList.add(copy_ProcessGroupVo_I);
             }
             processGroupVo.setProcessGroupVoList(processGroupVoList);
         }

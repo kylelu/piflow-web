@@ -96,11 +96,6 @@ public class ProcessGroupDomain {
         return processGroupJpaRepository.save(processGroup);
     }
 
-    public int updateEnableFlagById(String id, boolean enableFlag) {
-        UserVo currentUser = SessionUserUtil.getCurrentUser();
-        return processGroupJpaRepository.updateEnableFlagById(id, currentUser.getUsername(), new Date(), enableFlag);
-    }
-
     public ProcessGroup getProcessGroupByPageId(String fid, String pageId) {
         return processGroupJpaRepository.getProcessGroupByPageId(fid, pageId);
     }

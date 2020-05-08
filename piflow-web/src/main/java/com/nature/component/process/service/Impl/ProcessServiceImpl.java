@@ -184,16 +184,6 @@ public class ProcessServiceImpl implements IProcessService {
     }
 
     /**
-     * Query process according to array AppId
-     *
-     * @param appIDs
-     * @return
-     */
-    public List<ProcessVo> getProcessVoByAppIds(String appIDs) {
-        return null;
-    }
-
-    /**
      * Query appInfo on a third-party interface based on appID and save
      *
      * @param appID
@@ -436,26 +426,6 @@ public class ProcessServiceImpl implements IProcessService {
     }
 
     /**
-     * Copy process and create new
-     *
-     * @param processId
-     * @return
-     */
-    @Override
-    public Process processCopyProcessAndAdd(String processId, UserVo currentUser, RunModeType runModeType) {
-        if (StringUtils.isBlank(processId)) {
-            return null;
-        }
-        Process process = processDomain.getProcessById(processId);
-        Process processCopy = ProcessUtils.copyProcessAndNew(process, currentUser, runModeType);
-        if (null != processCopy) {
-            processCopy = processDomain.saveOrUpdate(processCopy);
-        }
-
-        return processCopy;
-    }
-
-    /**
      * Generate Process and save according to flowId
      *
      * @param flowId
@@ -598,23 +568,29 @@ public class ProcessServiceImpl implements IProcessService {
         if (StringUtils.isBlank(processId) || null == currentUser) {
             return ReturnMapUtils.setFailedMsgRtnJsonStr("processId is null");
         }
-        // Query Process by 'ProcessId' and copy new
-        Process process = this.processCopyProcessAndAdd(processId, currentUser, runModeType);
-        if (null == process) {
-            return ReturnMapUtils.setFailedMsgRtnJsonStr("No process Id:'" + processId + "'");
+        if (StringUtils.isBlank(processId)) {
+            return null;
         }
-        Map<String, Object> stringObjectMap = flowImpl.startFlow(process, checkpoint, runModeType);
-        process.setLastUpdateUser(currentUser.getUsername());
-        process.setLastUpdateDttm(new Date());
+        Process process = processDomain.getProcessById(processId);
+        if (null == process) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("No data by process Id:'" + processId + "'");
+        }
+        Process processCopy = ProcessUtils.copyProcess(process, currentUser, runModeType);
+        if (null != processCopy) {
+            processCopy = processDomain.saveOrUpdate(processCopy);
+        }
+        Map<String, Object> stringObjectMap = flowImpl.startFlow(processCopy, checkpoint, runModeType);
+        processCopy.setLastUpdateUser(currentUser.getUsername());
+        processCopy.setLastUpdateDttm(new Date());
         if (200 == (Integer) stringObjectMap.get("code")) {
-            process.setAppId((String) stringObjectMap.get("appId"));
-            process.setProcessId((String) stringObjectMap.get("appId"));
-            process.setState(ProcessState.STARTED);
-            processDomain.saveOrUpdate(process);
-            return ReturnMapUtils.setSucceededCustomParamRtnJsonStr("processId", process.getId());
+            processCopy.setAppId((String) stringObjectMap.get("appId"));
+            processCopy.setProcessId((String) stringObjectMap.get("appId"));
+            processCopy.setState(ProcessState.STARTED);
+            processDomain.saveOrUpdate(processCopy);
+            return ReturnMapUtils.setSucceededCustomParamRtnJsonStr("processId", processCopy.getId());
         } else {
-            process.setEnableFlag(false);
-            processDomain.saveOrUpdate(process);
+            processCopy.setEnableFlag(false);
+            processDomain.saveOrUpdate(processCopy);
             return ReturnMapUtils.setFailedMsgRtnJsonStr("Calling interface failed, startup failed");
         }
     }

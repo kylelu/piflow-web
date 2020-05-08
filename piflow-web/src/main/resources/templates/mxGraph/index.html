@@ -404,7 +404,7 @@
 
     <div id="processgroup">
          <span>
-				progress：<span id="progress" th:text="${percentage} + '%'"></span>
+				progress：<span id="groupProgress" th:text="${percentage} + '%'"></span>
 			</span>
         <!--        <div class="progress">-->
         <!--            <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">-->
@@ -458,16 +458,16 @@
                     processContent.prepend('<div style="position: fixed;z-index: 779;"><h1>View missing</h1></div>');
                 }
             }
-            if (runFlowGroup) {
+            if (runFlowGroupBtn) {
                 if ("STARTED" === processState) {
-                    runFlowGroup.hide();
-                    debugFlowGroup.hide();
-                    stopFlowGroup.show();
+                    runFlowGroupBtn.hide();
+                    debugFlowGroupBtn.hide();
+                    stopFlowGroupBtn.show();
                     timer = window.setInterval("processGroupMonitoring(appId)", 5000);
                 } else {
-                    runFlowGroup.show();
-                    debugFlowGroup.show();
-                    stopFlowGroup.hide();
+                    runFlowGroupBtn.show();
+                    debugFlowGroupBtn.show();
+                    stopFlowGroupBtn.hide();
                 }
             }
             var processVoListInit = [[${processVoListInit}]];
@@ -515,7 +515,7 @@
                     processContent.prepend('<div style="position: fixed;z-index: 779;"><h1>视图丢失</h1></div>');
                 }
             }
-            if (runFlow) {
+            if (runFlowBtn) {
                 if ("STARTED" === processState) {
                     runFlowBtn.hide();
                     debugFlowBtn.hide();

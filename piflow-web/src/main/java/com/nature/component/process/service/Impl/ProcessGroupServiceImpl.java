@@ -156,46 +156,48 @@ public class ProcessGroupServiceImpl implements IProcessGroupService {
     @Override
     @Transactional
     public String startProcessGroup(String processGroupId, String checkpoint, String runMode, UserVo currentUser) {
-        Map<String, Object> rtnMap = new HashMap<>();
-        rtnMap.put("code", 500);
-        RunModeType runModeType = RunModeType.RUN;
+        if (null == currentUser) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("illegal user");
+        }
+        if (StringUtils.isBlank(processGroupId)) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("processGroupId is null");
+        }
+        RunModeType runModeType = null;
         if (StringUtils.isNotBlank(runMode)) {
             runModeType = RunModeType.selectGender(runMode);
         }
-        if (StringUtils.isNotBlank(processGroupId) && null != currentUser) {
-            // Query Process by 'processGroupId'
-            ProcessGroup processGroupById = processGroupDomain.getProcessGroupById(processGroupId);
-            // copy and Create
-            ProcessGroup processGroupCopy = ProcessGroupUtils.copyProcessGroup(processGroupById, currentUser, runModeType);
-            // ProcessGroup processGroupCopy = this.copyProcessGroupAndNewCreate(processGroupById, currentUser, runModeType);
-            processGroupCopy = processGroupDomain.saveOrUpdate(processGroupCopy);
+        if (null == runModeType) {
+            runModeType = RunModeType.RUN;
+        }
+        // Query Process by 'processGroupId'
+        ProcessGroup processGroupById = processGroupDomain.getProcessGroupById(processGroupId);
+        if (null == processGroupById) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("No data by process group Id'" + processGroupId + "'");
+        }
+        // copy and Create
+        ProcessGroup copyProcessGroup = ProcessGroupUtils.copyProcessGroup(processGroupById, currentUser, runModeType);
+        copyProcessGroup = processGroupDomain.saveOrUpdate(copyProcessGroup);
 
-            if (null != processGroupCopy) {
-                Map<String, Object> stringObjectMap = groupImpl.startFlowGroup(processGroupCopy, runModeType);
-                if (200 == (Integer) stringObjectMap.get("code")) {
-                    processGroupCopy.setAppId((String) stringObjectMap.get("appId"));
-                    processGroupCopy.setProcessId((String) stringObjectMap.get("appId"));
-                    processGroupCopy.setState(ProcessState.STARTED);
-                    processGroupCopy.setLastUpdateUser(currentUser.getUsername());
-                    processGroupCopy.setLastUpdateDttm(new Date());
-                    processGroupCopy.setProcessParentType(ProcessParentType.GROUP);
-                    processGroupDomain.saveOrUpdate(processGroupCopy);
-                    rtnMap.put("code", 200);
-                    rtnMap.put("processGroupId", processGroupCopy.getId());
-                    rtnMap.put("errorMsg", "Successful startup");
-                    logger.info("save process success,update success");
-                } else {
-                    processGroupDomain.updateEnableFlagById(processGroupCopy.getId(), false);
-                    rtnMap.put("errorMsg", "Calling interface failed, startup failed");
-                    logger.warn("Calling interface failed, startup failed");
-                }
-            } else {
-                rtnMap.put("errorMsg", "No process group Id'" + processGroupId + "'");
-                logger.warn("No process group Id'" + processGroupId + "'");
-            }
+        Map<String, Object> rtnMap = new HashMap<>();
+        Map<String, Object> stringObjectMap = groupImpl.startFlowGroup(copyProcessGroup, runModeType);
+        copyProcessGroup.setLastUpdateUser(currentUser.getUsername());
+        copyProcessGroup.setLastUpdateDttm(new Date());
+        if (200 == (Integer) stringObjectMap.get("code")) {
+            copyProcessGroup.setAppId((String) stringObjectMap.get("appId"));
+            copyProcessGroup.setProcessId((String) stringObjectMap.get("appId"));
+            copyProcessGroup.setState(ProcessState.STARTED);
+            copyProcessGroup.setProcessParentType(ProcessParentType.GROUP);
+            processGroupDomain.saveOrUpdate(copyProcessGroup);
+            rtnMap.put("processGroupId", copyProcessGroup.getId());
+            rtnMap.put("errorMsg", "Successful startup");
+            rtnMap.put(ReturnMapUtils.KEY_CODE, ReturnMapUtils.SUCCEEDED_CODE);
+            logger.info("save process success,update success");
         } else {
-            rtnMap.put("errorMsg", "processGroupId is null");
-            logger.warn("processGroupId is null");
+            copyProcessGroup.setEnableFlag(false);
+            rtnMap.put(ReturnMapUtils.KEY_CODE, ReturnMapUtils.ERROR_CODE);
+            rtnMap.put("errorMsg", "Calling interface failed, startup failed");
+            logger.warn("Calling interface failed, startup failed");
+            processGroupDomain.saveOrUpdate(copyProcessGroup);
         }
         return JsonUtils.toJsonNoException(rtnMap);
     }

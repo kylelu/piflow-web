@@ -166,17 +166,21 @@ public class GroupImpl implements IGroup {
         ThirdFlowGroupInfoResponse thirdFlowGroupInfoResponse = getFlowGroupInfo(groupId);
         Double flowGroupProgress = getFlowGroupProgress(groupId);
         //Determine if the progress returned by the interface is empty
-        if (null != thirdFlowGroupInfoResponse) {
-            ProcessGroup processGroupByGroupId = processGroupDomain.getProcessGroupByGroupId(groupId);
-            processGroupByGroupId = ThirdFlowGroupInfoResponseUtils.setProcessGroup(processGroupByGroupId, thirdFlowGroupInfoResponse);
-            if (null == flowGroupProgress || Double.isNaN(flowGroupProgress)) {
-                flowGroupProgress = 0.0;
-            } else if (Double.isInfinite(flowGroupProgress)) {
-                flowGroupProgress = 100.0;
-            }
-            processGroupByGroupId.setProgress(String.format("%.2f", flowGroupProgress));
-            processGroupDomain.saveOrUpdateSyncTask(processGroupByGroupId);
+        if (null == thirdFlowGroupInfoResponse) {
+            return;
         }
+        ProcessGroup processGroupByGroupId = processGroupDomain.getProcessGroupByGroupId(groupId);
+        if (null == processGroupByGroupId) {
+            return;
+        }
+        processGroupByGroupId = ThirdFlowGroupInfoResponseUtils.setProcessGroup(processGroupByGroupId, thirdFlowGroupInfoResponse);
+        if (null == flowGroupProgress || Double.isNaN(flowGroupProgress)) {
+            flowGroupProgress = 0.0;
+        } else if (Double.isInfinite(flowGroupProgress)) {
+            flowGroupProgress = 100.0;
+        }
+        processGroupByGroupId.setProgress(String.format("%.2f", flowGroupProgress));
+        processGroupDomain.saveOrUpdateSyncTask(processGroupByGroupId);
     }
 
     /**

@@ -4,10 +4,7 @@ import com.nature.base.util.JsonUtils;
 import com.nature.base.util.SqlUtils;
 import com.nature.base.util.SvgUtils;
 import com.nature.base.vo.UserVo;
-import com.nature.common.Eunm.PortType;
-import com.nature.common.Eunm.ProcessParentType;
-import com.nature.common.Eunm.ProcessState;
-import com.nature.common.Eunm.RunModeType;
+import com.nature.common.Eunm.*;
 import com.nature.component.dataSource.utils.DataSourceUtils;
 import com.nature.component.flow.model.*;
 import com.nature.component.mxGraph.model.MxGraphModel;
@@ -302,8 +299,25 @@ public class ProcessUtils {
         return process;
     }
 
-    public static Process copyProcessAndNew(Process process, UserVo currentUser, RunModeType runModeType) {
-        Process processCopy = null;
+    public static List<Process> copyProcessList(List<Process> processList, UserVo currentUser, RunModeType runModeType, ProcessGroup processGroup) {
+        List<Process> copyProcessList = null;
+        if (null != processList && processList.size() > 0) {
+            copyProcessList = new ArrayList<>();
+            Process copyProcess;
+            for (Process process : processList) {
+                copyProcess = copyProcess(process, currentUser, runModeType);
+                if (null == copyProcess) {
+                    continue;
+                }
+                //link processGroup
+                copyProcess.setProcessGroup(processGroup);
+                copyProcessList.add(copyProcess);
+            }
+        }
+        return copyProcessList;
+    }
+
+    public static Process copyProcess(Process process, UserVo currentUser, RunModeType runModeType) {
         if (null == currentUser) {
             return null;
         }
@@ -311,64 +325,85 @@ public class ProcessUtils {
         if (StringUtils.isBlank(username) || null == process) {
             return null;
         }
-        processCopy = new Process();
-        //copy
-        BeanUtils.copyProperties(process, processCopy);
-        processCopy = ProcessUtils.initProcessBasicPropertiesNoId(processCopy, username);
-        processCopy.setId(SqlUtils.getUUID32());
-        processCopy.setState(ProcessState.STARTED);
-        processCopy.setRunModeType(null != runModeType ? runModeType : RunModeType.RUN);
+        // process
+        Process copyProcess = new Process();
+        BeanUtils.copyProperties(process, copyProcess);
+        copyProcess = ProcessUtils.initProcessBasicPropertiesNoId(copyProcess, username);
+        copyProcess.setId(null);
+        copyProcess.setState(ProcessState.INIT);
+        copyProcess.setRunModeType(null != runModeType ? runModeType : RunModeType.RUN);
+        copyProcess.setParentProcessId(StringUtils.isNotBlank(process.getParentProcessId()) ? process.getParentProcessId() : process.getProcessId());
+        copyProcess.setProcessParentType(ProcessParentType.GROUP);
+        copyProcess.setStartTime(null);
+        copyProcess.setEndTime(null);
+        copyProcess.setProgress("0.00");
 
-        processCopy.setParentProcessId(StringUtils.isNotBlank(process.getParentProcessId()) ? process.getParentProcessId() : process.getProcessId());
-        processCopy.setProcessParentType(ProcessParentType.PROCESS);
-        ProcessGroup processGroup = process.getProcessGroup();
-        if (null != processGroup) {
-            processCopy.setProcessParentType(ProcessParentType.GROUP);
-        }
+        //unlink processGroup
+        copyProcess.setProcessGroup(null);
 
-        // mxGraphModelCopy remove Id
-        MxGraphModel mxGraphModel = process.getMxGraphModel();
-        if (null != mxGraphModel) {
-            MxGraphModel mxGraphModelCopy = MxGraphModelUtils.copyMxGraphModelAndNewNoIdAndUnlink(mxGraphModel);
-            mxGraphModelCopy = MxGraphModelUtils.initMxGraphModelBasicPropertiesNoId(mxGraphModelCopy, username);
-            // add link
-            mxGraphModelCopy.setProcess(processCopy);
-            processCopy.setMxGraphModel(mxGraphModelCopy);
-        }
+        // copy processMxGraphModel
+        MxGraphModel processMxGraphModel = process.getMxGraphModel();
+        MxGraphModel copyMxGraphModel = MxGraphModelUtils.copyMxGraphModelAndNewNoIdAndUnlink(processMxGraphModel);
+        copyMxGraphModel = MxGraphModelUtils.initMxGraphModelBasicPropertiesNoId(copyMxGraphModel, username);
+        // add link
+        copyMxGraphModel.setProcess(copyProcess);
+        copyProcess.setMxGraphModel(copyMxGraphModel);
 
-        // processPathListCopy removeId
-        //List<ProcessPath> processPathListCopy = processCopy.getProcessPathList();
+        //processPathList
         List<ProcessPath> processPathList = process.getProcessPathList();
         if (null != processPathList && processPathList.size() > 0) {
-            List<ProcessPath> processPathListCopy = new ArrayList<>();
+            List<ProcessPath> copyProcessPathList = new ArrayList<>();
             for (ProcessPath processPath : processPathList) {
-                ProcessPath processPathCopy = ProcessPathUtils.copyProcessPathBasicPropertiesNoIdAndUnlink(processPath, username);
-                if (null == processPathCopy) {
-                    continue;
+                if (null != processPath) {
+                    ProcessPath copyProcessPath = new ProcessPath();
+                    BeanUtils.copyProperties(processPath, copyProcessPath);
+                    copyProcessPath = ProcessPathUtils.initProcessPathBasicPropertiesNoId(copyProcessPath, username);
+                    copyProcessPath.setId(null);
+                    copyProcessPath.setProcess(copyProcess);
+                    copyProcessPathList.add(copyProcessPath);
                 }
-                processPathCopy.setId(SqlUtils.getUUID32());
-                processPathCopy.setProcess(processCopy);
-                processPathListCopy.add(processPathCopy);
             }
-            processCopy.setProcessPathList(processPathListCopy);
+            copyProcess.setProcessPathList(copyProcessPathList);
         }
 
-        //processStopListCopy remove Id
+        //processStopList
         List<ProcessStop> processStopList = process.getProcessStopList();
         if (null != processStopList && processStopList.size() > 0) {
-            List<ProcessStop> processStopListCopy = new ArrayList<>();
+            List<ProcessStop> copyProcessStopList = new ArrayList<>();
             for (ProcessStop processStop : processStopList) {
                 if (null == processStop) {
                     continue;
                 }
-                ProcessStop processStopCopy = ProcessStopUtils.copyProcessStopBasicPropertiesNoIdAndUnlink(processStop, username);
-                processStopCopy.setId(SqlUtils.getUUID32());
-                processStopCopy.setProcess(processCopy);
-                processStopListCopy.add(processStopCopy);
+                ProcessStop copyProcessStop = new ProcessStop();
+                BeanUtils.copyProperties(processStop, copyProcessStop);
+                copyProcessStop = ProcessStopUtils.initProcessStopBasicPropertiesNoId(copyProcessStop, username);
+                copyProcessStop.setId(null);
+                copyProcessStop.setStartTime(null);
+                copyProcessStop.setEndTime(null);
+                copyProcessStop.setState(StopState.INIT);
+                copyProcessStop.setProcess(copyProcess);
+                List<ProcessStopProperty> processStopPropertyList = processStop.getProcessStopPropertyList();
+                if (null != processStopPropertyList && processStopPropertyList.size() > 0) {
+                    List<ProcessStopProperty> copyProcessStopPropertyList = new ArrayList<>();
+                    for (ProcessStopProperty processStopProperty : processStopPropertyList) {
+                        if (null == processStopProperty) {
+                            continue;
+                        }
+                        ProcessStopProperty copyProcessStopProperty = new ProcessStopProperty();
+                        BeanUtils.copyProperties(processStopProperty, copyProcessStopProperty);
+                        copyProcessStopProperty = ProcessStopPropertyUtils.initProcessStopPropertyBasicPropertiesNoId(copyProcessStopProperty, username);
+                        copyProcessStopProperty.setId(null);
+                        copyProcessStopProperty.setSensitive(copyProcessStopProperty.getSensitive());
+                        copyProcessStopProperty.setProcessStop(copyProcessStop);
+                        copyProcessStopPropertyList.add(copyProcessStopProperty);
+                    }
+                    copyProcessStop.setProcessStopPropertyList(copyProcessStopPropertyList);
+                }
+                copyProcessStopList.add(copyProcessStop);
             }
-            processCopy.setProcessStopList(processStopListCopy);
+            copyProcess.setProcessStopList(copyProcessStopList);
         }
-        return processCopy;
+        return copyProcess;
     }
 
     public static String processToJson(Process process, String checkpoint, RunModeType runModeType) {
