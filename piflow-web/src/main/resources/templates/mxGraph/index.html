@@ -459,7 +459,7 @@
                 }
             }
             if (runFlowGroupBtn) {
-                if ("STARTED" === processState) {
+                if ("COMPLETED" !== processState && "FAILED" !== processState && "KILLED" !== processState) {
                     runFlowGroupBtn.hide();
                     debugFlowGroupBtn.hide();
                     stopFlowGroupBtn.show();
@@ -504,7 +504,6 @@
         });
         //@ sourceURL=processContent.js
     } else if (processType === "TASK") {
-
         (function () {
             $('#processflow')[0].style.display = "block"
             $('#processgroup')[0].style.display = "none"
@@ -516,7 +515,7 @@
                 }
             }
             if (runFlowBtn) {
-                if ("STARTED" === processState) {
+                if ("COMPLETED" !== processState && "FAILED" !== processState && "KILLED" !== processState) {
                     runFlowBtn.hide();
                     debugFlowBtn.hide();
                     stopFlowBtn.show();

@@ -1386,7 +1386,7 @@ public class FlowXmlUtils {
             String name = StringCustomUtils.recoverSpecialSymbolsXml(flowGroupElement.attributeValue("name"));
             String description = StringCustomUtils.recoverSpecialSymbolsXml(flowGroupElement.attributeValue("description"));
             String flowGroupPageId = StringCustomUtils.recoverSpecialSymbolsXml(flowGroupElement.attributeValue("pageId"));
-
+            flowGroupPageId = StringUtils.isNotBlank(flowGroupPageId) ? ((Integer.parseInt(flowGroupPageId) + maxPageId) + "") : "";
             FlowGroup flowGroup = new FlowGroup();
             flowGroup.setCrtDttm(new Date());
             flowGroup.setCrtUser(username);

@@ -347,14 +347,18 @@ public class FlowTemplateServiceImpl implements IFlowTemplateService {
                     flowGroupPathsXml.setFlowGroup(flowGroupById);
                 }
                 flowGroupPathsList.addAll(flowGroupPathsListXml);
+                flowGroupById.setFlowGroupPathsList(flowGroupPathsList);
             }
 
             // Added processing of flowGroupPath data
             List<FlowGroup> flowGroupListXml = flowGroupXml.getFlowGroupList();
             if (null != flowGroupListXml && flowGroupListXml.size() > 0) {
+                List<FlowGroup> flowGroupList = flowGroupById.getFlowGroupList();
                 for (FlowGroup flowGroupListXml_i : flowGroupListXml) {
                     flowGroupListXml_i.setFlowGroup(flowGroupById);
                 }
+                flowGroupList.addAll(flowGroupListXml);
+                flowGroupById.setFlowGroupList(flowGroupList);
             }
 
         } else {

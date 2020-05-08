@@ -425,6 +425,7 @@ function changeUrl(key) {
 }
 
 function processMonitoring(appId) {
+    console.log("=============================================================");
     if (appId === '') {
         return;
     }
@@ -443,7 +444,7 @@ function processMonitoring(appId) {
             var dataMap = JSON.parse(data);
             if (200 === dataMap.code) {
                 if (dataMap.state && "" !== dataMap.state) {
-                    if ('STARTED' !== dataMap.state) {
+                    if ("COMPLETED" === dataMap.state || "FAILED" === dataMap.state || "KILLED" === dataMap.state) {
                         window.clearInterval(timer);
                         runFlowBtn.show();
                         debugFlowBtn.show();
