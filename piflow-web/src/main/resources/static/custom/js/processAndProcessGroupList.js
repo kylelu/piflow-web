@@ -13,25 +13,25 @@ function initProcessAndProcessGroupDatatablePage(testTableId, url, searchInputId
                 {
                     field: 'appId', title: 'ProcessGroupId', sort: true, templet: function (data) {
                         console.log(data);
-                        return ('<div name="processAppId">' +data.processType+'_'+ data.appId + '</div>');
+                        return ('<div name="processAppId">' + data.processType + '_' + data.appId + '</div>');
                     }
                 },
                 {field: 'name', title: 'Name', sort: true},
                 {field: 'description', title: 'Description', sort: true},
                 {
-                    field: 'startTime', title: 'StartTime', sort: true, templet: function (data) {
+                    field: 'startTime', title: 'StartTime', sort: true, width: 170, templet: function (data) {
                         data.startTime = data.startTime ? data.startTime : "";
                         return ('<div id="' + data.id + 'startTime" name="processStartTime" >' + data.startTime + '</div>');
                     }
                 },
                 {
-                    field: 'endTime', title: 'EndTime', sort: true, templet: function (data) {
+                    field: 'endTime', title: 'EndTime', sort: true, width: 170, templet: function (data) {
                         data.endTime = data.endTime ? data.endTime : "";
                         return ('<div id="' + data.id + 'endTime" name="processEndTime">' + data.endTime + '</div>');
                     }
                 },
                 {
-                    field: 'progress', title: 'Progress', sort: true, templet: function (data) {
+                    field: 'progress', title: 'Progress', sort: true, width: 220, templet: function (data) {
                         var progressHtmlStr = '<div>' +
                             '<p id="' + data.id + 'Info">' +
                             '<progress id="' + data.id + '" max="100" value="' +
@@ -45,12 +45,12 @@ function initProcessAndProcessGroupDatatablePage(testTableId, url, searchInputId
                     }
                 },
                 {
-                    field: 'state', title: 'Status', sort: true, templet: function (data) {
+                    field: 'state', title: 'Status', sort: true, width: 120, templet: function (data) {
                         return (data.state ? data.state : '');
                     }
                 },
                 {
-                    field: 'right', title: 'Actions', sort: true, height: 100, templet: function (data) {
+                    field: 'right', title: 'Actions', sort: true, width: 180, templet: function (data) {
                         return responseActionHandler(data);
                     }
                 }

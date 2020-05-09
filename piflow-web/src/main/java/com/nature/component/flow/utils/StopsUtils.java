@@ -78,6 +78,7 @@ public class StopsUtils {
         if (null != stop) {
             stopsVo = new StopsVo();
             BeanUtils.copyProperties(stop, stopsVo);
+            stopsVo.setIsCheckpoint(stop.getIsCheckpoint());
             DataSource dataSource = stop.getDataSource();
             // datasource Property Map(Key is the attribute name)
             Map<String, String> dataSourcePropertyMap = DataSourceUtils.dataSourceToPropertyMap(dataSource);

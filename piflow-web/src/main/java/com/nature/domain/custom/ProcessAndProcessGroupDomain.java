@@ -1,8 +1,6 @@
 package com.nature.domain.custom;
 
 
-import com.nature.base.util.SessionUserUtil;
-import com.nature.component.process.model.ProcessAndProcessGroup;
 import com.nature.repository.process.ProcessGroupJpaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

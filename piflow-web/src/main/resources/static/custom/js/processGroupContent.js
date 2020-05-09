@@ -282,7 +282,7 @@ function runProcessGroup(runMode) {
 
 //stop
 function stopProcessGroup() {
-    stopFlow.hide();
+    stopFlowBtn.hide();
     fullScreen.show();
     $.ajax({
         cache: true,//Keep cached data

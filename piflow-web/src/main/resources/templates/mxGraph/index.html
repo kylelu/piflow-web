@@ -180,16 +180,17 @@
                 </div>
                 <div style="z-index: 0;position: fixed;/*display: none;*/">
                     <div id="layer_open_checkpoint">
-                        <div id="checkpointContentNew" style="width: 100%; margin-left: 10px;margin-top: 10px;">
+                        <div id="checkpointContentNew" style="margin-left: 10px;margin-top: 10px;">
                             No checkpoint information was queried
                             <input type="checkbox" value="">
                         </div>
                         <hr>
                         <div style="text-align: right;">
-                            <button id="run_checkpoint_new" type="button" class="btn btn-default" onclick="runProcess()">Submit1
+                            <button id="run_checkpoint_new" type="button" class="btn btn-default" onclick="runProcess()" style="margin-right: 10px;">
+                                Submit
                             </button>
-                            <button id="debug_checkpoint_new" type="button" class="btn btn-default" onclick="runProcess('DEBUG')">
-                                Submit2
+                            <button id="debug_checkpoint_new" type="button" class="btn btn-default" onclick="runProcess('DEBUG')" style="margin-right: 10px;">
+                                Submit
                             </button>
                         </div>
                     </div>

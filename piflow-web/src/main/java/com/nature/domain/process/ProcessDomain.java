@@ -65,6 +65,8 @@ public class ProcessDomain {
         return processJpaRepository.getProcessNoGroupByAppId(appId);
     }
 
-
+    public List<String> getRunningProcessAppId() {
+        return processJpaRepository.getRunningProcessAppId();
+    }
 
 }

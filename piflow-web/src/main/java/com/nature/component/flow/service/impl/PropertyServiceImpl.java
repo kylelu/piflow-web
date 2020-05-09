@@ -12,6 +12,7 @@ import com.nature.component.flow.utils.StopsUtils;
 import com.nature.component.flow.vo.StopsVo;
 import com.nature.component.group.model.PropertyTemplate;
 import com.nature.component.group.model.StopsTemplate;
+import com.nature.domain.flow.StopsDomain;
 import com.nature.mapper.flow.PathsMapper;
 import com.nature.mapper.flow.PropertyMapper;
 import com.nature.mapper.flow.StopsMapper;
@@ -41,9 +42,12 @@ public class PropertyServiceImpl implements IPropertyService {
     @Resource
     private PathsMapper pathsMapper;
 
+    @Resource
+    private StopsDomain stopsDomain;
+
     @Override
     public StopsVo queryAll(String fid, String stopPageId) {
-        Stops stops = propertyMapper.getStopGroupList(fid, stopPageId);
+        Stops stops = stopsDomain.getStopsByPageId(fid, stopPageId);
         StopsVo stopsVo = StopsUtils.stopPoToVo(stops);
         return stopsVo;
     }

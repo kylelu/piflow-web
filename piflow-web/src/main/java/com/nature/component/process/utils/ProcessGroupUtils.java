@@ -182,6 +182,7 @@ public class ProcessGroupUtils {
         copyProcessGroup.setStartTime(null);
         copyProcessGroup.setEndTime(null);
         copyProcessGroup.setProgress("0.00");
+        copyProcessGroup.setAppId(null);
 
         // copyMxGraphModel remove Id
         MxGraphModel copyMxGraphModel = copyProcessGroup.getMxGraphModel();

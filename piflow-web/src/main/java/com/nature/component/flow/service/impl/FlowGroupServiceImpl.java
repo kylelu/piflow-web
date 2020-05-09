@@ -397,7 +397,7 @@ public class FlowGroupServiceImpl implements IFlowGroupService {
         mxCell.setLastUpdateUser(currentUser.getUsername());
         mxCell.setPageId((maxPageId + 1) + "");
         mxCell.setParent("1");
-        mxCell.setStyle("image;html=1;labelBackgroundColor=#ffffff00;image=/piflow-web/img/flow_02_128x128.png");
+        mxCell.setStyle("image;html=1;labelBackgroundColor=#ffffff00;image=/piflow-web/img/flow.png");
         mxCell.setValue(flowNew.getName());
         mxCell.setVertex("1");
 

@@ -139,7 +139,6 @@ Sidebar.prototype.init = function () {
         }
     }
     if (null != component_data && component_data.length > 0) {
-        console.log("==============================================");
         for (var i = 0; i < component_data.length; i++) {
             var component_i = component_data[i];
             if (component_i && '' !== component_i) {
@@ -589,11 +588,12 @@ Sidebar.prototype.searchEntries = function (searchTerms, count, page, success, e
             if (value[i].length > 0) {
                 //循环所有stop信息
                 for (var b = 0; b < valueObj.length; b++) {
+                    var entry = null;
                     //valueObj是否包含输入内容
                     var res = valueObj[b].indexOf(value[i]);
                     if (res != -1) {
                         //包含则拿全名匹配stop
-                        var entry = this.taglist[valueObj[b]];
+                        entry = this.taglist[valueObj[b]];
                     } else {
                         continue;
                     }
@@ -607,13 +607,13 @@ Sidebar.prototype.searchEntries = function (searchTerms, count, page, success, e
                             var entry = arr[j];
 
                             // NOTE Array does not contain duplicates
-                            if ((index == 0) == (dict.get(entry) == null)) {
+                            if (dict.get(entry) == null) {
+                            /*if ((index == 0) == (dict.get(entry) == null)) {*/
                                 tmpDict.put(entry, entry);
                                 results.push(entry);
 
                                 if (i == tmp.length - 1 && results.length == max) {
                                     success(results.slice(page * count, max), max, true, tmp);
-
                                     return;
                                 }
                             }

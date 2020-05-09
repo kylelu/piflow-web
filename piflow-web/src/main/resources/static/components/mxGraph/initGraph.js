@@ -449,7 +449,7 @@ function queryStopsProperty(stopPageId) {
                 var addParamData = {
                     data: data.propertiesVo,
                     stopId: data.id,
-                    isCheckpoint: data.checkpoint,
+                    isCheckpoint: data.isCheckpoint,
                     stopPageId: stopPageId,
                     isCustomized: data.isCustomized,
                     stopsCustomizedPropertyVoList: data.stopsCustomizedPropertyVoList,

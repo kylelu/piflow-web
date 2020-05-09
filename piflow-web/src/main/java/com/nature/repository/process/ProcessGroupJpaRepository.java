@@ -1,6 +1,7 @@
 package com.nature.repository.process;
 
-import com.nature.component.process.model.ProcessAndProcessGroup;
+import com.nature.base.util.SqlUtils;
+import com.nature.common.Eunm.ProcessState;
 import com.nature.component.process.model.ProcessGroup;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,12 +18,13 @@ import java.util.List;
 import java.util.Map;
 
 public interface ProcessGroupJpaRepository extends JpaRepository<ProcessGroup, String>, JpaSpecificationExecutor<ProcessGroup>, Serializable {
+
     /**
      * Paging query
      *
      * @return
      */
-    @Query("select c from ProcessGroup c where c.enableFlag=true and (c.name like CONCAT('%',:param,'%') or c.description like CONCAT('%',:param,'%'))")
+    @Query(value = "select c from ProcessGroup c where c.enableFlag=true and (c.name like CONCAT('%',:param,'%') or c.description like CONCAT('%',:param,'%'))")
     Page<ProcessGroup> getProcessGroupListPage(@Param("param") String param, Pageable pageable);
 
     /**
@@ -30,30 +32,34 @@ public interface ProcessGroupJpaRepository extends JpaRepository<ProcessGroup, S
      *
      * @return
      */
-    @Query("select c from ProcessGroup c where c.enableFlag=true and c.crtUser=:userName and (c.name like CONCAT('%',:param,'%') or c.description like CONCAT('%',:param,'%'))")
+    @Query(value = "select c from ProcessGroup c where c.enableFlag=true and c.crtUser=:userName and (c.name like CONCAT('%',:param,'%') or c.description like CONCAT('%',:param,'%'))")
     Page<ProcessGroup> getProcessGroupListPageByUser(@Param("userName") String userName, @Param("param") String param, Pageable pageable);
-
-    @Transactional
-    @Modifying
-    @Query("update ProcessGroup c set c.enableFlag = :enableFlag, c.lastUpdateUser = :lastUpdateUser, c.lastUpdateDttm = :lastUpdateDttm where c.id = :id")
-    int updateEnableFlagById(@Param("id") String id, @Param("lastUpdateUser") String lastUpdateUser, @Param("lastUpdateDttm") Date lastUpdateDttm, @Param("enableFlag") boolean enableFlag);
-
-    @Transactional
-    @Query(nativeQuery = true, value = "select * from flow_process_group s where s.enable_flag = 1 and s.fk_flow_process_group_id = :fid and s.page_id = :pageId")
-    ProcessGroup getProcessGroupByPageId(@Param("fid") String fid, @Param("pageId") String pageId);
-
-    @Query(nativeQuery = true, value = "select s.id from flow_process_group s where s.enable_flag = 1 and s.fk_flow_process_group_id = :fid and s.page_id = :pageId")
-    String getProcessGroupIdByPageId(@Param("fid") String fid, @Param("pageId") String pageId);
 
     @Query(value = "select s from ProcessGroup s where s.enableFlag=true and s.appId=:appId")
     ProcessGroup getProcessGroupByAppId(@Param("appId") String appId);
 
-    @Query(nativeQuery = true,
-            value = "SELECT re.name AS name,re.page_id AS pageId FROM ( " +
-                    "SELECT name,page_id FROM flow_process_group WHERE enable_flag=1 AND fk_flow_process_group_id=:fid AND page_id IN (:pageIds) " +
-                    "UNION ALL " +
-                    "SELECT name,page_id FROM flow_process WHERE enable_flag=1 AND fk_flow_process_group_id=:fid AND page_id IN (:pageIds) " +
-                    ") AS re ")
+    @Modifying
+    @Query("update ProcessGroup c set c.enableFlag = :enableFlag, c.lastUpdateUser = :lastUpdateUser, c.lastUpdateDttm = :lastUpdateDttm where c.id = :id")
+    int updateEnableFlagById(@Param("id") String id, @Param("lastUpdateUser") String lastUpdateUser, @Param("lastUpdateDttm") Date lastUpdateDttm, @Param("enableFlag") boolean enableFlag);
+
+    @Query(value = "select * from flow_process_group s where s.enable_flag = 1 and s.fk_flow_process_group_id = :fid and s.page_id = :pageId"
+            , nativeQuery = true)
+    ProcessGroup getProcessGroupByPageId(@Param("fid") String fid, @Param("pageId") String pageId);
+
+    @Query(value = "select s.id from flow_process_group s where s.enable_flag = 1 and s.fk_flow_process_group_id = :fid and s.page_id = :pageId"
+            , nativeQuery = true)
+    String getProcessGroupIdByPageId(@Param("fid") String fid, @Param("pageId") String pageId);
+
+    @Query(value = "select app_id from flow_process_group where enable_flag=1 and app_id is not null and ( (state!='COMPLETED' and state!='FAILED' and state!='KILLED') or state is null )"
+            , nativeQuery = true)
+    List<String> getRunningProcessGroupAppId();
+
+    @Query(value = "SELECT re.name AS name,re.page_id AS pageId FROM ( " +
+                   "SELECT name,page_id FROM flow_process_group WHERE enable_flag=1 AND fk_flow_process_group_id=:fid AND page_id IN (:pageIds) " +
+                   "UNION ALL " +
+                   "SELECT name,page_id FROM flow_process WHERE enable_flag=1 AND fk_flow_process_group_id=:fid AND page_id IN (:pageIds) " +
+                   ") AS re "
+            , nativeQuery = true)
     List<Map<String, Object>> getProcessGroupNamesAndPageIdsByPageIds(@Param("fid") String fid, @Param("pageIds") List<String> pageIds);
 
     /**
@@ -61,20 +67,20 @@ public interface ProcessGroupJpaRepository extends JpaRepository<ProcessGroup, S
      *
      * @return
      */
-    @Query(nativeQuery = true,
-            value = "SELECT id,last_update_dttm AS lastUpdateDttm,crt_dttm AS crtDttm,app_id AS appId,name,description,start_time AS startTime,end_time AS endTime,progress,state,parent_process_id AS parentProcessId,processType FROM (" +
-                    "SELECT id,last_update_dttm,crt_dttm,app_id,name,description,start_time,end_time,progress,state,parent_process_id,'TASK' AS processType FROM flow_process " +
-                    "WHERE enable_flag=1 AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
-                    "UNION ALL " +
-                    "SELECT id,last_update_dttm,crt_dttm,app_id,name,description,start_time,end_time,progress,state,parent_process_id,'GROUP' AS processType FROM flow_process_group " +
-                    "WHERE enable_flag=1 AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
-                    ") AS re"
+    @Query(value = "SELECT id,last_update_dttm AS lastUpdateDttm,crt_dttm AS crtDttm,app_id AS appId,name,description,start_time AS startTime,end_time AS endTime,progress,state,parent_process_id AS parentProcessId,processType FROM (" +
+                   "SELECT id,last_update_dttm,crt_dttm,app_id,name,description,start_time,end_time,progress,state,parent_process_id,'TASK' AS processType FROM flow_process " +
+                   "WHERE enable_flag=1 AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
+                   "UNION ALL " +
+                   "SELECT id,last_update_dttm,crt_dttm,app_id,name,description,start_time,end_time,progress,state,parent_process_id,'GROUP' AS processType FROM flow_process_group " +
+                   "WHERE enable_flag=1 AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
+                   ") AS re"
             , countQuery = "SELECT COUNT(re.id) FROM " +
-            "(" +
-            "SELECT id FROM flow_process WHERE enable_flag=1 AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
-            "UNION ALL " +
-            "SELECT id FROM flow_process_group WHERE enable_flag=1 AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
-            ") AS re")
+                           "(" +
+                           "SELECT id FROM flow_process WHERE enable_flag=1 AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
+                           "UNION ALL " +
+                           "SELECT id FROM flow_process_group WHERE enable_flag=1 AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
+                           ") AS re"
+            , nativeQuery = true)
     Page<Map<String, Object>> getProcessAndProcessGroupListPage(@Param("param") String param, Pageable pageable);
 
     /**
@@ -82,20 +88,20 @@ public interface ProcessGroupJpaRepository extends JpaRepository<ProcessGroup, S
      *
      * @return
      */
-    @Query(nativeQuery = true,
-            value = "SELECT id,last_update_dttm AS lastUpdateDttm,crt_dttm AS crtDttm,app_id AS appId,name,description,start_time AS startTime,end_time AS endTime,progress,state,parent_process_id AS parentProcessId,processType FROM " +
-                    "(" +
-                    "SELECT id,last_update_dttm,crt_dttm,app_id,name,description,start_time,end_time,progress,state,parent_process_id,'TASK' AS processType FROM flow_process " +
-                    "WHERE enable_flag=1 AND crt_user=:userName AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
-                    "UNION ALL " +
-                    "SELECT id,last_update_dttm,crt_dttm,app_id,name,description,start_time,end_time,progress,state,parent_process_id,'GROUP' AS processType FROM flow_process_group " +
-                    "WHERE enable_flag=1 AND crt_user=:userName AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
-                    ")"
+    @Query(value = "SELECT id,last_update_dttm AS lastUpdateDttm,crt_dttm AS crtDttm,app_id AS appId,name,description,start_time AS startTime,end_time AS endTime,progress,state,parent_process_id AS parentProcessId,processType FROM " +
+                   "(" +
+                   "SELECT id,last_update_dttm,crt_dttm,app_id,name,description,start_time,end_time,progress,state,parent_process_id,'TASK' AS processType FROM flow_process " +
+                   "WHERE enable_flag=1 AND crt_user=:userName AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
+                   "UNION ALL " +
+                   "SELECT id,last_update_dttm,crt_dttm,app_id,name,description,start_time,end_time,progress,state,parent_process_id,'GROUP' AS processType FROM flow_process_group " +
+                   "WHERE enable_flag=1 AND crt_user=:userName AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
+                   ")"
             , countQuery = "SELECT COUNT(re.id) FROM " +
-            "(" +
-            "SELECT id FROM flow_process WHERE enable_flag=1 AND crt_user=:userName AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
-            "UNION ALL " +
-            "SELECT id FROM flow_process_group WHERE enable_flag=1 AND crt_user=:userName AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
-            ") AS re")
+                           "(" +
+                           "SELECT id FROM flow_process WHERE enable_flag=1 AND crt_user=:userName AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
+                           "UNION ALL " +
+                           "SELECT id FROM flow_process_group WHERE enable_flag=1 AND crt_user=:userName AND app_id IS NOT NULL AND fk_flow_process_group_id IS NULL AND (name LIKE CONCAT('%',:param,'%') OR description LIKE CONCAT('%',:param,'%'))" +
+                           ") AS re"
+            , nativeQuery = true)
     Page<Map<String, Object>> getProcessAndProcessGroupListPageByUser(@Param("userName") String userName, @Param("param") String param, Pageable pageable);
 }

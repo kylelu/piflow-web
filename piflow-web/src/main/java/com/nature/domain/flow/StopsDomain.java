@@ -4,6 +4,8 @@ import com.nature.component.flow.model.Stops;
 import com.nature.repository.flow.StopsJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -63,7 +65,9 @@ public class StopsDomain {
         return stopsJpaRepository.getStopNamesByFlowId(flowId);
     }
 
-
+    public Stops getStopsByPageId(String fid, String stopPageId) {
+        return stopsJpaRepository.getStopsByPageId(fid, stopPageId);
+    }
 
 
 }

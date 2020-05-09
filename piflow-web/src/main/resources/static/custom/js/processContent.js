@@ -6,6 +6,7 @@ var processContent = $('#processContent');
 var checkpointShow = $('#checkpointShow');
 var isLoadProcessInfo = true;
 var isEnd = false;
+
 function selectedFormation(pageId, e) {
     if (isLoadProcessInfo) {
         isLoadProcessInfo = false;
@@ -188,28 +189,42 @@ function getCheckpoint(runMode) {
         },
         success: function (data) {//Operation after request successful
             console.log("success");
-            $('#checkpointContent').html(data);
+            //$('#checkpointContent').html(data);
             $('#checkpointContentNew').html(data);
             if ($('#checkpointsIsNull').val()) {
                 runProcess(runMode);
             } else {
-                checkpointShow.modal('show');
                 runFlowBtn.show();
                 debugFlowBtn.show();
                 fullScreen.hide();
+
+                /*checkpointShow.modal('show');
                 if ("DEBUG" === runMode) {
                     $("#debug_checkpoint").show();
                     $("#run_checkpoint").hide();
-
-                    $("#debug_checkpoint_new").show();
-                    $("#run_checkpoint_new").hide();
                 } else {
                     $("#debug_checkpoint").hide();
                     $("#run_checkpoint").show();
-
+                }*/
+                if ("DEBUG" === runMode) {
+                    $("#debug_checkpoint_new").show();
+                    $("#run_checkpoint_new").hide();
+                } else {
                     $("#debug_checkpoint_new").hide();
                     $("#run_checkpoint_new").show();
                 }
+                layer.open({
+                    type: 1,
+                    title: '<span style="color: #269252;">Select Run Mode</span>',
+                    shadeClose: true,
+                    closeBtn: 1,
+                    shift: 7,
+                    //area: ['600px', '200px'], //Width height
+                    skin: 'layui-layer-rim', //Add borders
+                    area: ['600px', ($("#layer_open_checkpoint").height() + 73) + 'px'], //Width Height
+                    content: $("#layer_open_checkpoint").html()
+                });
+
             }
         }
     });
