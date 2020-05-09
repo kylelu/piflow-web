@@ -189,7 +189,6 @@ function getCheckpoint(runMode) {
         },
         success: function (data) {//Operation after request successful
             console.log("success");
-            //$('#checkpointContent').html(data);
             $('#checkpointContentNew').html(data);
             if ($('#checkpointsIsNull').val()) {
                 runProcess(runMode);
@@ -198,14 +197,6 @@ function getCheckpoint(runMode) {
                 debugFlowBtn.show();
                 fullScreen.hide();
 
-                /*checkpointShow.modal('show');
-                if ("DEBUG" === runMode) {
-                    $("#debug_checkpoint").show();
-                    $("#run_checkpoint").hide();
-                } else {
-                    $("#debug_checkpoint").hide();
-                    $("#run_checkpoint").show();
-                }*/
                 if ("DEBUG" === runMode) {
                     $("#debug_checkpoint_new").show();
                     $("#run_checkpoint_new").hide();
@@ -244,7 +235,7 @@ function runProcess(runMode) {
     runFlowBtn.hide();
     debugFlowBtn.hide();
     var checkpointStr = '';
-    $('#checkpointContent').find("input[type='checkbox']:checked").each(function () {
+    $(".layui-layer-content").find("#checkpointContentNew").find("input[type='checkbox']:checked").each(function () {
         if ('' !== checkpointStr) {
             checkpointStr = (checkpointStr + ',');
         }
@@ -440,7 +431,6 @@ function changeUrl(key) {
 }
 
 function processMonitoring(appId) {
-    console.log("=============================================================");
     if (appId === '') {
         return;
     }

@@ -197,6 +197,10 @@ function initGraph() {
                                 img_element_init.style.display = "none";
                                 img_element_fail.style.display = "block";
                                 img_element_ok.style.display = "none";
+                            } else if (item.state && item.state === "KILLED") {
+                                img_element_init.style.display = "none";
+                                img_element_fail.style.display = "block";
+                                img_element_ok.style.display = "none";
                             }
                         }
                     }

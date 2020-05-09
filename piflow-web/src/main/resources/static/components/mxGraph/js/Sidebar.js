@@ -217,12 +217,12 @@ Sidebar.prototype.gearImage = STENCIL_PATH + '/clipart/Gear_128x128.png';
 /**
  * Specifies the width of the thumbnails.
  */
-Sidebar.prototype.thumbWidth = 56;
+Sidebar.prototype.thumbWidth = 82;
 
 /**
  * Specifies the height of the thumbnails.
  */
-Sidebar.prototype.thumbHeight = 56;
+Sidebar.prototype.thumbHeight = 82;
 
 /**
  * Specifies the width of the thumbnails.
@@ -250,8 +250,8 @@ Sidebar.prototype.thumbBorder = 2;
 if (urlParams['sidebar-entries'] != 'large') {
     Sidebar.prototype.thumbPadding = (document.documentMode >= 5) ? 0 : 1;
     Sidebar.prototype.thumbBorder = 1;
-    Sidebar.prototype.thumbWidth = 56;
-    Sidebar.prototype.thumbHeight = 56;
+    Sidebar.prototype.thumbWidth = 82;
+    Sidebar.prototype.thumbHeight = 82;
     Sidebar.prototype.minThumbStrokeWidth = 1.3;
     Sidebar.prototype.thumbAntiAlias = true;
 }
