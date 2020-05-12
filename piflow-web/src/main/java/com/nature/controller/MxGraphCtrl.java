@@ -21,6 +21,7 @@ import com.nature.component.mxGraph.utils.MxCellUtils;
 import com.nature.component.mxGraph.vo.MxCellVo;
 import com.nature.component.mxGraph.vo.MxGeometryVo;
 import com.nature.component.mxGraph.vo.MxGraphModelVo;
+import com.nature.component.mxGraph.vo.MxGraphVo;
 import com.nature.component.process.service.IProcessGroupService;
 import com.nature.component.process.service.IProcessService;
 import com.nature.component.process.vo.ProcessGroupVo;
@@ -30,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -37,10 +39,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * grapheditorctrl
@@ -352,6 +351,13 @@ public class MxGraphCtrl {
         String loadId = request.getParameter("load");
         String operType = request.getParameter("operType");
         return mxGraphModelServiceImpl.saveDataForGroup(imageXML, loadId, operType, true);
+    }
+
+    @RequestMapping("/addMxCellAndData")
+    @ResponseBody
+    public String addMxCellAndData(@RequestBody MxGraphVo mxGraphVo) {
+        String currentUsername = SessionUserUtil.getCurrentUsername();
+        return mxGraphModelServiceImpl.addMxCellAndData(mxGraphVo, currentUsername);
     }
 
     @RequestMapping("/uploadNodeImage")

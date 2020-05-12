@@ -8,7 +8,7 @@ var flag = 0;
 var timerPath;
 var currentStopPageId;
 var drawingBoardType = $("#drawingBoardType").val();
-var statusgroup, flowPageIdcha, flowGroupdata, cellprecess, flowdatas, removegroupPaths,flowsPagesId
+var statusgroup, flowPageIdcha, flowGroupdata, cellprecess, flowdatas, removegroupPaths, flowsPagesId
 getrightinfo()
 var index = true
 
@@ -43,7 +43,7 @@ function getrightinfo(cell) {
             }
         })
         //info
-    } else if (cell == undefined || cell && cell.style && (cell.style).indexOf("text\;") === 0 ) {
+    } else if (cell == undefined || cell && cell.style && (cell.style).indexOf("text\;") === 0) {
         if (processType == "GROUP") {
             $.ajax({
                 cache: true,
@@ -252,16 +252,20 @@ function initGraph() {
         if ('GROUP' === Format.customizeType) {
             graphGlobal.addListener(mxEvent.DOUBLE_CLICK, function (sender, evt) {
                 openProcessMonitor(evt);
-                    if (evt.properties.cell.style && (evt.properties.cell.style).indexOf("text\;") === 0) {
-                        if (graphGlobal.isEnabled()) { graphGlobal.startEditingAtCell();}
+                if (evt.properties.cell.style && (evt.properties.cell.style).indexOf("text\;") === 0) {
+                    if (graphGlobal.isEnabled()) {
+                        graphGlobal.startEditingAtCell();
                     }
+                }
             });
         }
         if ('TASK' === Format.customizeType) {
             graphGlobal.addListener(mxEvent.DOUBLE_CLICK, function (sender, evt) {
                 openProcessMonitor(evt);
                 if (evt.properties.cell.style && (evt.properties.cell.style).indexOf("text\;") === 0) {
-                    if (graphGlobal.isEnabled()) { graphGlobal.startEditingAtCell();}
+                    if (graphGlobal.isEnabled()) {
+                        graphGlobal.startEditingAtCell();
+                    }
                 }
             });
         }
@@ -623,6 +627,7 @@ function queryFlowOrFlowGroupProperty(flowPageId) {
     // }
     // },500)
 }
+
 function queryPathInfo(id) {
     var param_values = {};
     param_values.customizeBasic_td_1_1_span_children = 'pageId：';
@@ -1083,35 +1088,6 @@ function fillDatasource(datasource, stop_id, stop_page_id) {
     }
 }
 
-// Adding Operational Processing
-function addCellsCustom(cells, operType) {
-    var removePaths = [], removegroupPaths = [];
-    var paths = [];
-    for (var i = 0; i < cells.length; i++) {
-        var cellfor = cells[i];
-        if (cellfor && cellfor.edge) {
-            if (cellfor.target && cellfor.source) {
-                paths[paths.length] = cellfor;
-            } else {
-                removePaths[removePaths.length] = cellfor;
-            }
-        } else if (cellfor.style && (cellfor.style).indexOf("image\;") === 0) {
-            removegroupPaths[removegroupPaths.length] = cellfor;
-        } else if (cellfor.style && (cellfor.style).indexOf("text\;") === 0 && Format.customizeType == "PROCESS") {
-            graphGlobal.removeCells(removePaths);
-            removePaths[removePaths.length] = cellfor;
-        }
-        // else if (cellfor.style && (cellfor.style).indexOf("text\;") === 0) {
-        //     removePaths[removePaths.length] = cellfor;
-        // }
-    }
-    removegroupPaths = removegroupPaths;
-    graphGlobal.removeCells(removePaths);
-    if (cells.length != removePaths.length) {
-        saveXml(paths, operType);
-    }
-}
-
 //Save XML file and related information
 function saveXml(paths, operType) {
     var getXml = thisEditor.getGraphXml();
@@ -1123,7 +1099,7 @@ function saveXml(paths, operType) {
     } else if ('GROUP' === Format.customizeType) {
         url = "/piflow-web/mxGraph/saveDataForGroup";
     }
-    var time,time1
+    var time, time1
     $.ajax({
         cache: true,//Keep cached data
         type: "POST",//Request type post
@@ -1163,30 +1139,28 @@ function saveXml(paths, operType) {
 
                             queryFlowOrFlowGroupProperty(flowsPagesId)
 
-                            setTimeout(()=>{
-                                if(flowGroupdata==undefined) {
-                                    var index2=0
+                            setTimeout(() => {
+                                if (flowGroupdata == undefined) {
+                                    var index2 = 0
                                     clearInterval(time)
                                     clearInterval(time1)
-                                    time1=  setInterval(() => {
+                                    time1 = setInterval(() => {
                                         if (index2 < 4) {
                                             queryFlowOrFlowGroupProperty(flowsPagesId)
                                             index2++
-                                        }
-                                        else if(index2 >= 4){
+                                        } else if (index2 >= 4) {
                                             // layer.closeAll()
                                             // layer.msg("Network Anomaly", {icon: 5})
                                             alert("Network Anomaly")
                                             clearInterval(time1)
-                                            index2=0
-                                            // graphGlobal.removeCells(removegroupPaths);
-                                        }else{
+                                            index2 = 0
+                                        } else {
                                             clearInterval(time)
                                             clearInterval(time1)
                                         }
                                     }, 300)
                                 }
-                            },500)
+                            }, 500)
 
                         },
                         cancel: function (index, layero) {
@@ -1222,30 +1196,28 @@ function saveXml(paths, operType) {
                             queryFlowOrFlowGroupProperty(flowsPagesId)
 
 
-                            setTimeout(()=>{
-                                if(flowdatas==undefined) {
-                                    var index2=0
+                            setTimeout(() => {
+                                if (flowdatas == undefined) {
+                                    var index2 = 0
                                     clearInterval(time)
                                     clearInterval(time1)
-                                    time1=  setInterval(() => {
+                                    time1 = setInterval(() => {
                                         if (index2 < 4) {
                                             queryFlowOrFlowGroupProperty(flowsPagesId)
                                             index2++
-                                        }
-                                        else if(index2 >= 4){
+                                        } else if (index2 >= 4) {
                                             // layer.closeAll()
                                             // layer.msg("Network Anomaly", {icon: 5})
                                             alert("Network Anomaly")
                                             clearInterval(time1)
-                                            index2=0
-                                            // graphGlobal.removeCells(removegroupPaths);
-                                        }else{
+                                            index2 = 0
+                                        } else {
                                             clearInterval(time)
                                             clearInterval(time1)
                                         }
                                     }, 300)
                                 }
-                            },500)
+                            }, 500)
                         },
 
                         cancel: function (index, layero) {
@@ -1256,12 +1228,14 @@ function saveXml(paths, operType) {
                         }
                     });
 
-                } else if(statusgroup == null || statusgroup=="" || 'TASK' === Format.customizeType) {
+                } else if (statusgroup == null || statusgroup == "" || 'TASK' === Format.customizeType) {
 
 
-                }else{
+                } else {
 
-                    if (graphGlobal.isEnabled()) { graphGlobal.startEditingAtCell();}
+                    if (graphGlobal.isEnabled()) {
+                        graphGlobal.startEditingAtCell();
+                    }
                 }
                 thisEditor.setModified(false);
                 if (operType && '' !== operType) {
@@ -1310,7 +1284,7 @@ function checkGroupInput(flowName) {
 };
 
 function saveOrUpdateFlowGroup() {
-    if(flowGroupdata==undefined){
+    if (flowGroupdata == undefined) {
         alert("Please click the close button and drag it again to create")
         return
     }
@@ -1326,83 +1300,83 @@ function saveOrUpdateFlowGroup() {
         //     layer.closeAll()
         //     layer.msg("Network Anomaly", {icon: 5})
         // } else {
-            var requestDataParam = {
-                flowGroupId: loadId,
-                flowId: flowGroupdata.id,
-                pageId: flowGroupdata.pageId,
-                updateType: "flowGroup",
-                name: flowGroupName
-            };
-            var msgtrue=false
-            $.ajax({
-                cache: true,
-                type: "POST",
-                url: Format.customizeTypeAttr.updateNameUrl,
-                data: requestDataParam,
-                async: true,
-                traditional: true,
-                error: function (request) {
-                    console.log("attribute update error");
-                    return;
-                },
-                success: function (data) {
-                    var dataMap = JSON.parse(data);
-                    if (200 === dataMap.code) {
-                        //reload xml
-                        var xml = mxUtils.parseXml(dataMap.XmlData);
-                        var node = xml.documentElement;
-                        var dec = new mxCodec(node.ownerDocument);
-                        dec.decode(node, graphGlobal.getModel());
-                        $("#customizeBasic_td_1_2_input2_id").val(flowGroupName);
-                        layer.closeAll()
-                        msgtrue=true
-                        layer.msg(dataMap.errorMsg, {icon: 1, shade: 0, time: 2000}, function () {
-                            // findBasicInfo(results);
-                        });
+        var requestDataParam = {
+            flowGroupId: loadId,
+            flowId: flowGroupdata.id,
+            pageId: flowGroupdata.pageId,
+            updateType: "flowGroup",
+            name: flowGroupName
+        };
+        var msgtrue = false
+        $.ajax({
+            cache: true,
+            type: "POST",
+            url: Format.customizeTypeAttr.updateNameUrl,
+            data: requestDataParam,
+            async: true,
+            traditional: true,
+            error: function (request) {
+                console.log("attribute update error");
+                return;
+            },
+            success: function (data) {
+                var dataMap = JSON.parse(data);
+                if (200 === dataMap.code) {
+                    //reload xml
+                    var xml = mxUtils.parseXml(dataMap.XmlData);
+                    var node = xml.documentElement;
+                    var dec = new mxCodec(node.ownerDocument);
+                    dec.decode(node, graphGlobal.getModel());
+                    $("#customizeBasic_td_1_2_input2_id").val(flowGroupName);
+                    layer.closeAll()
+                    msgtrue = true
+                    layer.msg(dataMap.errorMsg, {icon: 1, shade: 0, time: 2000}, function () {
+                        // findBasicInfo(results);
+                    });
 
-                    } else {
-                        // layer.closeAll()
-                        layer.msg(dataMap.errorMsg, {icon: 2, shade: 0, time: 2000}, function () {
-                        });
-                        alert(dataMap.errorMsg)
-                        msgtrue=false
-                    }
-
+                } else {
+                    // layer.closeAll()
+                    layer.msg(dataMap.errorMsg, {icon: 2, shade: 0, time: 2000}, function () {
+                    });
+                    alert(dataMap.errorMsg)
+                    msgtrue = false
                 }
-            });
 
-            $.ajax({
-                cache: true,
-                type: "POST",
-                url: "/piflow-web/flowGroup/updateFlowGroupBaseInfo",
-                data: {
-                    id: flowGroupdata.id,
-                    description: description
-                },
-                async: true,
-                traditional: true,
-                error: function (request) {
-                    console.log("attribute update error");
-                    return;
-                },
-                success: function (data) {
-                    var dataMap = JSON.parse(data);
-                    if (200 === dataMap.code) {
-                        var flowGroupVo = dataMap.flowGroupVo;
-                        // descriptionObj.val(flowGroupVo.description)
-                        //baseInfo
-                        $('#customizeBasic_td_2_2_span_id').text(flowGroupVo.description);
-                    } else {
-                        layer.msg('', {icon: 2, shade: 0, time: 2000}, function () {
-                        });
-                    }
-                    if(msgtrue){
-                        layer.closeAll();
-                    }
+            }
+        });
 
-                    console.log("attribute update success");
+        $.ajax({
+            cache: true,
+            type: "POST",
+            url: "/piflow-web/flowGroup/updateFlowGroupBaseInfo",
+            data: {
+                id: flowGroupdata.id,
+                description: description
+            },
+            async: true,
+            traditional: true,
+            error: function (request) {
+                console.log("attribute update error");
+                return;
+            },
+            success: function (data) {
+                var dataMap = JSON.parse(data);
+                if (200 === dataMap.code) {
+                    var flowGroupVo = dataMap.flowGroupVo;
+                    // descriptionObj.val(flowGroupVo.description)
+                    //baseInfo
+                    $('#customizeBasic_td_2_2_span_id').text(flowGroupVo.description);
+                } else {
+                    layer.msg('', {icon: 2, shade: 0, time: 2000}, function () {
+                    });
                 }
-            });
+                if (msgtrue) {
+                    layer.closeAll();
+                }
+
+                console.log("attribute update success");
+            }
+        });
         // }
     }
 
@@ -1451,7 +1425,7 @@ function saveOrUpdateFlowGroup() {
 //flow Information popup-----
 function saveFlow() {
 
-    if(flowdatas==undefined){
+    if (flowdatas == undefined) {
         alert("Please click the close button and drag it again to create")
         return
     }
@@ -1472,161 +1446,161 @@ function saveFlow() {
         //     layer.msg("Network Anomaly", {icon: 5})
         // } else {
 
-            var requestDataParam = {
-                flowGroupId: loadId,
-                flowId: flowdatas.id,
-                pageId: flowdatas.pageId,
-                updateType: "flow",
-                name: flowName
-            };
-            $.ajax({
-                cache: true,
-                type: "POST",
-                url: Format.customizeTypeAttr.updateNameUrl,
-                data: requestDataParam,
-                async: true,
-                traditional: true,
-                error: function (request) {
-                    console.log("attribute update error");
-                    return;
-                },
-                success: function (data) {
-                    var dataMap = JSON.parse(data);
-                    var msgtrue=false
-                    if (200 === dataMap.code) {
-                        //reload xml
-                        var xml = mxUtils.parseXml(dataMap.XmlData);
-                        var node = xml.documentElement;
-                        var dec = new mxCodec(node.ownerDocument);
-                        dec.decode(node, graphGlobal.getModel());
-                        $("#customizeBasic_td_1_2_input2_id").val(flowName);
-                        layer.msg(dataMap.errorMsg, {icon: 1, shade: 0, time: 2000}, function () {
-                            // findBasicInfo(results);
-                        });
-                        layer.closeAll()
-                    } else {
-                        // layer.msg(dataMap.errorMsg, {icon: 2, shade: 0, time: 2000}, function () {
-                        // });
-                        alert(dataMap.errorMsg)
-                        msgtrue=false
-
-                    }
-
-                        $.ajax({
-                            cache: true,
-                            type: "POST",
-                            url: "/piflow-web/flow/updateFlowBaseInfo",
-                            data: {
-                                id: flowdatas.id,
-                                driverMemory: driverMemory,
-                                executorCores: executorCores,
-                                executorMemory: executorMemory,
-                                executorNumber: executorNumber,
-                                description: description
-                            },
-                            async: true,
-                            traditional: true,
-                            error: function (request) {
-                                console.log("attribute update error");
-                                return;
-                            },
-                            success: function (data) {
-                                var dataMap = JSON.parse(data);
-                                if (200 === dataMap.code) {
-                                    var flowVo = dataMap.flowVo;
-                                    //baseInfo
-                                    $('#customizeBasic_td_2_2_span_id').text(flowVo.description);
-                                    $('#customizeBasic_td_3_2_label_id').text(flowVo.driverMemory);
-                                    $('#customizeBasic_td_4_2_label_id').text(flowVo.executorCores);
-                                    $('#customizeBasic_td_5_2_label_id').text(flowVo.executorMemory);
-                                    $('#customizeBasic_td_6_2_label_id').text(flowVo.executorNumber);
-                                } else {
-                                    layer.msg('', {icon: 2, shade: 0, time: 2000}, function () {
-                                    });
-                                }
-                                console.log("attribute update success");
-                                if(msgtrue){
-                                    layer.closeAll('page');
-                                }
-                            }
-                        });
+        var requestDataParam = {
+            flowGroupId: loadId,
+            flowId: flowdatas.id,
+            pageId: flowdatas.pageId,
+            updateType: "flow",
+            name: flowName
+        };
+        $.ajax({
+            cache: true,
+            type: "POST",
+            url: Format.customizeTypeAttr.updateNameUrl,
+            data: requestDataParam,
+            async: true,
+            traditional: true,
+            error: function (request) {
+                console.log("attribute update error");
+                return;
+            },
+            success: function (data) {
+                var dataMap = JSON.parse(data);
+                var msgtrue = false
+                if (200 === dataMap.code) {
+                    //reload xml
+                    var xml = mxUtils.parseXml(dataMap.XmlData);
+                    var node = xml.documentElement;
+                    var dec = new mxCodec(node.ownerDocument);
+                    dec.decode(node, graphGlobal.getModel());
+                    $("#customizeBasic_td_1_2_input2_id").val(flowName);
+                    layer.msg(dataMap.errorMsg, {icon: 1, shade: 0, time: 2000}, function () {
+                        // findBasicInfo(results);
+                    });
+                    layer.closeAll()
+                } else {
+                    // layer.msg(dataMap.errorMsg, {icon: 2, shade: 0, time: 2000}, function () {
+                    // });
+                    alert(dataMap.errorMsg)
+                    msgtrue = false
 
                 }
-            });
+
+                $.ajax({
+                    cache: true,
+                    type: "POST",
+                    url: "/piflow-web/flow/updateFlowBaseInfo",
+                    data: {
+                        id: flowdatas.id,
+                        driverMemory: driverMemory,
+                        executorCores: executorCores,
+                        executorMemory: executorMemory,
+                        executorNumber: executorNumber,
+                        description: description
+                    },
+                    async: true,
+                    traditional: true,
+                    error: function (request) {
+                        console.log("attribute update error");
+                        return;
+                    },
+                    success: function (data) {
+                        var dataMap = JSON.parse(data);
+                        if (200 === dataMap.code) {
+                            var flowVo = dataMap.flowVo;
+                            //baseInfo
+                            $('#customizeBasic_td_2_2_span_id').text(flowVo.description);
+                            $('#customizeBasic_td_3_2_label_id').text(flowVo.driverMemory);
+                            $('#customizeBasic_td_4_2_label_id').text(flowVo.executorCores);
+                            $('#customizeBasic_td_5_2_label_id').text(flowVo.executorMemory);
+                            $('#customizeBasic_td_6_2_label_id').text(flowVo.executorNumber);
+                        } else {
+                            layer.msg('', {icon: 2, shade: 0, time: 2000}, function () {
+                            });
+                        }
+                        console.log("attribute update success");
+                        if (msgtrue) {
+                            layer.closeAll('page');
+                        }
+                    }
+                });
+
+            }
+        });
 
 
-            // if (checkFlowInput(flowName, description, driverMemory, executorNumber, executorMemory, executorCores)){
-            //     $.ajax({
-            //         cache: true,
-            //         type: "POST",
-            //         url: "/piflow-web/flow/updateFlowBaseInfo",
-            //         data: {
-            //             id: flowdatas.id,
-            //             driverMemory: driverMemory,
-            //             executorCores: executorCores,
-            //             executorMemory: executorMemory,
-            //             executorNumber: executorNumber,
-            //             description: description
-            //         },
-            //         async: true,
-            //         traditional: true,
-            //         error: function (request) {
-            //             console.log("attribute update error");
-            //             return;
-            //         },
-            //         success: function (data) {
-            //             var dataMap = JSON.parse(data);
-            //             if (200 === dataMap.code) {
-            //                 var flowVo = dataMap.flowVo;
-            //                 //baseInfo
-            //                 $('#customizeBasic_td_2_2_span_id').text(flowVo.description);
-            //                 $('#customizeBasic_td_3_2_label_id').text(flowVo.driverMemory);
-            //                 $('#customizeBasic_td_4_2_label_id').text(flowVo.executorCores);
-            //                 $('#customizeBasic_td_5_2_label_id').text(flowVo.executorMemory);
-            //                 $('#customizeBasic_td_6_2_label_id').text(flowVo.executorNumber);
-            //             } else {
-            //                 layer.msg('', {icon: 2, shade: 0, time: 2000}, function () {
-            //                 });
-            //             }
-            //             layer.closeAll('page');
-            //             console.log("attribute update success");
-            //         }
-            //     });
-            // }
+        // if (checkFlowInput(flowName, description, driverMemory, executorNumber, executorMemory, executorCores)){
+        //     $.ajax({
+        //         cache: true,
+        //         type: "POST",
+        //         url: "/piflow-web/flow/updateFlowBaseInfo",
+        //         data: {
+        //             id: flowdatas.id,
+        //             driverMemory: driverMemory,
+        //             executorCores: executorCores,
+        //             executorMemory: executorMemory,
+        //             executorNumber: executorNumber,
+        //             description: description
+        //         },
+        //         async: true,
+        //         traditional: true,
+        //         error: function (request) {
+        //             console.log("attribute update error");
+        //             return;
+        //         },
+        //         success: function (data) {
+        //             var dataMap = JSON.parse(data);
+        //             if (200 === dataMap.code) {
+        //                 var flowVo = dataMap.flowVo;
+        //                 //baseInfo
+        //                 $('#customizeBasic_td_2_2_span_id').text(flowVo.description);
+        //                 $('#customizeBasic_td_3_2_label_id').text(flowVo.driverMemory);
+        //                 $('#customizeBasic_td_4_2_label_id').text(flowVo.executorCores);
+        //                 $('#customizeBasic_td_5_2_label_id').text(flowVo.executorMemory);
+        //                 $('#customizeBasic_td_6_2_label_id').text(flowVo.executorNumber);
+        //             } else {
+        //                 layer.msg('', {icon: 2, shade: 0, time: 2000}, function () {
+        //                 });
+        //             }
+        //             layer.closeAll('page');
+        //             console.log("attribute update success");
+        //         }
+        //     });
+        // }
 
-            // if (checkFlowInput(flowName, description, driverMemory, executorNumber, executorMemory, executorCores)){
-            //
-            // }
-            // // $.ajax({
-            //     // cache: true,//Keep cached data
-            //     // type: "get",//Request type post
-            //     // url: "/piflow-web/flow/saveFlowInfo",//This is the name of the file where I receive data in the background.
-            //     //
-            //     // async: false,//Setting it to true indicates that other code can still be executed after the request has started. If this option is set to false, it means that all requests are no longer asynchronous, which also causes the browser to be locked.
-            //     // error: function (request) {//Operation after request failure
-            //     //     layer.closeAll('page');
-            //     //     layer.msg('creation failed ', {icon: 2, shade: 0, time: 2000}, function () {
-            //     //     });
-            //     //     return;
-            //     // },
-            //     success: function (data) {//Operation after request successful
-            //         layer.closeAll('page');
-            //         var dataMap = JSON.parse(data);
-            //         if (200 === dataMap.code) {
-            //             layer.msg('create success ', {icon: 1, shade: 0, time: 2000}, function () {
-            //                 var tempWindow = window.open('_blank');
-            //                 if (tempWindow == null || typeof(tempWindow)=='undefined'){
-            //                     alert('The window cannot be opened. Please check your browser settings.')
-            //                 } else {
-            //                     tempWindow.location = "/piflow-web/mxGraph/drawingBoard?drawingBoardType=TASK&load=" + dataMap.flowId;
-            //                 }
-            //             });
-            //         } else {
-            //             layer.msg('creation failed', {icon: 2, shade: 0, time: 2000}, function () {
-            //             });
-            //         }
-            //     }
-            // });
+        // if (checkFlowInput(flowName, description, driverMemory, executorNumber, executorMemory, executorCores)){
+        //
+        // }
+        // // $.ajax({
+        //     // cache: true,//Keep cached data
+        //     // type: "get",//Request type post
+        //     // url: "/piflow-web/flow/saveFlowInfo",//This is the name of the file where I receive data in the background.
+        //     //
+        //     // async: false,//Setting it to true indicates that other code can still be executed after the request has started. If this option is set to false, it means that all requests are no longer asynchronous, which also causes the browser to be locked.
+        //     // error: function (request) {//Operation after request failure
+        //     //     layer.closeAll('page');
+        //     //     layer.msg('creation failed ', {icon: 2, shade: 0, time: 2000}, function () {
+        //     //     });
+        //     //     return;
+        //     // },
+        //     success: function (data) {//Operation after request successful
+        //         layer.closeAll('page');
+        //         var dataMap = JSON.parse(data);
+        //         if (200 === dataMap.code) {
+        //             layer.msg('create success ', {icon: 1, shade: 0, time: 2000}, function () {
+        //                 var tempWindow = window.open('_blank');
+        //                 if (tempWindow == null || typeof(tempWindow)=='undefined'){
+        //                     alert('The window cannot be opened. Please check your browser settings.')
+        //                 } else {
+        //                     tempWindow.location = "/piflow-web/mxGraph/drawingBoard?drawingBoardType=TASK&load=" + dataMap.flowId;
+        //                 }
+        //             });
+        //         } else {
+        //             layer.msg('creation failed', {icon: 2, shade: 0, time: 2000}, function () {
+        //             });
+        //         }
+        //     }
+        // });
         // }
     }
 };
@@ -1862,7 +1836,7 @@ function runFlowGroup(runMode) {
             if (200 === dataMap.code) {
                 layer.msg(dataMap.errorMsg, {icon: 1, shade: 0, time: 2000}, function () {
                     //Jump to the monitoring page after starting successfully
-                    var windowOpen = window.open("/piflow-web/mxGraph/drawingBoard?drawingBoardType=PROCESS&processType=PROCESS_GROUP&load=" + dataMap.processGroupId,'_blank');
+                    var windowOpen = window.open("/piflow-web/mxGraph/drawingBoard?drawingBoardType=PROCESS&processType=PROCESS_GROUP&load=" + dataMap.processGroupId, '_blank');
                     //var tempwindow = window.open('_blank');
                     if (windowOpen == null || typeof (windowOpen) == 'undefined') {
                         alert('The window cannot be opened. Please check your browser settings.')
@@ -2471,12 +2445,36 @@ function loadTemplateFun() {
 }
 
 function processListener(evt, operType) {
-
-    if (!isExample) {
+    if (isExample) {
+        noEditing();
+    } else {
         if ('ADD' === operType) {
             var cells = evt.properties.cells;
             statusgroup = cells[0].value
-            addCellsCustom(cells, 'ADD');
+            if ('GROUP' === Format.customizeType) {
+                //if (false) {
+                groupGraphAddCells(cells);
+            } else {
+                var removeCellArray = [];
+                var paths = [];
+                cells.forEach();
+                for (var i = 0; i < cells.length; i++) {
+                    var cellfor = cells[i];
+                    if (cellfor && cellfor.edge) {
+                        if (cellfor.target && cellfor.source) {
+                            paths[paths.length] = cellfor;
+                        } else {
+                            removeCellArray.push(cellfor);
+                        }
+                    } else if (cellfor.style && (cellfor.style).indexOf("image\;") === 0) {
+                        removegroupPaths.push(cellfor);
+                    }
+                }
+                graphGlobal.removeCells(removeCellArray);
+                if (cells.length != removeCellArray.length) {
+                    saveXml(paths, operType);
+                }
+            }
             if ('cellsAdded' == evt.name) {
                 findBasicInfo(evt);
             }
@@ -2489,20 +2487,248 @@ function processListener(evt, operType) {
         } else if ('REMOVED' === operType) {
             saveXml(null, operType);
         }
-    } else {
-        if ('ADD' === operType || 'REMOVED' === operType) {
-            layer.msg("This is an example, you can't add, edit or delete", {
-                icon: 2,
-                shade: 0,
-                time: 2000
-            }, function () {
-
-            });
-        } else if ('MOVED' === operType) {
-            findBasicInfo(evt);
-        }
-        prohibitEditing(isExample, operType);
     }
+}
+
+function groupGraphAddCells(cells) {
+    var removeCellArray = [];
+    var addCellArray = [];
+    var addPathArray = [];
+    cells.forEach(cellfor => {
+        if (cellfor && cellfor.edge) {
+            if (cellfor.target && cellfor.source) {
+                var addCell = graphCellToMxCellVo(cellfor);
+                if (addCell) {
+                    addCellArray.push(addCell);
+                }
+                addPathArray.push(cellfor);
+            } else {
+                removeCellArray.push(cellfor);
+            }
+        } else if (cellfor.style && (cellfor.style).indexOf("image\;") === 0) {
+            var addCell = graphCellToMxCellVo(cellfor);
+            if (addCell) {
+                addCellArray.push(addCell);
+            }
+            if (!removegroupPaths) {
+                removegroupPaths = [];
+            }
+            removegroupPaths.push(cellfor);
+        } else {
+            var addCell = graphCellToMxCellVo(cellfor);
+            if (addCell) {
+                addCellArray.push(addCell);
+            }
+        }
+    });
+    graphGlobal.removeCells(removeCellArray);
+    if (cells.length != removeCellArray.length) {
+        var time, time1;
+        console.log("=======================================================================================================");
+        console.log(addCellArray);
+        console.log("=======================================================================================================");
+        $.ajax({
+            cache: true,//Keep cached data
+            type: "POST",//Request type post
+            url: "/piflow-web/mxGraph/addMxCellAndData",
+            data: JSON.stringify({
+                mxCellVoList: addCellArray,
+                loadId: loadId
+            }),
+            //contentType: 'application/x-www-form-urlencoded;charset=UTF-8',
+            contentType: 'application/json;charset=utf-8',
+            async: true,//Synchronous Asynchronous
+            error: function (request) {//Operation after request failure
+                layer.msg('Add failed, refresh page after 1 second', {icon: 2, shade: 0, time: 2000}, function () {
+                    window.location.reload();
+                });
+                return;
+            },
+            success: function (data) {//After the request is successful
+                var dataMap = JSON.parse(data);
+                if (200 === dataMap.code) {
+                    //console.log(operType + " save success");
+                    console.log("Add save success");
+                    if (statusgroup == "group") {
+                        $("#buttonGroup").attr("onclick", "");
+                        $("#buttonGroup").attr("onclick", "saveOrUpdateFlowGroup()");
+                        $("#flowGroupId").val("");
+                        $("#flowGroupName").val("");
+                        $("#description1").val("");
+                        layer.open({
+                            type: 1,
+                            title: '<span style="color: #269252;">create flow group</span>',
+                            shadeClose: false,
+                            shade: 0.3,
+                            closeBtn: 1,
+                            shift: 7,
+                            area: ['580px', '520px'], //Width height
+                            skin: 'layui-layer-rim', //Add borders
+                            content: $("#SubmitPage"),
+                            success: function () {
+                                $(".layui-layer-page").css("z-index", "1998910151");
+
+                                queryFlowOrFlowGroupProperty(flowsPagesId)
+
+                                setTimeout(() => {
+                                    if (flowGroupdata == undefined) {
+                                        var index2 = 0
+                                        clearInterval(time)
+                                        clearInterval(time1)
+                                        time1 = setInterval(() => {
+                                            if (index2 < 4) {
+                                                queryFlowOrFlowGroupProperty(flowsPagesId)
+                                                index2++
+                                            } else if (index2 >= 4) {
+                                                // layer.closeAll()
+                                                // layer.msg("Network Anomaly", {icon: 5})
+                                                alert("Network Anomaly")
+                                                clearInterval(time1)
+                                                index2 = 0
+                                            } else {
+                                                clearInterval(time)
+                                                clearInterval(time1)
+                                            }
+                                        }, 300)
+                                    }
+                                }, 500)
+
+                            },
+                            cancel: function (index, layero) {
+                                graphGlobal.removeCells(removegroupPaths);
+                                layer.close(index)
+
+                                return false;
+                            }
+                        });
+                    } else if (statusgroup == "flow") {
+                        $("#buttonFlowcancel").attr("onclick", "");
+                        $("#buttonFlowcancel").attr("onclick", "cancelFlow()");
+                        $("#buttonFlow").attr("onclick", "");
+                        $("#buttonFlow").attr("onclick", "saveFlow()");
+                        $("#flowId").val("");
+                        $("#flowName").val("");
+                        $("#description").val("");
+                        $("#driverMemory").val('1g');
+                        $("#executorNumber").val('1');
+                        $("#executorMemory").val('1g');
+                        $("#executorCores").val('1');
+                        layer.open({
+                            type: 1,
+                            title: '<span style="color: #269252;">create flow</span>',
+                            shadeClose: false,
+                            shade: 0.3,
+                            closeBtn: 1,
+                            shift: 7,
+                            area: ['580px', '520px'], //Width height
+                            skin: 'layui-layer-rim', //Add borders
+                            content: $("#SubmitPageflow"),
+                            success: function () {
+                                queryFlowOrFlowGroupProperty(flowsPagesId)
+
+
+                                setTimeout(() => {
+                                    if (flowdatas == undefined) {
+                                        var index2 = 0
+                                        clearInterval(time)
+                                        clearInterval(time1)
+                                        time1 = setInterval(() => {
+                                            if (index2 < 4) {
+                                                queryFlowOrFlowGroupProperty(flowsPagesId)
+                                                index2++
+                                            } else if (index2 >= 4) {
+                                                // layer.closeAll()
+                                                // layer.msg("Network Anomaly", {icon: 5})
+                                                alert("Network Anomaly")
+                                                clearInterval(time1)
+                                                index2 = 0
+                                            } else {
+                                                clearInterval(time)
+                                                clearInterval(time1)
+                                            }
+                                        }, 300)
+                                    }
+                                }, 500)
+                            },
+
+                            cancel: function (index, layero) {
+                                graphGlobal.removeCells(removegroupPaths);
+                                getRunningProcessList()
+                                layer.close(index)
+                                return false;
+                            }
+                        });
+
+                    } else if (statusgroup == null || statusgroup == "" || 'TASK' === Format.customizeType) {
+
+
+                    } else {
+
+                        if (graphGlobal.isEnabled()) {
+                            graphGlobal.startEditingAtCell();
+                        }
+                    }
+                    thisEditor.setModified(false);
+                    //获取port
+                    //getStopsPort(paths);
+                    if ('TASK' === Format.customizeType) {
+                        getStopsPortNew(addPathArray);
+                    }
+                } else {
+                    layer.msg("Add save fail", {icon: 2, shade: 0, time: 2000}, function () {
+                    });
+                    console.log("Add save fail");
+                    fullScreen.hide();
+                }
+
+            }
+
+        });
+    }
+}
+
+function graphCellToMxCellVo(cellObject) {
+    if (cellObject) {
+        var mxCellVoObject = {};
+        mxCellVoObject.pageId = cellObject.id;
+        mxCellVoObject.parent = cellObject.parent.id;
+        mxCellVoObject.style = cellObject.style;
+        mxCellVoObject.value = cellObject.value;
+        mxCellVoObject.vertex = cellObject.vertex;
+        mxCellVoObject.edge = cellObject.edge;
+        if (cellObject.source) {
+            mxCellVoObject.source = cellObject.source.id;
+        }
+        if (cellObject.target) {
+            mxCellVoObject.target = cellObject.target.id;
+        }
+        mxCellVoObject.mxGeometryVo = {};
+        if (cellObject.geometry) {
+            mxCellVoObject.mxGeometryVo.as = "geometry";
+            mxCellVoObject.mxGeometryVo.x = cellObject.geometry.x;
+            mxCellVoObject.mxGeometryVo.y = cellObject.geometry.y;
+            mxCellVoObject.mxGeometryVo.width = cellObject.geometry.width;
+            mxCellVoObject.mxGeometryVo.height = cellObject.geometry.height;
+            mxCellVoObject.mxGeometryVo.relative = cellObject.geometry.relative;
+        }
+        return mxCellVoObject;
+    }
+    return;
+}
+
+function noEditing() {
+    if ('ADD' === operType || 'REMOVED' === operType) {
+        layer.msg("This is an example, you can't add, edit or delete", {
+            icon: 2,
+            shade: 0,
+            time: 2000
+        }, function () {
+
+        });
+    } else if ('MOVED' === operType) {
+        findBasicInfo(evt);
+    }
+    prohibitEditing(isExample, operType);
 }
 
 function prohibitEditing(isExample, operType) {

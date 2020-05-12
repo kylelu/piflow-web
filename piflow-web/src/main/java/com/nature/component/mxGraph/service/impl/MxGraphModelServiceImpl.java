@@ -12,10 +12,12 @@ import com.nature.component.mxGraph.model.MxCell;
 import com.nature.component.mxGraph.model.MxGeometry;
 import com.nature.component.mxGraph.model.MxGraphModel;
 import com.nature.component.mxGraph.service.IMxGraphModelService;
+import com.nature.component.mxGraph.utils.MxCellUtils;
 import com.nature.component.mxGraph.utils.MxGraphModelUtils;
 import com.nature.component.mxGraph.vo.MxCellVo;
 import com.nature.component.mxGraph.vo.MxGeometryVo;
 import com.nature.component.mxGraph.vo.MxGraphModelVo;
+import com.nature.component.mxGraph.vo.MxGraphVo;
 import com.nature.domain.flow.FlowDomain;
 import com.nature.domain.flow.FlowGroupDomain;
 import com.nature.domain.flow.FlowGroupPathsDomain;
@@ -957,56 +959,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
         mxGraphModel = mxGraphModelDomain.saveOrUpdate(mxGraphModel);
         flowGroup.setMxGraphModel(mxGraphModel);
 
-        // Separate the flows and lines that need to be added in addMxCellVoList
-        Map<String, List<MxCellVo>> flowsPathsMap = MxGraphModelUtils.distinguishElementsPaths(addMxCellVoList);
-
-        // Take mxCellVoList (list of elements) from Map
-        List<MxCellVo> objectElements = flowsPathsMap.get("elements");
-
-        // Generate a list of elements based on the contents of the MxCellList
-        Map<String, List> addFlowAndFlowGroupsMap = MxGraphModelUtils.mxCellVoListToFlowAndFlowGroups(objectElements, flowGroup, currentUser.getUsername());
-        List<Flow> addFlowsList = addFlowAndFlowGroupsMap.get("flows");
-
-        List<Flow> flowList = flowGroup.getFlowList();
-        if (null != addFlowsList && addFlowsList.size() > 0) {
-            if (null == flowList) {
-                flowList = new ArrayList<>();
-            }
-            for (Flow flow : addFlowsList) {
-                flow.setFlowGroup(flowGroup);
-                flowList.add(flow);
-            }
-            //flowList = flowDomain.saveOrUpdate(flowList);
-            flowGroup.setFlowList(flowList);
-        }
-
-        List<FlowGroup> addFlowGroupList = addFlowAndFlowGroupsMap.get("flowGroups");
-
-        List<FlowGroup> flowGroupList = flowGroup.getFlowGroupList();
-        if (null != addFlowGroupList && addFlowGroupList.size() > 0) {
-            if (null == flowGroupList) {
-                flowGroupList = new ArrayList<>();
-            }
-            for (FlowGroup addFlowGroup : addFlowGroupList) {
-                addFlowGroup.setFlowGroup(flowGroup);
-                flowGroupList.add(addFlowGroup);
-            }
-            flowGroup.setFlowGroupList(flowGroupList);
-        }
-
-        // Take "mxCellVoList" from the "Map" (array of lines)
-        List<MxCellVo> objectPaths = flowsPathsMap.get("paths");
-
-        // Generate a list of paths based on the contents of the MxCellList
-        List<FlowGroupPaths> addFlowGroupPathsList = MxGraphModelUtils.mxCellVoListToFlowGroupPathsList(objectPaths, flowGroup);
-        // Judge empty pathsList
-        if (null != addFlowGroupPathsList && addFlowGroupPathsList.size() > 0) {
-            List<FlowGroupPaths> flowGroupPathsList = flowGroup.getFlowGroupPathsList();
-            for (FlowGroupPaths addFlowGroupPaths : addFlowGroupPathsList) {
-                addFlowGroupPaths.setFlowGroup(flowGroup);
-                flowGroupPathsList.add(addFlowGroupPaths);
-            }
-        }
+        flowGroup = addFlowGroupNodeAndEdge(flowGroup, addMxCellVoList, currentUser.getUsername());
 
         // Update flow information
         flowGroupDomain.saveOrUpdate(flowGroup);
@@ -1097,7 +1050,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
 
         if (null != elementsAndPathsMap) {
             // Take the line of mxCellVoList and to map
-            Map<String, MxCellVo> pathsMxCellVoMap =stopsMxCellVoListToMap(elementsAndPathsMap.get("paths"));
+            Map<String, MxCellVo> pathsMxCellVoMap = stopsMxCellVoListToMap(elementsAndPathsMap.get("paths"));
             // Get out the PathsList stored in the database
             List<FlowGroupPaths> flowGroupPathsList = flowGroup.getFlowGroupPathsList();
             // Determine whether the list of lines in the database is empty
@@ -1299,6 +1252,157 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
             rtnMxCellVoList = new ArrayList<>(mxCellVoMap.values());
         }
         return rtnMxCellVoList;
+    }
+
+    public String addMxCellAndData(MxGraphVo mxGraphVo, String username) {
+        if (StringUtils.isBlank(username)) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("illegal user");
+        }
+        if (null == mxGraphVo) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("param is null");
+        }
+        String loadId = mxGraphVo.getLoadId();
+        if (StringUtils.isBlank(loadId)) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("loadId is null");
+        }
+        FlowGroup flowGroup = flowGroupDomain.getFlowGroupById(loadId);
+
+        // update flow
+        flowGroup.setLastUpdateDttm(new Date()); // last update date time
+        flowGroup.setLastUpdateUser(username);// last update user
+        flowGroup.setEnableFlag(true);// is it effective
+
+        // Take out the drawing board of the data inventory
+        MxGraphModel mxGraphModel = flowGroup.getMxGraphModel();
+        // Determine if the drawing board of the data inventory exists
+        if (null == mxGraphModel) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("Database without drawing board, adding failed");
+        }
+        // Put the page's drawing board information into the database canvas
+        mxGraphModel.setEnableFlag(true);
+        mxGraphModel.setLastUpdateUser(username);
+        mxGraphModel.setLastUpdateDttm(new Date());
+        mxGraphModel.setFlowGroup(flowGroup);
+
+        List<MxCell> mxCellDbRoot = mxGraphModel.getRoot();
+        // Convert MxCellVo map to MxCellVoList
+        List<MxCellVo> addMxCellVoList = mxGraphVo.getMxCellVoList();
+        ;
+        if (null == addMxCellVoList || addMxCellVoList.size() <= 0) {
+            return ReturnMapUtils.setFailedMsgRtnJsonStr("No data can be added, the addition failed");
+        }
+        if (null == mxCellDbRoot || mxCellDbRoot.size() <= 0) {
+            mxCellDbRoot = MxCellUtils.initMxCell(username,mxGraphModel);
+        }
+        for (MxCellVo mxCellVo : addMxCellVoList) {
+            if (null != mxCellVo) {
+                // save MxCell
+                // new
+                MxCell mxCell = new MxCell();
+                // Copy the value in mxCellVo to mxCell
+                BeanUtils.copyProperties(mxCellVo, mxCell);
+                if (null != mxCellVo.getValue()) {
+                    mxCell.setValue(mxCellVo.getValue() + mxCellVo.getPageId());
+                }
+                mxCell.setVertex(("true".equals(mxCellVo.getVertex()) ? 1 : 0) + "");
+                mxCell.setEdge(("false".equals(mxCellVo.getEdge()) ? 0 : 1) + "");
+                // Basic properties of mxCell (Required when creating)
+                mxCell.setCrtDttm(new Date());
+                mxCell.setCrtUser(username);
+                // Basic properties of mxCell
+                mxCell.setEnableFlag(true);
+                mxCell.setLastUpdateUser(username);
+                mxCell.setLastUpdateDttm(new Date());
+                // mxGraphModel Foreign key
+                mxCell.setMxGraphModel(mxGraphModel);
+
+                MxGeometryVo mxGeometryVo = mxCellVo.getMxGeometryVo();
+                if (null != mxGeometryVo) {
+                    // save MxGeometry
+                    // new
+                    MxGeometry mxGeometry = new MxGeometry();
+                    // Copy the value from mxGeometryVo to mxGeometry
+                    BeanUtils.copyProperties(mxGeometryVo, mxGeometry);
+                    mxGeometry.setRelative("false".equals(mxGeometryVo.getRelative()) ? null : "1");
+                    // Basic properties of mxGeometry (required when creating)
+                    mxGeometry.setCrtDttm(new Date());
+                    mxGeometry.setCrtUser(username);
+                    // Set mxGraphModel basic properties
+                    mxGeometry.setEnableFlag(true);
+                    mxGeometry.setLastUpdateUser(username);
+                    mxGeometry.setLastUpdateDttm(new Date());
+                    // mxCell Foreign key
+                    mxGeometry.setMxCell(mxCell);
+
+                    mxCell.setMxGeometry(mxGeometry);
+                }
+                mxCellDbRoot.add(mxCell);
+            }
+        }
+        mxGraphModel.setRoot(mxCellDbRoot);
+        flowGroup.setMxGraphModel(mxGraphModel);
+        flowGroup = addFlowGroupNodeAndEdge(flowGroup, addMxCellVoList, username);
+        flowGroupDomain.saveOrUpdate(flowGroup);
+
+        return ReturnMapUtils.setSucceededMsgRtnJsonStr("test");
+    }
+
+    private FlowGroup addFlowGroupNodeAndEdge(FlowGroup flowGroup, List<MxCellVo> addMxCellVo, String username) {
+        if (null == flowGroup) {
+            return null;
+        }
+        // Separate the flows and lines that need to be added in addMxCellVoList
+        Map<String, List<MxCellVo>> flowsPathsMap = MxGraphModelUtils.distinguishElementsPaths(addMxCellVo);
+
+        // Take mxCellVoList (list of elements) from Map
+        List<MxCellVo> objectElements = flowsPathsMap.get("elements");
+
+        // Generate a list of elements based on the contents of the MxCellList
+        Map<String, List> addFlowAndFlowGroupsMap = MxGraphModelUtils.mxCellVoListToFlowAndFlowGroups(objectElements, flowGroup, username);
+        List<Flow> addFlowsList = addFlowAndFlowGroupsMap.get("flows");
+
+        List<Flow> flowList = flowGroup.getFlowList();
+        if (null != addFlowsList && addFlowsList.size() > 0) {
+            if (null == flowList) {
+                flowList = new ArrayList<>();
+            }
+            for (Flow flow : addFlowsList) {
+                flow.setFlowGroup(flowGroup);
+                flowList.add(flow);
+            }
+            //flowList = flowDomain.saveOrUpdate(flowList);
+            flowGroup.setFlowList(flowList);
+        }
+
+        List<FlowGroup> addFlowGroupList = addFlowAndFlowGroupsMap.get("flowGroups");
+
+        List<FlowGroup> flowGroupList = flowGroup.getFlowGroupList();
+        if (null != addFlowGroupList && addFlowGroupList.size() > 0) {
+            if (null == flowGroupList) {
+                flowGroupList = new ArrayList<>();
+            }
+            for (FlowGroup addFlowGroup : addFlowGroupList) {
+                addFlowGroup.setFlowGroup(flowGroup);
+                flowGroupList.add(addFlowGroup);
+            }
+            flowGroup.setFlowGroupList(flowGroupList);
+        }
+
+        // Take "mxCellVoList" from the "Map" (array of lines)
+        List<MxCellVo> objectPaths = flowsPathsMap.get("paths");
+
+        // Generate a list of paths based on the contents of the MxCellList
+        List<FlowGroupPaths> addFlowGroupPathsList = MxGraphModelUtils.mxCellVoListToFlowGroupPathsList(objectPaths, flowGroup);
+        // Judge empty pathsList
+        if (null != addFlowGroupPathsList && addFlowGroupPathsList.size() > 0) {
+            List<FlowGroupPaths> flowGroupPathsList = flowGroup.getFlowGroupPathsList();
+            for (FlowGroupPaths addFlowGroupPaths : addFlowGroupPathsList) {
+                addFlowGroupPaths.setFlowGroup(flowGroup);
+                flowGroupPathsList.add(addFlowGroupPaths);
+            }
+        }
+
+        return flowGroup;
     }
 
 }

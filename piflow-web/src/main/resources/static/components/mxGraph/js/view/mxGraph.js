@@ -4663,6 +4663,9 @@ mxGraph.prototype.addCells = function(cells, parent, index, source, target, abso
  */
 mxGraph.prototype.cellsAdded = function(cells, parent, index, source, target, absolute, constrain, extend)
 {
+    if(getQueryStr=="PROCESS"){
+        return;
+    }
     if (cells != null && parent != null && index != null)
     {
         this.model.beginUpdate();

@@ -175,11 +175,10 @@ public class MxGraphModelUtils {
      * @return Returns a list of Mxcell types with elements and paths in the map (keys: paths and elements)
      */
     public static Map<String, List<MxCellVo>> distinguishElementsPaths(List<MxCellVo> root) {
-        Map<String, List<MxCellVo>> map = null;
+        Map<String, List<MxCellVo>> map = new HashMap<>();
         if (null != root && root.size() > 0) {
-            map = new HashMap<>();
-            List<MxCellVo> pathsList = new ArrayList<MxCellVo>();
-            List<MxCellVo> elementsList = new ArrayList<MxCellVo>();
+            List<MxCellVo> pathsList = new ArrayList<>();
+            List<MxCellVo> elementsList = new ArrayList<>();
             // Loop root
             for (MxCellVo mxCellVo : root) {
                 if (null == mxCellVo) {
