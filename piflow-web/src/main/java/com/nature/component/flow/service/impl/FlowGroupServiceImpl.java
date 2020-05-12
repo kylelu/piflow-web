@@ -502,6 +502,9 @@ public class FlowGroupServiceImpl implements IFlowGroupService {
         String username = (null != user) ? user.getUsername() : "-1";
         if (StringUtils.isNotBlank(id) && StringUtils.isNotBlank(flowGroupName)) {
             FlowGroup flowGroupById = flowGroupDomain.getFlowGroupById(id);
+            logger.info("================================================================================");
+            logger.info(flowGroupById.getVersion() + "");
+            logger.info("================================================================================");
             if (null != flowGroupById) {
                 flowGroupById.setLastUpdateUser(username);
                 flowGroupById.setLastUpdateDttm(new Date());

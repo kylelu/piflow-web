@@ -1171,8 +1171,8 @@ function saveXml(paths, operType) {
                         }
                     });
                 } else if (statusgroup == "flow" && operType == "ADD") {
-                    $("#buttonFlowcancel").attr("onclick", "");
-                    $("#buttonFlowcancel").attr("onclick", "cancelFlow()");
+                    $("#buttonFlowCancel").attr("onclick", "");
+                    $("#buttonFlowCancel").attr("onclick", "cancelFlow()");
                     $("#buttonFlow").attr("onclick", "");
                     $("#buttonFlow").attr("onclick", "saveFlow()");
                     $("#flowId").val("");
@@ -1191,7 +1191,7 @@ function saveXml(paths, operType) {
                         shift: 7,
                         area: ['580px', '520px'], //Width height
                         skin: 'layui-layer-rim', //Add borders
-                        content: $("#SubmitPageflow"),
+                        content: $("#SubmitPageFlow"),
                         success: function () {
                             queryFlowOrFlowGroupProperty(flowsPagesId)
 
@@ -1341,82 +1341,45 @@ function saveOrUpdateFlowGroup() {
                     alert(dataMap.errorMsg)
                     msgtrue = false
                 }
+                $.ajax({
+                    cache: true,
+                    type: "POST",
+                    url: "/piflow-web/flowGroup/updateFlowGroupBaseInfo",
+                    data: {
+                        id: flowGroupdata.id,
+                        description: description,
+                        name: flowGroupName
+                    },
+                    async: true,
+                    traditional: true,
+                    error: function (request) {
+                        console.log("attribute update error");
+                        return;
+                    },
+                    success: function (data) {
+                        var dataMap = JSON.parse(data);
+                        if (200 === dataMap.code) {
+                            var flowGroupVo = dataMap.flowGroupVo;
+                            // descriptionObj.val(flowGroupVo.description)
+                            //baseInfo
+                            $('#customizeBasic_td_2_2_span_id').text(flowGroupVo.description);
+                        } else {
+                            layer.msg('', {icon: 2, shade: 0, time: 2000}, function () {
+                            });
+                        }
+                        if (msgtrue) {
+                            layer.closeAll();
+                        }
+
+                        console.log("attribute update success");
+                    }
+                });
 
             }
         });
 
-        $.ajax({
-            cache: true,
-            type: "POST",
-            url: "/piflow-web/flowGroup/updateFlowGroupBaseInfo",
-            data: {
-                id: flowGroupdata.id,
-                description: description
-            },
-            async: true,
-            traditional: true,
-            error: function (request) {
-                console.log("attribute update error");
-                return;
-            },
-            success: function (data) {
-                var dataMap = JSON.parse(data);
-                if (200 === dataMap.code) {
-                    var flowGroupVo = dataMap.flowGroupVo;
-                    // descriptionObj.val(flowGroupVo.description)
-                    //baseInfo
-                    $('#customizeBasic_td_2_2_span_id').text(flowGroupVo.description);
-                } else {
-                    layer.msg('', {icon: 2, shade: 0, time: 2000}, function () {
-                    });
-                }
-                if (msgtrue) {
-                    layer.closeAll();
-                }
 
-                console.log("attribute update success");
-            }
-        });
-        // }
     }
-
-    // if (checkGroupInput(flowGroupName)){
-    //     $.ajax({
-    //         cache: true,//Keep cached data
-    //         type: "get",//Request type post
-    //         url: "/piflow-web/flowGroup/saveOrUpdateFlowGroup",//This is the name of the file where I receive data in the background.
-    //         data: {
-    //             id: id,
-    //             name: flowGroupName,
-    //             description: description
-    //         },
-    //         console.log()
-    //
-    //         // async: false,//Setting it to true indicates that other code can still be executed after the request has started. If this option is set to false, it means that all requests are no longer asynchronous, which also causes the browser to be locked.
-    //         // error: function (request) {//Operation after request failure
-    //         //     layer.closeAll('page');
-    //         //     layer.msg('creation failed ', {icon: 2, shade: 0, time: 2000}, function () {
-    //         //     });
-    //         //     return;
-    //         // },
-    //         // success: function (data) {//Operation after request successful
-    //         //     layer.closeAll('page');
-    //         //     var dataMap = JSON.parse(data);
-    //         //     if (200 === dataMap.code) {
-    //         //         layer.msg('success ', {icon: 1, shade: 0, time: 2000}, function () {
-    //         //             var windowOpen = window.open("/piflow-web/mxGraph/drawingBoard?drawingBoardType=GROUP&load=" + dataMap.flowGroupId);
-    //         //             if (windowOpen == null || typeof(windowOpen)=='undefined'){
-    //         //                 alert('The window cannot be opened. Please check your browser settings.')
-    //         //             }
-    //         //         });
-    //         //     } else {
-    //         //         layer.msg('failed', {icon: 2, shade: 0, time: 2000}, function () {
-    //         //         });
-    //         //     }
-    //         // }
-    //     });
-    // }
-
 
 }
 
@@ -2524,9 +2487,6 @@ function groupGraphAddCells(cells) {
     graphGlobal.removeCells(removeCellArray);
     if (cells.length != removeCellArray.length) {
         var time, time1;
-        console.log("=======================================================================================================");
-        console.log(addCellArray);
-        console.log("=======================================================================================================");
         $.ajax({
             cache: true,//Keep cached data
             type: "POST",//Request type post
@@ -2550,8 +2510,6 @@ function groupGraphAddCells(cells) {
                     //console.log(operType + " save success");
                     console.log("Add save success");
                     if (statusgroup == "group") {
-                        $("#buttonGroup").attr("onclick", "");
-                        $("#buttonGroup").attr("onclick", "saveOrUpdateFlowGroup()");
                         $("#flowGroupId").val("");
                         $("#flowGroupName").val("");
                         $("#description1").val("");
@@ -2568,7 +2526,7 @@ function groupGraphAddCells(cells) {
                             success: function () {
                                 $(".layui-layer-page").css("z-index", "1998910151");
 
-                                queryFlowOrFlowGroupProperty(flowsPagesId)
+                                queryFlowOrFlowGroupProperty(flowsPagesId);
 
                                 setTimeout(() => {
                                     if (flowGroupdata == undefined) {
@@ -2602,10 +2560,6 @@ function groupGraphAddCells(cells) {
                             }
                         });
                     } else if (statusgroup == "flow") {
-                        $("#buttonFlowcancel").attr("onclick", "");
-                        $("#buttonFlowcancel").attr("onclick", "cancelFlow()");
-                        $("#buttonFlow").attr("onclick", "");
-                        $("#buttonFlow").attr("onclick", "saveFlow()");
                         $("#flowId").val("");
                         $("#flowName").val("");
                         $("#description").val("");
@@ -2615,14 +2569,14 @@ function groupGraphAddCells(cells) {
                         $("#executorCores").val('1');
                         layer.open({
                             type: 1,
-                            title: '<span style="color: #269252;">create flow</span>',
+                            title: '<span style="color: #269252;">Create Flow</span>',
                             shadeClose: false,
                             shade: 0.3,
                             closeBtn: 1,
                             shift: 7,
                             area: ['580px', '520px'], //Width height
                             skin: 'layui-layer-rim', //Add borders
-                            content: $("#SubmitPageflow"),
+                            content: $("#SubmitPageFlow"),
                             success: function () {
                                 queryFlowOrFlowGroupProperty(flowsPagesId)
 
