@@ -2408,6 +2408,7 @@ function loadTemplateFun() {
 }
 
 function processListener(evt, operType) {
+    console.log("================================");
     if (isExample) {
         noEditing();
     } else {
@@ -2415,14 +2416,11 @@ function processListener(evt, operType) {
             var cells = evt.properties.cells;
             statusgroup = cells[0].value
             if ('GROUP' === Format.customizeType) {
-                //if (false) {
                 groupGraphAddCells(cells);
             } else {
                 var removeCellArray = [];
                 var paths = [];
-                cells.forEach();
-                for (var i = 0; i < cells.length; i++) {
-                    var cellfor = cells[i];
+                cells.forEach(cellfor => {
                     if (cellfor && cellfor.edge) {
                         if (cellfor.target && cellfor.source) {
                             paths[paths.length] = cellfor;
@@ -2430,9 +2428,12 @@ function processListener(evt, operType) {
                             removeCellArray.push(cellfor);
                         }
                     } else if (cellfor.style && (cellfor.style).indexOf("image\;") === 0) {
+                        if (!removegroupPaths) {
+                            removegroupPaths = [];
+                        }
                         removegroupPaths.push(cellfor);
                     }
-                }
+                });
                 graphGlobal.removeCells(removeCellArray);
                 if (cells.length != removeCellArray.length) {
                     saveXml(paths, operType);
