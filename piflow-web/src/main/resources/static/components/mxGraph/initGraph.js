@@ -2415,8 +2415,16 @@ function processListener(evt, operType) {
         if ('ADD' === operType) {
             var cells = evt.properties.cells;
             statusgroup = cells[0].value
+            cells.forEach(cellfor => {
+                if((cellfor.style && (cellfor.style).indexOf("edgeStyle\=") === 0)&&((cellfor.target.style && (cellfor.target.style).indexOf("text\;") === 0)||(cellfor.source.style && (cellfor.source.style).indexOf("text\;") === 0))){
+                    var arr=[]
+                    arr.push(cellfor)
+                    graphGlobal.removeCells(arr)
+                }
+            });
             if ('GROUP' === Format.customizeType) {
                 groupGraphAddCells(cells);
+
             } else {
                 var removeCellArray = [];
                 var paths = [];
@@ -2439,6 +2447,7 @@ function processListener(evt, operType) {
                     saveXml(paths, operType);
                 }
             }
+
             if ('cellsAdded' == evt.name) {
                 findBasicInfo(evt);
             }
