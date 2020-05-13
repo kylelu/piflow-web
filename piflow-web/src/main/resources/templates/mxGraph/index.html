@@ -368,7 +368,7 @@
 
 <div id="precessrun" class="precessrun" style="position: fixed; z-index: 779;text-align: right;right: 10px;top: 50px;">
 
-    <div id="processflow">
+    <div id="processflow" style="display: none">
                 <span>
                     progress：<span id="progress" th:text="${percentage} + '%'"></span>
                 </span>
@@ -384,7 +384,7 @@
     </div>
 
 
-    <div id="processgroup">
+    <div id="processgroup" style="display: none">
          <span>
 				progress：<span id="groupProgress" th:text="${percentage} + '%'"></span>
 			</span>
@@ -402,20 +402,6 @@
 
 <script th:src="@{/custom/js/processGroupContent.js}"></script>
 <script th:src="@{/custom/js/processContent.js}"></script>
-<!-- 'stop' custom attribute editing popup end -->
-<!--<script th:inline="javascript">-->
-<!--    var parentAccessPath = [[${parentAccessPath}]];-->
-<!--    var xmlDate = [[${xmlDate}]];-->
-<!--    var processId = [[${processId}]];-->
-<!--    var parentProcessId = [[${parentProcessId}]];-->
-<!--    var pID = [[${pID}]];-->
-<!--    var appId = [[${appId}]];-->
-<!--    var processState = [[${processState}]];-->
-<!--    var stdoutLog = [[${stdoutLog}]];-->
-<!--    var stderrLog = [[${stderrLog}]];-->
-
-<!--    //@ sourceURL=processContent.js-->
-<!--</script>-->
 <script th:inline="javascript">
     var parentAccessPath = [[${parentAccessPath}]];
     var xmlDate = [[${xmlDate}]];

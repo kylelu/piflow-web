@@ -1409,15 +1409,6 @@ public class FlowXmlUtils {
                     if (Arrays.asList(flowNames).contains(flowName)) {
                         duplicateFlowName += (flowName + ",");
                     }
-                    if (isChildren) {
-                        MxGraphModel mxGraphModel_temp = flow.getMxGraphModel();
-                        if (null != mxGraphModel_temp) {
-                            List<MxCell> root_temp = mxGraphModel_temp.getRoot();
-                            root_temp.addAll(MxCellUtils.initMxCell(username, mxGraphModel_temp));
-                            mxGraphModel_temp.setRoot(root_temp);
-                        }
-                        flow.setMxGraphModel(mxGraphModel_temp);
-                    }
                     flow.setFlowGroup(flowGroup);
                     flowList.add(flow);
                 }

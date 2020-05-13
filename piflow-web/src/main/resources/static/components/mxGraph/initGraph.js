@@ -232,14 +232,26 @@ function initGraph() {
         */
         //Monitoring event
         graphGlobal.addListener(mxEvent.CELLS_ADDED, function (sender, evt) {
-            processListener(evt, "ADD");
+            if (isExample) {
+                prohibitEditing(evt, 'ADD');
+            } else {
+                addMxCellOperation(evt);
+            }
         });
         graphGlobal.addListener(mxEvent.CELLS_MOVED, function (sender, evt) {
-            processListener(evt, "MOVED");
+            if (isExample) {
+                prohibitEditing(evt, 'MOVED');
+            } else {
+                movedMxCellOperation(evt);
+            }
         });
         graphGlobal.addListener(mxEvent.CELLS_REMOVED, function (sender, evt) {
-            evtchan = evt
-            processListener(evt, "REMOVED");
+            evtchan = evt;
+            if (isExample) {
+                prohibitEditing(evt, 'REMOVED');
+            } else {
+                removeMxCellOperation(evt);
+            }
         });
 
         graphGlobal.addListener(mxEvent.CLICK, function (sender, evt) {
@@ -312,16 +324,335 @@ function initGraph() {
     ClickSlider();
 }
 
+function prohibitEditing(evt, operationType) {
+    if ('ADD' === operationType || 'REMOVED' === operToperationTypeype) {
+        layer.msg("This is an example, you can't add, edit or delete", {
+            icon: 2,
+            shade: 0,
+            time: 2000
+        }, function () {
+
+        });
+    } else if ('MOVED' === operationType) {
+        findBasicInfo(evt);
+    }
+    $.ajax({
+        cache: true,//Keep cached data
+        type: "POST",//Request type post
+        url: "/piflow-web/exampleMenu/exampleUrlList",
+        data: {},
+        async: true,
+        error: function (request) {//Operation after request failure
+            if ('ADD' === operationType || 'REMOVED' === operationType) {
+                location.reload();
+            }
+            eraseRecord()
+            return;
+        },
+        success: function (data) {//After the request is successful
+            if ('ADD' === operationType || 'REMOVED' === operationType) {
+                location.reload();
+            }
+            eraseRecord()
+        }
+    });
+}
+
+function addMxCellOperation(evt) {
+    var cells = evt.properties.cells;
+    statusgroup = cells[0].value;
+    // cells.forEach(cellFor => {
+    //     console.log("=============================================");
+    //     if (cellFor && cellFor.edge) {
+    //         var cellForTarget = cellFor.target;
+    //         var cellForSource = cellFor.source;
+    //         if (!cellForSource) {
+    //         }
+    //         if (cellForTarget && cellForTarget && cellForTarget.style && (cellForTarget.style).indexOf("text\;") !== 0 && cellForSource.style && (cellForSource.style).indexOf("text\;") !== 0) {
+    //             var arr = []
+    //             arr.push(cellFor)
+    //             graphGlobal.removeCells(arr)
+    //         }
+    //     }
+    // });
+    if ('GROUP' === Format.customizeType) {
+        groupGraphAddCells(cells);
+    } else {
+        var removeCellArray = [];
+        var paths = [];
+        cells.forEach(cellFor => {
+            if (cellFor && cellFor.edge) {
+                var cellForSource = cellFor.source;
+                var cellForTarget = cellFor.target;
+                console.log("==========================================");
+                if (cellForSource && cellForTarget
+                    && (cellForSource.style && (cellForSource.style).indexOf("text\;") !== 0)
+                    && (cellForTarget.style && (cellForTarget.style).indexOf("text\;") !== 0)) {
+                    paths[paths.length] = cellFor;
+                } else {
+                    removeCellArray.push(cellFor);
+                }
+            } else if (cellFor.style && (cellFor.style).indexOf("image\;") === 0) {
+                if (!removegroupPaths) {
+                    removegroupPaths = [];
+                }
+                removegroupPaths.push(cellFor);
+            }
+        });
+        graphGlobal.removeCells(removeCellArray);
+        if (cells.length != removeCellArray.length) {
+            saveXml(paths, 'ADD');
+        }
+    }
+
+    if ('cellsAdded' == evt.name) {
+        findBasicInfo(evt);
+    }
+}
+
+function movedMxCellOperation(evt) {
+    statusgroup = ""
+    if (evt.properties.disconnect) {
+        saveXml(null, 'MOVED');   // preservation method
+    }
+    findBasicInfo(evt);
+}
+
+function removeMxCellOperation(evt) {
+    saveXml(null, 'REMOVED');
+}
+
+function groupGraphAddCells(cells) {
+    var removeCellArray = [];
+    var addCellArray = [];
+    var addPathArray = [];
+    cells.forEach(cellFor => {
+        if (cellFor && cellFor.edge) {
+            var cellForSource = cellFor.source;
+            var cellForTarget = cellFor.target;
+            if (cellForSource && cellForTarget
+                && (cellForSource.style && (cellForSource.style).indexOf("text\;") !== 0)
+                && (cellForTarget.style && (cellForTarget.style).indexOf("text\;") !== 0)) {
+                var addCell = graphCellToMxCellVo(cellFor);
+                if (addCell) {
+                    addCellArray.push(addCell);
+                }
+                addPathArray.push(cellFor);
+            } else {
+                removeCellArray.push(cellFor);
+            }
+        } else if (cellFor.style && (cellFor.style).indexOf("image\;") === 0) {
+            var addCell = graphCellToMxCellVo(cellFor);
+            if (addCell) {
+                addCellArray.push(addCell);
+            }
+            if (!removegroupPaths) {
+                removegroupPaths = [];
+            }
+            removegroupPaths.push(cellFor);
+        } else {
+            var addCell = graphCellToMxCellVo(cellFor);
+            if (addCell) {
+                addCellArray.push(addCell);
+            }
+        }
+    });
+    graphGlobal.removeCells(removeCellArray);
+    if (cells.length != removeCellArray.length) {
+        var time, time1;
+        $.ajax({
+            cache: true,//Keep cached data
+            type: "POST",//Request type post
+            url: "/piflow-web/mxGraph/addMxCellAndData",
+            data: JSON.stringify({
+                mxCellVoList: addCellArray,
+                loadId: loadId
+            }),
+            //contentType: 'application/x-www-form-urlencoded;charset=UTF-8',
+            contentType: 'application/json;charset=utf-8',
+            async: true,//Synchronous Asynchronous
+            error: function (request) {//Operation after request failure
+                layer.msg('Add failed, refresh page after 1 second', {icon: 2, shade: 0, time: 2000}, function () {
+                    window.location.reload();
+                });
+                return;
+            },
+            success: function (data) {//After the request is successful
+                var dataMap = JSON.parse(data);
+                if (200 === dataMap.code) {
+                    //console.log(operType + " save success");
+                    console.log("Add save success");
+                    if (statusgroup == "group") {
+                        $("#flowGroupId").val("");
+                        $("#flowGroupName").val("");
+                        $("#description1").val("");
+                        layer.open({
+                            type: 1,
+                            title: '<span style="color: #269252;">create flow group</span>',
+                            shadeClose: false,
+                            shade: 0.3,
+                            closeBtn: 1,
+                            shift: 7,
+                            area: ['580px', '520px'], //Width height
+                            skin: 'layui-layer-rim', //Add borders
+                            content: $("#SubmitPage"),
+                            success: function () {
+                                $(".layui-layer-page").css("z-index", "1998910151");
+
+                                queryFlowOrFlowGroupProperty(flowsPagesId);
+
+                                setTimeout(() => {
+                                    if (flowGroupdata == undefined) {
+                                        var index2 = 0
+                                        clearInterval(time)
+                                        clearInterval(time1)
+                                        time1 = setInterval(() => {
+                                            if (index2 < 4) {
+                                                queryFlowOrFlowGroupProperty(flowsPagesId)
+                                                index2++
+                                            } else if (index2 >= 4) {
+                                                // layer.closeAll()
+                                                // layer.msg("Network Anomaly", {icon: 5})
+                                                alert("Network Anomaly")
+                                                clearInterval(time1)
+                                                index2 = 0
+                                            } else {
+                                                clearInterval(time)
+                                                clearInterval(time1)
+                                            }
+                                        }, 300)
+                                    }
+                                }, 500)
+
+                            },
+                            cancel: function (index, layero) {
+                                graphGlobal.removeCells(removegroupPaths);
+                                layer.close(index)
+
+                                return false;
+                            }
+                        });
+                    } else if (statusgroup == "flow") {
+                        $("#flowId").val("");
+                        $("#flowName").val("");
+                        $("#description").val("");
+                        $("#driverMemory").val('1g');
+                        $("#executorNumber").val('1');
+                        $("#executorMemory").val('1g');
+                        $("#executorCores").val('1');
+                        layer.open({
+                            type: 1,
+                            title: '<span style="color: #269252;">Create Flow</span>',
+                            shadeClose: false,
+                            shade: 0.3,
+                            closeBtn: 1,
+                            shift: 7,
+                            area: ['580px', '520px'], //Width height
+                            skin: 'layui-layer-rim', //Add borders
+                            content: $("#SubmitPageFlow"),
+                            success: function () {
+                                queryFlowOrFlowGroupProperty(flowsPagesId)
+
+
+                                setTimeout(() => {
+                                    if (flowdatas == undefined) {
+                                        var index2 = 0
+                                        clearInterval(time)
+                                        clearInterval(time1)
+                                        time1 = setInterval(() => {
+                                            if (index2 < 4) {
+                                                queryFlowOrFlowGroupProperty(flowsPagesId)
+                                                index2++
+                                            } else if (index2 >= 4) {
+                                                // layer.closeAll()
+                                                // layer.msg("Network Anomaly", {icon: 5})
+                                                alert("Network Anomaly")
+                                                clearInterval(time1)
+                                                index2 = 0
+                                            } else {
+                                                clearInterval(time)
+                                                clearInterval(time1)
+                                            }
+                                        }, 300)
+                                    }
+                                }, 500)
+                            },
+
+                            cancel: function (index, layero) {
+                                graphGlobal.removeCells(removegroupPaths);
+                                getRunningProcessList()
+                                layer.close(index)
+                                return false;
+                            }
+                        });
+
+                    } else if (statusgroup == null || statusgroup == "" || 'TASK' === Format.customizeType) {
+
+
+                    } else {
+
+                        if (graphGlobal.isEnabled()) {
+                            graphGlobal.startEditingAtCell();
+                        }
+                    }
+                    thisEditor.setModified(false);
+                    //获取port
+                    //getStopsPort(paths);
+                    if ('TASK' === Format.customizeType) {
+                        getStopsPortNew(addPathArray);
+                    }
+                } else {
+                    layer.msg("Add save fail", {icon: 2, shade: 0, time: 2000}, function () {
+                    });
+                    console.log("Add save fail");
+                    fullScreen.hide();
+                }
+
+            }
+
+        });
+    }
+}
+
+function graphCellToMxCellVo(cellObject) {
+    if (cellObject) {
+        var mxCellVoObject = {};
+        mxCellVoObject.pageId = cellObject.id;
+        mxCellVoObject.parent = cellObject.parent.id;
+        mxCellVoObject.style = cellObject.style;
+        mxCellVoObject.value = cellObject.value;
+        mxCellVoObject.vertex = cellObject.vertex;
+        mxCellVoObject.edge = cellObject.edge;
+        if (cellObject.source) {
+            mxCellVoObject.source = cellObject.source.id;
+        }
+        if (cellObject.target) {
+            mxCellVoObject.target = cellObject.target.id;
+        }
+        mxCellVoObject.mxGeometryVo = {};
+        if (cellObject.geometry) {
+            mxCellVoObject.mxGeometryVo.as = "geometry";
+            mxCellVoObject.mxGeometryVo.x = cellObject.geometry.x;
+            mxCellVoObject.mxGeometryVo.y = cellObject.geometry.y;
+            mxCellVoObject.mxGeometryVo.width = cellObject.geometry.width;
+            mxCellVoObject.mxGeometryVo.height = cellObject.geometry.height;
+            mxCellVoObject.mxGeometryVo.relative = cellObject.geometry.relative;
+        }
+        return mxCellVoObject;
+    }
+    return;
+}
+
 //Double click event
 function openProcessMonitor(evt) {
-    var cellfor = evt.properties.cell;
-    if (cellfor.style && (cellfor.style).indexOf("text\;") === 0) {
+    var cellFor = evt.properties.cell;
+    if (cellFor.style && (cellFor.style).indexOf("text\;") === 0) {
     } else {
         $.ajax({
             cache: true,
             type: "POST",
             url: "/piflow-web/flow/findFlowByGroup",
-            data: {"flowPageId": cellfor.id, "fId": loadId},
+            data: {"flowPageId": cellFor.id, "fId": loadId},
             async: true,
             error: function (request) {
                 //alert("Jquery Ajax request error!!!");
@@ -347,9 +678,9 @@ function openProcessMonitor(evt) {
 
 //Double-click monitoring events
 function OpenTheMonitorArtboard(evt) {
-    var cellfor = evt.properties.cell;
+    var cellFor = evt.properties.cell;
     var processGroupId = getQueryString("load")
-    if (cellfor.style && (cellfor.style).indexOf("text\;") === 0) {
+    if (cellFor.style && (cellFor.style).indexOf("text\;") === 0) {
     } else {
         $.ajax({
             cache: true,//Keep cached data
@@ -357,7 +688,7 @@ function OpenTheMonitorArtboard(evt) {
             url: "/piflow-web/processGroup/getProcessIdByPageId",//This is the name of the file where I receive data in the background.
             data: {
                 processGroupId: processGroupId,
-                pageId: cellfor.id
+                pageId: cellFor.id
             },
             async: true,//Setting it to true indicates that other code can still be executed after the request has started. If this option is set to false, it means that all requests are no longer asynchronous, which also causes the browser to be locked.
             error: function (request) {//Operation after request failure
@@ -2403,317 +2734,6 @@ function loadTemplateFun() {
         }, cancel: function () {
             var oDiv = document.getElementById("divloadingXml");
             oDiv.style.display = "none";
-        }
-    });
-}
-
-function processListener(evt, operType) {
-    console.log("================================");
-    if (isExample) {
-        noEditing();
-    } else {
-        if ('ADD' === operType) {
-            var cells = evt.properties.cells;
-            statusgroup = cells[0].value
-            cells.forEach(cellfor => {
-                if((cellfor.style && (cellfor.style).indexOf("edgeStyle\=") === 0)&&((cellfor.target.style && (cellfor.target.style).indexOf("text\;") === 0)||(cellfor.source.style && (cellfor.source.style).indexOf("text\;") === 0))){
-                    var arr=[]
-                    arr.push(cellfor)
-                    graphGlobal.removeCells(arr)
-                }
-            });
-            if ('GROUP' === Format.customizeType) {
-                groupGraphAddCells(cells);
-
-            } else {
-                var removeCellArray = [];
-                var paths = [];
-                cells.forEach(cellfor => {
-                    if (cellfor && cellfor.edge) {
-                        if (cellfor.target && cellfor.source) {
-                            paths[paths.length] = cellfor;
-                        } else {
-                            removeCellArray.push(cellfor);
-                        }
-                    } else if (cellfor.style && (cellfor.style).indexOf("image\;") === 0) {
-                        if (!removegroupPaths) {
-                            removegroupPaths = [];
-                        }
-                        removegroupPaths.push(cellfor);
-                    }
-                });
-                graphGlobal.removeCells(removeCellArray);
-                if (cells.length != removeCellArray.length) {
-                    saveXml(paths, operType);
-                }
-            }
-
-            if ('cellsAdded' == evt.name) {
-                findBasicInfo(evt);
-            }
-        } else if ('MOVED' === operType) {
-            statusgroup = ""
-            if (evt.properties.disconnect) {
-                saveXml(null, operType);   // preservation method
-            }
-            findBasicInfo(evt);
-        } else if ('REMOVED' === operType) {
-            saveXml(null, operType);
-        }
-    }
-}
-
-function groupGraphAddCells(cells) {
-    var removeCellArray = [];
-    var addCellArray = [];
-    var addPathArray = [];
-    cells.forEach(cellfor => {
-        if (cellfor && cellfor.edge) {
-            if (cellfor.target && cellfor.source) {
-                var addCell = graphCellToMxCellVo(cellfor);
-                if (addCell) {
-                    addCellArray.push(addCell);
-                }
-                addPathArray.push(cellfor);
-            } else {
-                removeCellArray.push(cellfor);
-            }
-        } else if (cellfor.style && (cellfor.style).indexOf("image\;") === 0) {
-            var addCell = graphCellToMxCellVo(cellfor);
-            if (addCell) {
-                addCellArray.push(addCell);
-            }
-            if (!removegroupPaths) {
-                removegroupPaths = [];
-            }
-            removegroupPaths.push(cellfor);
-        } else {
-            var addCell = graphCellToMxCellVo(cellfor);
-            if (addCell) {
-                addCellArray.push(addCell);
-            }
-        }
-    });
-    graphGlobal.removeCells(removeCellArray);
-    if (cells.length != removeCellArray.length) {
-        var time, time1;
-        $.ajax({
-            cache: true,//Keep cached data
-            type: "POST",//Request type post
-            url: "/piflow-web/mxGraph/addMxCellAndData",
-            data: JSON.stringify({
-                mxCellVoList: addCellArray,
-                loadId: loadId
-            }),
-            //contentType: 'application/x-www-form-urlencoded;charset=UTF-8',
-            contentType: 'application/json;charset=utf-8',
-            async: true,//Synchronous Asynchronous
-            error: function (request) {//Operation after request failure
-                layer.msg('Add failed, refresh page after 1 second', {icon: 2, shade: 0, time: 2000}, function () {
-                    window.location.reload();
-                });
-                return;
-            },
-            success: function (data) {//After the request is successful
-                var dataMap = JSON.parse(data);
-                if (200 === dataMap.code) {
-                    //console.log(operType + " save success");
-                    console.log("Add save success");
-                    if (statusgroup == "group") {
-                        $("#flowGroupId").val("");
-                        $("#flowGroupName").val("");
-                        $("#description1").val("");
-                        layer.open({
-                            type: 1,
-                            title: '<span style="color: #269252;">create flow group</span>',
-                            shadeClose: false,
-                            shade: 0.3,
-                            closeBtn: 1,
-                            shift: 7,
-                            area: ['580px', '520px'], //Width height
-                            skin: 'layui-layer-rim', //Add borders
-                            content: $("#SubmitPage"),
-                            success: function () {
-                                $(".layui-layer-page").css("z-index", "1998910151");
-
-                                queryFlowOrFlowGroupProperty(flowsPagesId);
-
-                                setTimeout(() => {
-                                    if (flowGroupdata == undefined) {
-                                        var index2 = 0
-                                        clearInterval(time)
-                                        clearInterval(time1)
-                                        time1 = setInterval(() => {
-                                            if (index2 < 4) {
-                                                queryFlowOrFlowGroupProperty(flowsPagesId)
-                                                index2++
-                                            } else if (index2 >= 4) {
-                                                // layer.closeAll()
-                                                // layer.msg("Network Anomaly", {icon: 5})
-                                                alert("Network Anomaly")
-                                                clearInterval(time1)
-                                                index2 = 0
-                                            } else {
-                                                clearInterval(time)
-                                                clearInterval(time1)
-                                            }
-                                        }, 300)
-                                    }
-                                }, 500)
-
-                            },
-                            cancel: function (index, layero) {
-                                graphGlobal.removeCells(removegroupPaths);
-                                layer.close(index)
-
-                                return false;
-                            }
-                        });
-                    } else if (statusgroup == "flow") {
-                        $("#flowId").val("");
-                        $("#flowName").val("");
-                        $("#description").val("");
-                        $("#driverMemory").val('1g');
-                        $("#executorNumber").val('1');
-                        $("#executorMemory").val('1g');
-                        $("#executorCores").val('1');
-                        layer.open({
-                            type: 1,
-                            title: '<span style="color: #269252;">Create Flow</span>',
-                            shadeClose: false,
-                            shade: 0.3,
-                            closeBtn: 1,
-                            shift: 7,
-                            area: ['580px', '520px'], //Width height
-                            skin: 'layui-layer-rim', //Add borders
-                            content: $("#SubmitPageFlow"),
-                            success: function () {
-                                queryFlowOrFlowGroupProperty(flowsPagesId)
-
-
-                                setTimeout(() => {
-                                    if (flowdatas == undefined) {
-                                        var index2 = 0
-                                        clearInterval(time)
-                                        clearInterval(time1)
-                                        time1 = setInterval(() => {
-                                            if (index2 < 4) {
-                                                queryFlowOrFlowGroupProperty(flowsPagesId)
-                                                index2++
-                                            } else if (index2 >= 4) {
-                                                // layer.closeAll()
-                                                // layer.msg("Network Anomaly", {icon: 5})
-                                                alert("Network Anomaly")
-                                                clearInterval(time1)
-                                                index2 = 0
-                                            } else {
-                                                clearInterval(time)
-                                                clearInterval(time1)
-                                            }
-                                        }, 300)
-                                    }
-                                }, 500)
-                            },
-
-                            cancel: function (index, layero) {
-                                graphGlobal.removeCells(removegroupPaths);
-                                getRunningProcessList()
-                                layer.close(index)
-                                return false;
-                            }
-                        });
-
-                    } else if (statusgroup == null || statusgroup == "" || 'TASK' === Format.customizeType) {
-
-
-                    } else {
-
-                        if (graphGlobal.isEnabled()) {
-                            graphGlobal.startEditingAtCell();
-                        }
-                    }
-                    thisEditor.setModified(false);
-                    //获取port
-                    //getStopsPort(paths);
-                    if ('TASK' === Format.customizeType) {
-                        getStopsPortNew(addPathArray);
-                    }
-                } else {
-                    layer.msg("Add save fail", {icon: 2, shade: 0, time: 2000}, function () {
-                    });
-                    console.log("Add save fail");
-                    fullScreen.hide();
-                }
-
-            }
-
-        });
-    }
-}
-
-function graphCellToMxCellVo(cellObject) {
-    if (cellObject) {
-        var mxCellVoObject = {};
-        mxCellVoObject.pageId = cellObject.id;
-        mxCellVoObject.parent = cellObject.parent.id;
-        mxCellVoObject.style = cellObject.style;
-        mxCellVoObject.value = cellObject.value;
-        mxCellVoObject.vertex = cellObject.vertex;
-        mxCellVoObject.edge = cellObject.edge;
-        if (cellObject.source) {
-            mxCellVoObject.source = cellObject.source.id;
-        }
-        if (cellObject.target) {
-            mxCellVoObject.target = cellObject.target.id;
-        }
-        mxCellVoObject.mxGeometryVo = {};
-        if (cellObject.geometry) {
-            mxCellVoObject.mxGeometryVo.as = "geometry";
-            mxCellVoObject.mxGeometryVo.x = cellObject.geometry.x;
-            mxCellVoObject.mxGeometryVo.y = cellObject.geometry.y;
-            mxCellVoObject.mxGeometryVo.width = cellObject.geometry.width;
-            mxCellVoObject.mxGeometryVo.height = cellObject.geometry.height;
-            mxCellVoObject.mxGeometryVo.relative = cellObject.geometry.relative;
-        }
-        return mxCellVoObject;
-    }
-    return;
-}
-
-function noEditing() {
-    if ('ADD' === operType || 'REMOVED' === operType) {
-        layer.msg("This is an example, you can't add, edit or delete", {
-            icon: 2,
-            shade: 0,
-            time: 2000
-        }, function () {
-
-        });
-    } else if ('MOVED' === operType) {
-        findBasicInfo(evt);
-    }
-    prohibitEditing(isExample, operType);
-}
-
-function prohibitEditing(isExample, operType) {
-    $.ajax({
-        cache: true,//Keep cached data
-        type: "POST",//Request type post
-        url: "/piflow-web/exampleMenu/exampleUrlList",
-        data: {},
-        async: true,
-        error: function (request) {//Operation after request failure
-            if ('ADD' === operType || 'REMOVED' === operType) {
-                location.reload();
-            }
-            eraseRecord()
-            return;
-        },
-        success: function (data) {//After the request is successful
-            if ('ADD' === operType || 'REMOVED' === operType) {
-                location.reload();
-            }
-            eraseRecord()
         }
     });
 }
