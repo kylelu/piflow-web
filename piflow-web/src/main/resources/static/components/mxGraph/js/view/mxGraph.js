@@ -3287,8 +3287,7 @@ mxGraph.prototype.getCellStyle = function(cell)
     }
     else
     {
-
-            style = this.stylesheet.getDefaultVertexStyle();
+        style = this.stylesheet.getDefaultVertexStyle();
         if(getQueryStr=="PROCESS") {
             style[mxConstants.STYLE_ROUNDED] = true;
             style[mxConstants.STYLE_EDITABLE] = 0;

@@ -12,7 +12,7 @@ function initProcessAndProcessGroupDatatablePage(testTableId, url, searchInputId
             , cols: [[
                 {
                     field: 'appId', title: 'ProcessGroupId', sort: true, templet: function (data) {
-                        console.log(data);
+                        //console.log(data);
                         return ('<div name="processAppId">' + data.processType + '_' + data.appId + '</div>');
                     }
                 },
@@ -117,7 +117,6 @@ function searchMonitor(layui_table, layui_table_id, searchInputId) {
 }
 
 function processGroupListMonitoring() {
-    console.log("--------");
     var arrayObj = new Array();
     var processAppIds = $("div[name='processAppId']");
     var processStartTimes = $("div[name='processStartTime']");

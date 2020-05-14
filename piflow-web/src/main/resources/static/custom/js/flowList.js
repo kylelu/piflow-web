@@ -70,14 +70,8 @@ function responseHandlerFlow(res) {
             '</a>';
         var editHtmlStr = '<a class="btn" ' +
             'href="javascript:void(0);" ' +
-            'onclick="javascript:update(' +
-            '\'' + res.id + '\',' +
-            '\'' + res.name + '\',' +
-            '\'' + res.description + '\',' +
-            '\'' + res.driverMemory + '\',' +
-            '\'' + res.executorNumber + '\',' +
-            '\'' + res.executorMemory + '\',' +
-            '\'' + res.executorCores + '\'' +
+            'onclick="javascript:openFlowBaseInfo(' +
+            '\'' + res.id + '\'' +
             ');" style="margin-right: 2px;">' +
             '<i class="icon-edit icon-white"></i>' +
             '</a>';
@@ -115,26 +109,49 @@ function responseHandlerFlow(res) {
     return "";
 }
 
-function update(id, updateName, updateDescription, driverMemory, executorNumber, executorMemory, executorCores) {
-    $("#buttonFlow").attr("onclick", "");
-    $("#buttonFlow").attr("onclick", "updateFlow()");
-    $("#flowId").val(id);
-    $("#flowName").val(updateName);
-    $("#description").val(updateDescription);
-    $("#driverMemory").val(driverMemory);
-    $("#executorNumber").val(executorNumber);
-    $("#executorMemory").val(executorMemory);
-    $("#executorCores").val(executorCores);
-    layer.open({
-        type: 1,
-        title: '<span style="color: #269252;">update flow</span>',
-        shadeClose: true,
-        closeBtn: false,
-        shift: 7,
-        closeBtn: 1,
-        area: ['580px', '520px'], //Width height
-        skin: 'layui-layer-rim', //Add borders
-        content: $("#SubmitPage")
+function openFlowBaseInfo(id) {
+    $.ajax({
+        cache: true,//Keep cached data
+        type: "get",//Request type post
+        url: "/piflow-web/flow/queryFlowData",//This is the name of the file where I receive data in the background.
+        data: {load: id},
+        async: false,//Setting it to true indicates that other code can still be executed after the request has started. If this option is set to false, it means that all requests are no longer asynchronous, which also causes the browser to be locked.
+        error: function (request) {//Operation after request failure
+            layer.closeAll('page');
+            layer.msg('request failed ', {icon: 2, shade: 0, time: 2000}, function () {
+            });
+            return;
+        },
+        success: function (data) {//Operation after request successful
+            layer.closeAll('page');
+            var dataMap = JSON.parse(data);
+            if (200 === dataMap.code) {
+                var flowVo = dataMap.flow;
+                $("#buttonFlow").attr("onclick", "");
+                $("#buttonFlow").attr("onclick", "updateFlow()");
+                $("#flowId").val(id);
+                $("#flowName").val(flowVo.name);
+                $("#description").val(flowVo.description);
+                $("#driverMemory").val(flowVo.driverMemory);
+                $("#executorNumber").val(flowVo.executorNumber);
+                $("#executorMemory").val(flowVo.executorMemory);
+                $("#executorCores").val(flowVo.executorCores);
+                layer.open({
+                    type: 1,
+                    title: '<span style="color: #269252;">update flow</span>',
+                    shadeClose: true,
+                    closeBtn: false,
+                    shift: 7,
+                    closeBtn: 1,
+                    area: ['580px', '520px'], //Width height
+                    skin: 'layui-layer-rim', //Add borders
+                    content: $("#SubmitPage")
+                });
+            } else {
+                layer.msg('creation failed', {icon: 2, shade: 0, time: 2000}, function () {
+                });
+            }
+        }
     });
 }
 

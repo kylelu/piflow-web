@@ -238,7 +238,7 @@ function saveOrUpdateDataSource(data) {
             if (200 === dataMap.code) {
                 layer.msg(dataMap.errorMsg, {icon: 1, shade: 0, time: 1000}, function () {
                     window.location.reload();
-                    console.log(data);
+                    //console.log(data);
                 });
             } else {
                 layer.msg(dataMap.errorMsg, {icon: 2, shade: 0, time: 1000}, function () {

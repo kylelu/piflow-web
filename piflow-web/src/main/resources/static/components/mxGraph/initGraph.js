@@ -137,11 +137,11 @@ function initGraph() {
     Format.customizeTypeAttr_init();
     var editorUiInit = EditorUi.prototype.init;
     if (Format.customizeType == "PROCESS") {
-        $("#rightproupwrap")[0].style.display = "block"
-        $("#precessrun")[0].style.display = "block"
+        $("#rightproupwrap")[0].style.display = "block";
+        $("#precessrun")[0].style.display = "block";
     } else {
-        $("#rightproupwrap")[0].style.display = "none"
-        $("#precessrun")[0].style.display = "none"
+        $("#rightproupwrap")[0].style.display = "none";
+        $("#precessrun")[0].style.display = "none";
     }
 
     EditorUi.prototype.init = function () {
@@ -259,6 +259,12 @@ function initGraph() {
             console.log(evt)
             if (Format.customizeType == "PROCESS") {
                 getrightinfo(evt.properties.cell)
+            }
+        });
+        graphGlobal.addListener(mxEvent.SIZE, function (sender, evt) {
+            console.log("==============================");
+            if (Format.customizeType == "PROCESS") {
+                changIconTranslate();
             }
         });
         if ('GROUP' === Format.customizeType) {

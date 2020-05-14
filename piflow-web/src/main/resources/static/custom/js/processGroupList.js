@@ -109,7 +109,6 @@ function searchMonitor(layui_table, layui_table_id, searchInputId) {
 }
 
 function processGroupListMonitoring() {
-    console.log("--------");
     var arrayObj = new Array();
     var processAppIds = $("div[name='processAppId']");
     var processStartTimes = $("div[name='processStartTime']");
