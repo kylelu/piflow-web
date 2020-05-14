@@ -26,7 +26,7 @@ public class DataSourceCtrl {
 
     @RequestMapping("/getDatasourceListPage")
     public String getDatasourceListPage() {
-        return "indexRight/data_source_List";
+        return "indexRight/flow/data_source_List";
     }
 
     @RequestMapping("/getDatasourceList")
