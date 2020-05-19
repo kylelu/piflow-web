@@ -1,7 +1,7 @@
-package com.nature.component.group.service;
+package com.nature.component.stopsComponent.service;
 
 import com.nature.base.vo.UserVo;
-import com.nature.component.flow.vo.StopGroupVo;
+import com.nature.component.stopsComponent.vo.StopGroupVo;
 
 import java.util.List;
 

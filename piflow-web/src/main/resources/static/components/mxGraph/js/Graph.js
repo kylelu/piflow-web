@@ -3372,6 +3372,7 @@ HoverIcons.prototype.tolerance = (mxClient.IS_TOUCH) ? 6 : 0;
 HoverIcons.prototype.init = function()
 {
 	if("PROCESS"==Format.customizeType) {
+		this.elts = [];
 		return;
 	}
 

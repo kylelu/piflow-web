@@ -1,4 +1,4 @@
-package com.nature.component.group.model;
+package com.nature.component.stopsComponent.model;
 
 import com.nature.base.BaseHibernateModelUUIDNoCorpAgentId;
 import com.nature.common.Eunm.PortType;
@@ -15,9 +15,9 @@ import java.util.List;
  *
  * @author Nature
  */
-@Entity
 @Getter
 @Setter
+@Entity
 @Table(name = "FLOW_STOPS_TEMPLATE")
 public class StopsTemplate extends BaseHibernateModelUUIDNoCorpAgentId {
 

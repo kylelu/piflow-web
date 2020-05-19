@@ -1,4 +1,4 @@
-package com.nature.component.group.model;
+package com.nature.component.stopsComponent.model;
 
 import com.nature.base.BaseHibernateModelUUIDNoCorpAgentId;
 import lombok.Getter;

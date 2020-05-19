@@ -1,6 +1,6 @@
-package com.nature.mapper.flow;
+package com.nature.mapper.stopsComponent;
 
-import com.nature.component.group.model.StopGroup;
+import com.nature.component.stopsComponent.model.StopGroup;
 import com.nature.provider.flow.StopGroupMapperProvider;
 import org.apache.ibatis.annotations.*;
 
@@ -15,7 +15,7 @@ public interface StopGroupMapper {
      */
     @SelectProvider(type = StopGroupMapperProvider.class, method = "getStopGroupList")
     @Results({@Result(id = true, column = "id", property = "id"),
-            @Result(column = "id", property = "stopsTemplateList", many = @Many(select = "com.nature.mapper.flow.StopsTemplateMapper.getStopsTemplateListByGroupId"))})
+            @Result(column = "id", property = "stopsTemplateList", many = @Many(select = "com.nature.mapper.stopsComponent.StopsTemplateMapper.getStopsTemplateListByGroupId"))})
     List<StopGroup> getStopGroupList();
 
     /**

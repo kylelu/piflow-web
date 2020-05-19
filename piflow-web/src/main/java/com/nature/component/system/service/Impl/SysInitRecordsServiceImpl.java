@@ -1,21 +1,31 @@
 package com.nature.component.system.service.Impl;
 
 import com.nature.base.util.*;
-import com.nature.base.vo.UserVo;
 import com.nature.common.constant.SysParamsCache;
-import com.nature.component.group.model.PropertyTemplate;
-import com.nature.component.group.model.StopGroup;
-import com.nature.component.group.model.StopsTemplate;
+import com.nature.component.flow.model.Property;
+import com.nature.component.flow.model.Stops;
+import com.nature.component.flow.utils.PropertyUtils;
+import com.nature.component.stopsComponent.model.PropertyTemplate;
+import com.nature.component.stopsComponent.model.StopGroup;
+import com.nature.component.stopsComponent.model.StopsTemplate;
 import com.nature.component.system.model.SysInitRecords;
 import com.nature.component.system.service.ISysInitRecordsService;
+import com.nature.domain.flow.PropertyDomain;
+import com.nature.domain.flow.StopsDomain;
 import com.nature.domain.system.SysInitRecordsDomain;
-import com.nature.mapper.flow.PropertyTemplateMapper;
-import com.nature.mapper.flow.StopGroupMapper;
-import com.nature.mapper.flow.StopsTemplateMapper;
+import com.nature.mapper.flow.PropertyMapper;
+import com.nature.mapper.flow.StopsMapper;
+import com.nature.mapper.stopsComponent.PropertyTemplateMapper;
+import com.nature.mapper.stopsComponent.StopGroupMapper;
+import com.nature.mapper.stopsComponent.StopsTemplateMapper;
 import com.nature.third.service.IStop;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.threads.ThreadPoolExecutor;
+import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -43,13 +53,19 @@ public class SysInitRecordsServiceImpl implements ISysInitRecordsService {
     @Resource
     private PropertyTemplateMapper propertyTemplateMapper;
 
+    @Resource
+    private StopsMapper stopsMapper;
+
+    @Resource
+    private PropertyMapper propertyMapper;
+
+    @Transactional
     @Override
-    public String initComponents() {
+    public String initComponents(String currentUser) {
         Map<String, Object> rtnMap = new HashMap<>();
         ExecutorService es = new ThreadPoolExecutor(1, 5, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(100000));
-        UserVo currentUser = SessionUserUtil.getCurrentUser();
-        Boolean aBoolean = loadStopGroup(currentUser.getUsername());
+        Boolean aBoolean = loadStopGroup(currentUser);
         if (aBoolean) {
             String[] stopNameList = stopImpl.getAllStops();
             // The call is successful, empty the "Stop" message and insert
@@ -66,6 +82,23 @@ public class SysInitRecordsServiceImpl implements ISysInitRecordsService {
                     });
                 }
             }
+            List<Stops> stopsList = stopsMapper.getStopsList();
+            if (null != stopsList && stopsList.size() > 0) {
+                for (Stops stops : stopsList) {
+                    if (null != stops) {
+                        continue;
+                    }
+                    es.execute(() -> {
+                        try {
+                            syncStopsProperties(stops, currentUser);
+                        } catch (IllegalAccessException e) {
+                            logger.error("update stops data error", e);
+                        } catch (ClassNotFoundException e) {
+                            logger.error("update stops data error", e);
+                        }
+                    });
+                }
+            }
         }
         SysParamsCache.THREAD_POOL_EXECUTOR = ((ThreadPoolExecutor) es);
         rtnMap.put("code", 200);
@@ -73,7 +106,7 @@ public class SysInitRecordsServiceImpl implements ISysInitRecordsService {
     }
 
     @Override
-    public String threadMonitoring() {
+    public String threadMonitoring(String currentUser) {
         Map<String, Object> rtnMap = new HashMap<>();
         rtnMap.put("code", 500);
         if (null == SysParamsCache.THREAD_POOL_EXECUTOR) {
@@ -157,5 +190,76 @@ public class SysInitRecordsServiceImpl implements ISysInitRecordsService {
         return true;
     }
 
+    private void syncStopsProperties(Stops stops, String currentUser) throws IllegalAccessException, ClassNotFoundException {
+        if (null == stops) {
+            return;
+        }
+        String bundle = stops.getBundel();
+        StopsTemplate stopsTemplateByBundle = stopsTemplateMapper.getStopsTemplateByBundle(bundle);
+        if (null == stopsTemplateByBundle) {
+            logger.info("The Stops component (" + bundle + ") has been deleted");
+            return;
+        }
+        // propertiesTemplate to map
+        List<PropertyTemplate> propertiesTemplate = stopsTemplateByBundle.getProperties();
+        Map<String, PropertyTemplate> propertiesTemplateMap = new HashMap<>();
+        if (null != propertiesTemplate && propertiesTemplate.size() > 0) {
+            for (PropertyTemplate propertyTemplate : propertiesTemplate) {
+                if (null == propertyTemplate) {
+                    continue;
+                }
+                propertiesTemplateMap.put(propertyTemplate.getName(), propertyTemplate);
+            }
+        }
+        List<Property> properties = stops.getProperties();
+        List<Property> addProperties = stops.getProperties();
+        if (null != properties && properties.size() > 0) {
+            for (Property property : properties) {
+                if (null == property) {
+                    continue;
+                }
+                //用name在propertiesTemplateMap中取值，如果取到，说明有相同属性
+                PropertyTemplate propertyTemplate = propertiesTemplateMap.get(property.getName());
+                if (null == propertyTemplate) {
+                    propertyMapper.updateStopsProperty(property);
+                    continue;
+                }
+                // 对比是否有变化
+                List<Map<String, Object>> listMaps = ComparedUtils.compareTwoClass(property, propertyTemplate);
+                // 如果有数据，说明有变化，标记当前stop的属性
+                // 如果没有数据，说明没变化，移除map中当前属性
+                if (null != listMaps && listMaps.size() > 0) {
+                    propertyMapper.updateStopsProperty(property);
+                    continue;
+                }
+                propertiesTemplateMap.remove(property.getName());
+            }
+        }
+        // 如果map中还有数据，说明这些是要新增的
+        if (propertiesTemplateMap.keySet().size() > 0) {
+            for (String key : propertiesTemplateMap.keySet()) {
+                PropertyTemplate propertyTemplate = propertiesTemplateMap.get(key);
+                Property property = PropertyUtils.propertyNewNoId(currentUser);
+                BeanUtils.copyProperties(propertyTemplate, property);
+                property.setId(SqlUtils.getUUID32());
+                property.setStops(stops);
+                property.setCustomValue(propertyTemplate.getDefaultValue());
+                //Indicates "select"
+                if (propertyTemplate.getAllowableValues().contains(",") && propertyTemplate.getAllowableValues().length() > 4) {
+                    property.setIsSelect(true);
+                    //Determine if there is a default value in "select"
+                    if (!propertyTemplate.getAllowableValues().contains(propertyTemplate.getDefaultValue())) {
+                        //Default value if not present
+                        property.setCustomValue("");
+                    }
+                } else {
+                    property.setIsSelect(false);
+                }
+                addProperties.add(property);
+            }
+        }
+        stops.setProperties(properties);
+        propertyMapper.addPropertyList(addProperties);
+    }
 
 }

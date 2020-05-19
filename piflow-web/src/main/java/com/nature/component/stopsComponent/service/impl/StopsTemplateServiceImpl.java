@@ -1,8 +1,8 @@
-package com.nature.component.group.service.impl;
+package com.nature.component.stopsComponent.service.impl;
 
-import com.nature.component.group.model.StopsTemplate;
-import com.nature.component.group.service.IStopsTemplateService;
-import com.nature.mapper.flow.StopsTemplateMapper;
+import com.nature.component.stopsComponent.model.StopsTemplate;
+import com.nature.component.stopsComponent.service.IStopsTemplateService;
+import com.nature.mapper.stopsComponent.StopsTemplateMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

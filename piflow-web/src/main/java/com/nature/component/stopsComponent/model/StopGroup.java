@@ -1,4 +1,4 @@
-package com.nature.component.group.model;
+package com.nature.component.stopsComponent.model;
 
 import com.nature.base.BaseHibernateModelUUIDNoCorpAgentId;
 import lombok.Getter;
@@ -14,9 +14,9 @@ import java.util.List;
  *
  * @author Nature
  */
-@Entity
 @Setter
 @Getter
+@Entity
 @Table(name = "FLOW_SOTPS_GROUPS")
 public class StopGroup extends BaseHibernateModelUUIDNoCorpAgentId {
 

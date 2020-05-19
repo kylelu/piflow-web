@@ -7,8 +7,10 @@ import org.slf4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
+import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @PropertySources({
@@ -28,5 +30,11 @@ public class Application {
         logger.warn("***************************************************************");
         logger.warn("***************** Spring Boot Startup Success *****************");
         logger.warn("***************************************************************");
+    }
+
+    //解决no session
+    @Bean
+    public OpenEntityManagerInViewFilter openEntityManagerInViewFilter() {
+        return new OpenEntityManagerInViewFilter();
     }
 }

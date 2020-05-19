@@ -1,6 +1,6 @@
-package com.nature.component.group.service;
+package com.nature.component.stopsComponent.service;
 
-import com.nature.component.group.model.StopsTemplate;
+import com.nature.component.stopsComponent.model.StopsTemplate;
 
 public interface IStopsTemplateService {
 

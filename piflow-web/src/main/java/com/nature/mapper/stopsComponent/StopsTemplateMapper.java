@@ -1,6 +1,6 @@
-package com.nature.mapper.flow;
+package com.nature.mapper.stopsComponent;
 
-import com.nature.component.group.model.StopsTemplate;
+import com.nature.component.stopsComponent.model.StopsTemplate;
 import com.nature.provider.flow.StopsTemplateMapperProvider;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.mapping.FetchType;
@@ -34,7 +34,7 @@ public interface StopsTemplateMapper {
      */
     @SelectProvider(type = StopsTemplateMapperProvider.class, method = "getStopsTemplateById")
     @Results({@Result(id = true, column = "id", property = "id"),
-            @Result(property = "properties", column = "id", many = @Many(select = "com.nature.mapper.flow.PropertyTemplateMapper.getPropertyTemplateBySotpsId"))})
+            @Result(property = "properties", column = "id", many = @Many(select = "com.nature.mapper.stopsComponent.PropertyTemplateMapper.getPropertyTemplateBySotpsId"))})
     public StopsTemplate getStopsTemplateAndPropertyById(String id);
 
     /**
@@ -54,7 +54,7 @@ public interface StopsTemplateMapper {
      */
     @SelectProvider(type = StopsTemplateMapperProvider.class, method = "getStopsTemplateByName")
     @Results({@Result(id = true, column = "id", property = "id"),
-            @Result(column = "id", property = "properties", many = @Many(select = "com.nature.mapper.flow.PropertyTemplateMapper.getPropertyTemplateBySotpsId", fetchType = FetchType.LAZY))
+            @Result(column = "id", property = "properties", many = @Many(select = "com.nature.mapper.stopsComponent.PropertyTemplateMapper.getPropertyTemplateBySotpsId", fetchType = FetchType.LAZY))
 
     })
     public List<StopsTemplate> getStopsTemplateByName(String stopsName);
@@ -67,4 +67,17 @@ public interface StopsTemplateMapper {
      */
     @InsertProvider(type = StopsTemplateMapperProvider.class, method = "insertStopsTemplate")
     public int insertStopsTemplate(@Param("stopsTemplateList") List<StopsTemplate> stopsTemplateList);
+
+    /**
+     * getStopsTemplateByBundle
+     *
+     * @param bundle
+     * @return
+     */
+    @Select("select fst.* from flow_stops_template fst where fst.bundel=#{bundle}")
+    @Results({@Result(id = true, column = "id", property = "id"),
+            @Result(column = "id", property = "properties", many = @Many(select = "com.nature.mapper.stopsComponent.PropertyTemplateMapper.getPropertyTemplateBySotpsId", fetchType = FetchType.LAZY))
+
+    })
+    public StopsTemplate getStopsTemplateByBundle(@Param("bundle") String bundle);
 }

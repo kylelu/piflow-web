@@ -6,8 +6,8 @@ import com.nature.common.Eunm.PortType;
 import com.nature.component.flow.model.*;
 import com.nature.component.flow.utils.PropertyUtils;
 import com.nature.component.flow.utils.StopsUtils;
-import com.nature.component.group.model.PropertyTemplate;
-import com.nature.component.group.model.StopsTemplate;
+import com.nature.component.stopsComponent.model.PropertyTemplate;
+import com.nature.component.stopsComponent.model.StopsTemplate;
 import com.nature.component.mxGraph.model.MxCell;
 import com.nature.component.mxGraph.model.MxGeometry;
 import com.nature.component.mxGraph.model.MxGraphModel;
@@ -28,6 +28,7 @@ import com.nature.mapper.flow.*;
 import com.nature.mapper.mxGraph.MxCellMapper;
 import com.nature.mapper.mxGraph.MxGeometryMapper;
 import com.nature.mapper.mxGraph.MxGraphModelMapper;
+import com.nature.mapper.stopsComponent.StopsTemplateMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
@@ -662,7 +663,7 @@ public class MxGraphModelServiceImpl implements IMxGraphModelService {
         List<Property> propertiesList = null;
         List<PropertyTemplate> propertiesTemplateList = stopsTemplate.getProperties();
         if (null != propertiesTemplateList && propertiesTemplateList.size() > 0) {
-            propertiesList = new ArrayList<Property>();
+            propertiesList = new ArrayList<>();
             for (PropertyTemplate propertyTemplate : propertiesTemplateList) {
                 Property property = PropertyUtils.propertyNewNoId(username);
                 BeanUtils.copyProperties(propertyTemplate, property);

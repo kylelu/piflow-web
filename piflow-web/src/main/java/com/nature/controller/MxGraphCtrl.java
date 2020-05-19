@@ -11,15 +11,11 @@ import com.nature.component.flow.model.Flow;
 import com.nature.component.flow.model.FlowGroup;
 import com.nature.component.flow.service.IFlowGroupService;
 import com.nature.component.flow.service.IFlowService;
-import com.nature.component.flow.vo.StopGroupVo;
-import com.nature.component.group.service.IStopGroupService;
-import com.nature.component.mxGraph.model.MxCell;
 import com.nature.component.mxGraph.model.MxGraphModel;
 import com.nature.component.mxGraph.service.IMxGraphModelService;
 import com.nature.component.mxGraph.service.IMxNodeImageService;
 import com.nature.component.mxGraph.utils.MxCellUtils;
 import com.nature.component.mxGraph.vo.MxCellVo;
-import com.nature.component.mxGraph.vo.MxGeometryVo;
 import com.nature.component.mxGraph.vo.MxGraphModelVo;
 import com.nature.component.mxGraph.vo.MxGraphVo;
 import com.nature.component.process.service.IProcessGroupService;
@@ -27,6 +23,8 @@ import com.nature.component.process.service.IProcessService;
 import com.nature.component.process.vo.ProcessGroupVo;
 import com.nature.component.process.vo.ProcessStopVo;
 import com.nature.component.process.vo.ProcessVo;
+import com.nature.component.stopsComponent.service.IStopGroupService;
+import com.nature.component.stopsComponent.vo.StopGroupVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -39,7 +37,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * grapheditorctrl
