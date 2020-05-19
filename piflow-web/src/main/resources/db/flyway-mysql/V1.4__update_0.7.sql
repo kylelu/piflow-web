@@ -22,14 +22,14 @@ DROP TABLE IF EXISTS `schedule`;
 -- ----------------------------
 -- Create Table
 -- ----------------------------
-CREATE TABLE `sys_init_records` (
+CREATE TABLE IF NOT EXISTS `sys_init_records` (
    id varchar(40) NOT NULL,
    init_date datetime NOT NULL,
    is_succeed bit NOT NULL,
    PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE mx_node_image (
+CREATE TABLE IF NOT EXISTS mx_node_image (
    id varchar(40) NOT NULL,
    crt_dttm datetime NOT NULL,
    crt_user varchar(255) NOT NULL,
