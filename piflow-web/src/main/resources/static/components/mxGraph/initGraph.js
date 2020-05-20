@@ -262,7 +262,6 @@ function initGraph() {
             }
         });
         graphGlobal.addListener(mxEvent.SIZE, function (sender, evt) {
-            console.log("==============================");
             if (Format.customizeType == "PROCESS") {
                 changIconTranslate();
             }
@@ -816,6 +815,115 @@ function queryStopsProperty(stopPageId) {
                 $('#customizeBasic_td_5_2_label_id').text(data.version);
                 $('#customizeBasic_td_6_2_label_id').text(data.owner);
                 $('#customizeBasic_td_7_2_label_id').text(data.crtDttmString);
+                var oldPropertiesVo = data.oldPropertiesVo;
+                if (oldPropertiesVo && oldPropertiesVo.length > 0) {
+                    var table = document.createElement("table");
+                    table.style.borderCollapse = "separate";
+                    table.style.borderSpacing = "0px 5px";
+                    table.style.marginLeft = "12px";
+                    table.style.width = "97%";
+                    var tbody = document.createElement("tbody");
+                    for (var y = 0; y < oldPropertiesVo.length; y++) {
+                        var select = document.createElement('select');
+                        //select.style.width = "290px";
+                        select.style.height = "32px";
+                        select.setAttribute('id', 'old_' + oldPropertiesVo[y].name + '');
+                        select.setAttribute('class', 'form-control');
+                        select.setAttribute('disabled', 'disabled');
+                        var displayName = oldPropertiesVo[y].displayName;
+                        var customValue = oldPropertiesVo[y].customValue;
+                        var allowableValues = oldPropertiesVo[y].allowableValues;
+                        var isSelect = oldPropertiesVo[y].isSelect;
+                        //Is it required?
+                        var required = oldPropertiesVo[y].required;
+                        //If it is greater than 4 and isSelect is true, there is a drop-down box
+                        if (allowableValues.length > 4 && isSelect) {
+                            var selectValue = JSON.parse(allowableValues);
+                            var selectInfo = JSON.stringify(selectValue);
+                            var strs = selectInfo.split(",");
+                            var optionDefault = document.createElement("option");
+                            optionDefault.value = '';
+                            optionDefault.innerHTML = '';
+                            optionDefault.setAttribute('selected', 'selected');
+                            select.appendChild(optionDefault);
+                            //Loop to assign value to select
+                            for (i = 0; i < strs.length; i++) {
+                                var option = document.createElement("option");
+                                option.style.backgroundColor = "#DBDBDB";
+                                option.value = strs[i].replace("\"", "").replace("\"", "").replace("\[", "").replace("\]", "");
+                                option.innerHTML = strs[i].replace("\"", "").replace("\"", "").replace("\[", "").replace("\]", "");
+                                //Sets the default selection
+                                if (strs[i].indexOf('' + customValue + '') != -1) {
+                                    option.setAttribute('selected', 'selected');
+                                }
+                                select.appendChild(option);
+                            }
+                        }
+                        var displayName = document.createElement('input');
+                        if (required)
+                            displayName.setAttribute('data-toggle', 'true');
+                        displayName.setAttribute('class', 'form-control');
+                        displayName.setAttribute('id', 'old_' + oldPropertiesVo[y].id + '');
+                        displayName.setAttribute('name', '' + oldPropertiesVo[y].name + '');
+                        displayName.setAttribute('locked', oldPropertiesVo[y].isLocked);
+                        // displayName.style.width = "290px";
+                        displayName.setAttribute('readonly', 'readonly');
+                        displayName.style.cursor = "pointer";
+                        displayName.style.background = "rgb(245, 245, 245)";
+                        customValue = customValue == 'null' ? '' : customValue;
+                        displayName.setAttribute('value', '' + customValue + '');
+                        var spanDisplayName = 'span' + oldPropertiesVo[y].displayName;
+                        var spanDisplayName = document.createElement('span');
+                        var spanFlag = document.createElement('span');
+                        spanFlag.setAttribute('style', 'color:red');
+                        mxUtils.write(spanDisplayName, '' + oldPropertiesVo[y].name + '' + ": ");
+                        mxUtils.write(spanFlag, '*');
+                        //Port uneditable
+                        if ("outports" == oldPropertiesVo[y].displayName || "inports" == oldPropertiesVo[y].displayName) {
+                            displayName.setAttribute('disabled', 'disabled');
+                        }
+
+                        var img = document.createElement("img");
+                        img.setAttribute('src', '/piflow-web/img/descIcon.png');
+                        img.style.cursor = "pointer";
+                        img.setAttribute('title', '' + oldPropertiesVo[y].description + '');
+                        var tr = document.createElement("tr");
+                        tr.setAttribute('class', 'trTableStop');
+                        var td = document.createElement("td");
+                        td.style.width = "60px";
+                        var td1 = document.createElement("td");
+                        var td2 = document.createElement("td");
+                        var td3 = document.createElement("td");
+                        td3.style.width = "25px";
+                        //Appendchild () appends elements
+                        td.appendChild(spanDisplayName);
+                        td3.appendChild(img);
+                        //This loop is greater than 4 append drop-down, less than 4 default text box
+                        if (allowableValues.length > 4 && isSelect) {
+                            td1.appendChild(select);
+                        } else {
+                            td1.appendChild(displayName);
+                            if (required) {
+                                td2.appendChild(spanFlag);
+                            }
+                        }
+                        tr.appendChild(td);
+                        tr.appendChild(td3);
+                        tr.appendChild(td1);
+                        tr.appendChild(td2);
+                        tbody.appendChild(tr);
+                        table.appendChild(tbody);
+                    }
+                    var old_data_div = '<div id="del_last_reload_div" style="line-height: 27px;margin-left: 10px;font-size: 20px;">'
+                        + '<span>last reload data</span>'
+                        + '<button class="btn" style="margin-left: 2px;" onclick="deleteLastReloadData(\'' + data.id + '\')"><i class="icon-trash"></i></button>'
+                        + '</div>';
+                    table.setAttribute('id', 'del_last_reload_table');
+                    var attributeInfoDivObj = $("#isCheckpoint").parent();
+                    attributeInfoDivObj.append(old_data_div);
+                    attributeInfoDivObj.append(table);
+                    attributeInfoDivObj.append("<hr>");
+                }
 
                 //Remove the timer if successful
                 window.clearTimeout(timerPath);
@@ -3008,5 +3116,37 @@ function ClickSlider() {
         $(".ExpandSidebar").toggleClass("ExpandSidebar-open");
         $(this).toggleClass("triggerSlider-open");
         index = !index
+    });
+}
+
+function deleteLastReloadData(stopId) {
+    $.ajax({
+        type: "POST",//Request type post
+        url: "/piflow-web/stops/deleteLastReloadData",//This is the name of the file where I receive data in the background.
+        data: {stopId: stopId},
+        error: function (request) {//Operation after request failure
+            return;
+        },
+        success: function (data) {//Operation after request successful
+            var dataMap = JSON.parse(data);
+            if (200 == dataMap.code) {
+                layer.msg(dataMap.errorMsg, {
+                    icon: 1,
+                    shade: 0,
+                    time: 2000
+                }, function () {
+                    $("#del_last_reload_div").hide();
+                    $("#del_last_reload_table").hide();
+                });
+            } else {
+                layer.msg(dataMap.errorMsg, {
+                    icon: 2,
+                    shade: 0,
+                    time: 2000
+                }, function () {
+
+                });
+            }
+        }
     });
 }

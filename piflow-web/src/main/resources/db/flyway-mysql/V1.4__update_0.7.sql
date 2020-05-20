@@ -57,6 +57,7 @@ ALTER TABLE `flow_template` ADD COLUMN template_type varchar(255) COMMENT 'templ
 ALTER TABLE `flow_template` ADD COLUMN url varchar(255);
 ALTER TABLE `mx_graph_model` ADD COLUMN fk_process_id varchar(40);
 ALTER TABLE `mx_graph_model` ADD COLUMN fk_process_group_id varchar(40);
+ALTER TABLE `flow_stops_property` ADD COLUMN is_old_data bit(1) COMMENT 'Has it been updated';
 
 -- ----------------------------
 -- Add Foreign key

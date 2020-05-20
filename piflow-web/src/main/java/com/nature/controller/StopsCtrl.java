@@ -76,6 +76,10 @@ public class StopsCtrl {
         }
         return null;
     }
+    @RequestMapping("/deleteLastReloadData")
+    public String deleteLastReloadData(String stopId) {
+        return propertyServiceImpl.deleteLastReloadDataByStopsId(stopId);
+    }
 
     /**
      * Get the usage of the current connection port

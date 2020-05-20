@@ -87,10 +87,12 @@ public class StopsUtils {
                 BeanUtils.copyProperties(dataSource, dataSourceVo);
                 stopsVo.setDataSourceVo(dataSourceVo);
             }
-            List<StopsPropertyVo> propertyVos = popertyListPoToVo(stop.getProperties(), dataSourcePropertyMap);
+            List<StopsPropertyVo> propertyVos = propertyListPoToVo(stop.getProperties(), dataSourcePropertyMap);
             stopsVo.setPropertiesVo(propertyVos);
             List<StopsCustomizedPropertyVo> stopsCustomizedPropertyVoList = customizedPropertyListPoToVo(stop.getCustomizedPropertyList());
             stopsVo.setStopsCustomizedPropertyVoList(stopsCustomizedPropertyVoList);
+            List<StopsPropertyVo> oldPropertyVos = propertyListPoToVo(stop.getOldProperties(), dataSourcePropertyMap);
+            stopsVo.setOldPropertiesVo(oldPropertyVos);
         }
         return stopsVo;
     }
@@ -102,10 +104,10 @@ public class StopsUtils {
      * @param dataSourcePropertyMap
      * @return
      */
-    public static List<StopsPropertyVo> popertyListPoToVo(List<Property> properties, Map<String, String> dataSourcePropertyMap) {
+    public static List<StopsPropertyVo> propertyListPoToVo(List<Property> properties, Map<String, String> dataSourcePropertyMap) {
         List<StopsPropertyVo> propertiesVo = null;
         if (null != properties && properties.size() > 0) {
-            propertiesVo = new ArrayList<StopsPropertyVo>();
+            propertiesVo = new ArrayList<>();
             for (Property property : properties) {
                 if (null != property) {
                     StopsPropertyVo propertyVo = new StopsPropertyVo();

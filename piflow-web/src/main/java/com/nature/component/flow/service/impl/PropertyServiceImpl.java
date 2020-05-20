@@ -12,7 +12,9 @@ import com.nature.component.flow.utils.StopsUtils;
 import com.nature.component.flow.vo.StopsVo;
 import com.nature.component.stopsComponent.model.PropertyTemplate;
 import com.nature.component.stopsComponent.model.StopsTemplate;
+import com.nature.domain.flow.PropertyDomain;
 import com.nature.domain.flow.StopsDomain;
+import com.nature.domain.process.ProcessDomain;
 import com.nature.mapper.flow.PathsMapper;
 import com.nature.mapper.flow.PropertyMapper;
 import com.nature.mapper.flow.StopsMapper;
@@ -23,6 +25,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.*;
 
 @Service
@@ -44,6 +47,9 @@ public class PropertyServiceImpl implements IPropertyService {
 
     @Resource
     private StopsDomain stopsDomain;
+
+    @Resource
+    private PropertyDomain propertyDomain;
 
     @Override
     public StopsVo queryAll(String fid, String stopPageId) {
@@ -257,6 +263,22 @@ public class PropertyServiceImpl implements IPropertyService {
                 }
             }
         }
+    }
+
+    /**
+     * deleteLastReloadDataByStopsId
+     *
+     * @param stopId
+     * @return
+     */
+    @Transactional
+    @Override
+    public String deleteLastReloadDataByStopsId(String stopId){
+        int i = propertyDomain.deletePropertiesByIsOldDataAndStopsId(stopId);
+        if(i > 0){
+            return ReturnMapUtils.setSucceededMsgRtnJsonStr("successfully deleted");
+        }
+        return ReturnMapUtils.setFailedMsgRtnJsonStr("Failed to delete");
     }
 
 }

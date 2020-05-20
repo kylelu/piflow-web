@@ -218,24 +218,28 @@ public class SysInitRecordsServiceImpl implements ISysInitRecordsService {
                 if (null == property) {
                     continue;
                 }
-                //用name在propertiesTemplateMap中取值，如果取到，说明有相同属性
+                //Use name to get the value in the propertiesTemplateMap.
+                // If it is, it means that it has the same property.
+                // If it is not, it means the property is deleted.
                 PropertyTemplate propertyTemplate = propertiesTemplateMap.get(property.getName());
                 if (null == propertyTemplate) {
+                    property.setIsOldData(true);
                     propertyMapper.updateStopsProperty(property);
                     continue;
                 }
-                // 对比是否有变化
+                // Whether the comparison has changed
                 List<Map<String, Object>> listMaps = ComparedUtils.compareTwoClass(property, propertyTemplate);
-                // 如果有数据，说明有变化，标记当前stop的属性
-                // 如果没有数据，说明没变化，移除map中当前属性
+                // If there is data, there is a change, marking the current stop attribute
+                // If there is no data, it means no change, remove the current attribute in the map
                 if (null != listMaps && listMaps.size() > 0) {
+                    property.setIsOldData(true);
                     propertyMapper.updateStopsProperty(property);
                     continue;
                 }
                 propertiesTemplateMap.remove(property.getName());
             }
         }
-        // 如果map中还有数据，说明这些是要新增的
+        // If there is still data in the map, it means that these are to be added
         if (propertiesTemplateMap.keySet().size() > 0) {
             for (String key : propertiesTemplateMap.keySet()) {
                 PropertyTemplate propertyTemplate = propertiesTemplateMap.get(key);
